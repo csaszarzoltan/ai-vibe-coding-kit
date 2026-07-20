@@ -39,7 +39,8 @@ examples/ - Működő példák
 4. Futtasd a teszteket: `pytest`
 5. Ha a tesztek zöldek, a fejlesztő commitolja a kódot
 6. A **release-manager** felelős a `main` branchre történő pusholásért a kanban folyamatban, a tesztek sikeres lefutása után
-7. A push sikeres után a release-manager frissíti a verziót és a change log-ot, ha szükséges
+7. Ha working tree szennyezett, a release-manager a saját felelőssége: előzetesen commitolja a módosításokat, majd végez verzióemelést, taget és pushot
+8. A push sikeres után a release-manager frissíti a verziót és a change log-ot, ha szükséges
 
 ## Szerepkörök a folyamatban:
 - **Fejlesztő**: kód, tesztek, commit
