@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `LLMProvider` ABC with `chat()`, `stream()`, `get_cost()`, `get_model_list()`
   - 5 concrete providers: OpenAI, Anthropic, DeepSeek, OpenRouter, MiMo
   - `LLMClient` facade with provider selection, `chat_async()`, `compare_providers()`
-  - Retry with exponential backoff (3 retries, 1s/2s/4s)
+  - Direct provider calls with explicit error surfacing
   - Streaming via generator yielding text chunks
   - Configurable `PRICING` dict with 2026 per-model rates
 - **Structured output and tool calling** (`src/ai_vibe_coding/structured.py`):

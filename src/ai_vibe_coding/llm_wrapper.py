@@ -1,7 +1,7 @@
 """Multi-provider LLM API wrapper.
 
 Provides a unified interface for calling OpenAI, Anthropic, DeepSeek,
-OpenRouter, and MiMo LLM providers with retry logic, streaming, async
+OpenRouter, and MiMo LLM providers with streaming, async
 support, and cost tracking.
 
 Public API:
@@ -164,6 +164,8 @@ class OpenAIProvider(LLMProvider):
             model=used_model, messages=messages, **kwargs
         )
         latency_ms = (time.monotonic() - start) * 1000
+        if not resp.choices:
+            raise RuntimeError("LLM returned no choices")
         choice = resp.choices[0]
         content = choice.message.content or ""
         usage = resp.usage
@@ -328,6 +330,8 @@ class DeepSeekProvider(LLMProvider):
             model=used_model, messages=messages, **kwargs
         )
         latency_ms = (time.monotonic() - start) * 1000
+        if not resp.choices:
+            raise RuntimeError("LLM returned no choices")
         choice = resp.choices[0]
         content = choice.message.content or ""
         usage = resp.usage
@@ -410,7 +414,10 @@ class OpenRouterProvider(LLMProvider):
                 json=payload,
             )
             resp.raise_for_status()
-            data = resp.json()
+            try:
+                data = resp.json()
+            except (ValueError, TypeError) as exc:
+                raise RuntimeError("Non-JSON response from provider") from exc
         latency_ms = (time.monotonic() - start) * 1000
         content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         usage = data.get("usage", {})
@@ -459,7 +466,10 @@ class OpenRouterProvider(LLMProvider):
                     line_data = line[6:]
                     if line_data == "[DONE]":
                         break
-                    chunk = json.loads(line_data)
+                    try:
+                        chunk = json.loads(line_data)
+                    except (ValueError, TypeError) as exc:
+                        raise RuntimeError("Non-JSON stream line") from exc
                     delta = (
                         chunk.get("choices", [{}])[0]
                         .get("delta", {})
@@ -512,7 +522,10 @@ class MiMoProvider(LLMProvider):
                 json=payload,
             )
             resp.raise_for_status()
-            data = resp.json()
+            try:
+                data = resp.json()
+            except (ValueError, TypeError) as exc:
+                raise RuntimeError("Non-JSON response from provider") from exc
         latency_ms = (time.monotonic() - start) * 1000
         content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         usage = data.get("usage", {})
@@ -561,7 +574,10 @@ class MiMoProvider(LLMProvider):
                     line_data = line[6:]
                     if line_data == "[DONE]":
                         break
-                    chunk = json.loads(line_data)
+                    try:
+                        chunk = json.loads(line_data)
+                    except (ValueError, TypeError) as exc:
+                        raise RuntimeError("Non-JSON stream line") from exc
                     delta = (
                         chunk.get("choices", [{}])[0]
                         .get("delta", {})
@@ -638,7 +654,7 @@ class LLMClient:
         **kwargs: Any,
     ) -> LLMResponse:
         """Async chat — runs chat() in a thread executor."""
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             None,
             lambda: self.chat(
