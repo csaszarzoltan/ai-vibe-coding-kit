@@ -9,11 +9,10 @@ Supported providers:
 - DeepSeek (open-source, affordable)
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
 import os
-from dataclasses import dataclass
 import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 
 @dataclass
@@ -31,7 +30,7 @@ class LLMProvider(ABC):
     """Abstract base class for LLM providers."""
     
     @abstractmethod
-    def chat(self, messages: List[Dict], **kwargs) -> LLMResponse:
+    def chat(self, messages: list[dict], **kwargs) -> LLMResponse:
         """Send chat completion request."""
         pass
     
@@ -44,12 +43,12 @@ class LLMProvider(ABC):
 class OpenAIProvider(LLMProvider):
     """OpenAI GPT-4/5 provider."""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         from openai import OpenAI
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.model = "gpt-4-turbo"
     
-    def chat(self, messages: List[Dict], **kwargs) -> LLMResponse:
+    def chat(self, messages: list[dict], **kwargs) -> LLMResponse:
         start = time.time()
         response = self.client.chat.completions.create(
             model=self.model,
@@ -63,7 +62,10 @@ class OpenAIProvider(LLMProvider):
             provider="openai",
             model=self.model,
             tokens_used=response.usage.total_tokens,
-            cost_usd=self.get_cost(response.usage.prompt_tokens, response.usage.completion_tokens),
+            cost_usd=self.get_cost(
+                response.usage.prompt_tokens,
+                response.usage.completion_tokens,
+            ),
             latency_ms=latency
         )
     
@@ -74,16 +76,17 @@ class OpenAIProvider(LLMProvider):
 
 class MiMoProvider(LLMProvider):
     """Xiaomi MiMo provider - cost-effective alternative."""
-    
-    def __init__(self, api_key: Optional[str] = None):
-        import requests
+
+    def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.getenv("MIMO_API_KEY")
         self.base_url = "https://api.xiaomimimo.com/v1"
         self.model = "mimo-v2.5"
-    
-    def chat(self, messages: List[Dict], **kwargs) -> LLMResponse:
+
+    def chat(self, messages: list[dict], **kwargs) -> LLMResponse:
         start = time.time()
-        
+
+        import requests
+
         response = requests.post(
             f"{self.base_url}/chat/completions",
             headers={"Authorization": f"Bearer {self.api_key}"},
@@ -91,18 +94,21 @@ class MiMoProvider(LLMProvider):
                 "model": self.model,
                 "messages": messages,
                 **kwargs
-            }
+            },
         )
         data = response.json()
         latency = (time.time() - start) * 1000
-        
+
         usage = data.get("usage", {})
         return LLMResponse(
             content=data["choices"][0]["message"]["content"],
             provider="mimo",
             model=self.model,
             tokens_used=usage.get("total_tokens", 0),
-            cost_usd=self.get_cost(usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)),
+            cost_usd=self.get_cost(
+                usage.get("prompt_tokens", 0),
+                usage.get("completion_tokens", 0),
+            ),
             latency_ms=latency
         )
     
@@ -129,7 +135,7 @@ class LLMClient:
         self.client = providers[provider](**kwargs)
         self.provider_name = provider
     
-    def chat(self, prompt: str, system_prompt: Optional[str] = None) -> LLMResponse:
+    def chat(self, prompt: str, system_prompt: str | None = None) -> LLMResponse:
         """Simple chat interface."""
         messages = []
         if system_prompt:
@@ -138,7 +144,7 @@ class LLMClient:
         
         return self.client.chat(messages)
     
-    def compare_providers(self, prompt: str) -> Dict[str, LLMResponse]:
+    def compare_providers(self, prompt: str) -> dict[str, LLMResponse]:
         """Run the same prompt across all providers for comparison."""
         results = {}
         for provider in ["openai", "mimo"]:

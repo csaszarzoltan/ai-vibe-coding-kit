@@ -16,8 +16,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from ai_vibe_coding import LLMClient
 from ai_vibe_coding.structured import (
     LLMJSONError,
-    ToolNotFoundError,
     ToolDef,
+    ToolNotFoundError,
     chat_json,
     chat_with_tools,
 )
@@ -31,7 +31,10 @@ def demo_json_output():
 
     result = chat_json(
         client,
-        "List 3 Python testing frameworks with their main features and pytest compatibility",
+        (
+            "List 3 Python testing frameworks with their main features "
+            "and pytest compatibility"
+        ),
         schema={
             "type": "object",
             "properties": {
@@ -124,7 +127,7 @@ def demo_error_handling():
 
     # This should work
     try:
-        result = chat_json(client, "Return {\"status\": \"ok\"} as JSON")
+        result = chat_json(client, 'Return {"status": "ok"} as JSON')
         print(f"  Valid JSON: {result}")
     except LLMJSONError as e:
         print(f"  JSON error: {e}")

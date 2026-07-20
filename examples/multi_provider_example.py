@@ -4,7 +4,8 @@ Usage:
     python examples/multi_provider_example.py
 
 Requires:
-    OPENAI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY, OPENROUTER_API_KEY, MIMO_API_KEY
+    OPENAI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY,
+    OPENROUTER_API_KEY, MIMO_API_KEY
 """
 
 import sys
@@ -18,7 +19,10 @@ from ai_vibe_coding.cost_tracker import CostTracker
 
 
 def main():
-    prompt = "Write a Python function that checks if a string is a valid email address. Include docstring and type hints."
+    prompt = (
+        "Write a Python function that checks if a string is a valid email address. "
+        "Include docstring and type hints."
+    )
 
     tracker = CostTracker()
 

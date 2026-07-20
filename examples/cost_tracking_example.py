@@ -7,7 +7,6 @@ Requires:
     OPENAI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY environment variables.
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -23,9 +22,11 @@ def main():
 
     prompts = [
         ("Explain Python decorators in 3 sentences", "You are a Python instructor."),
-        ("Write a fibonacci function with memoization", "Use type hints and docstrings."),
+        (
+            "Write a fibonacci function with memoization",
+            "Use type hints and docstrings.",
+        ),
         ("What is the difference between async and threading?", "Be concise."),
-        ("Write a pytest fixture for a database connection", "Use pytest and async."),
         ("Explain SOLID principles briefly", "You are a senior software engineer."),
     ]
 
@@ -43,7 +44,10 @@ def main():
         for prompt, system in prompts:
             response = client.chat(prompt, system_prompt=system)
             tracker.record(response)
-            print(f"  {prompt[:50]}... | ${response.cost_usd:.4f} | {response.tokens_used} tokens")
+            print(
+                f"{prompt[:50]}... | ${response.cost_usd:.4f} "
+                f"| {response.tokens_used} tokens"
+            )
 
     # Print summary
     print("\n" + "=" * 60)
