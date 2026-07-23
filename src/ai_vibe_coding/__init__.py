@@ -1,25 +1,111 @@
-"""AI Vibe Coding Kit - Multi-provider LLM API wrapper with cost tracking.
-
-Provides a unified interface for calling multiple LLM providers (OpenAI,
-Anthropic, DeepSeek, OpenRouter, MiMo) with built-in cost tracking,
-structured output, and tool calling support.
-
-Quick start:
-    from ai_vibe_coding import LLMClient
-
-    client = LLMClient(provider="openai")
-    response = client.chat("Hello, world!")
-    print(response.content, response.cost_usd)
-"""
-
-from ai_vibe_coding.llm_wrapper import (
+from .agent_team import (
+    AgentConfig,
+    AgentTeam,
+    AgentTeamResult,
+    CostLimitExceededError,
+    DelegationEvent,
+)
+from .benchmark_runner import (
+    BenchmarkComparison,
+    BenchmarkResult,
+    BenchmarkRunner,
+    BenchmarkTask,
+)
+from .cost_tracker import (
+    CostSummary,
+    CostTracker,
+)
+from .llm_wrapper import (
+    AnthropicProvider,
+    DeepSeekProvider,
     LLMClient,
     LLMProvider,
     LLMResponse,
+    MiMoProvider,
+    OpenAIProvider,
+    OpenRouterProvider,
+)
+from .mcp_server import (
+    MCPServer,
+    MCPServerConfig,
+    MCPToolCallCost,
+    to_mcp_server,
+)
+from .metric_collector import (
+    BenchmarkReport,
+    MetricCollector,
+    TaskMetrics,
+    contains,
+    evaluate,
+    exact_match,
+    fuzzy_match,
+)
+from .provider_examples import (
+    CohereProvider,
+    GeminiProvider,
+    MistralProvider,
+    OllamaProvider,
+)
+from .structured import (
+    ApprovalDeniedError,
+    CallableApprovalChannel,
+    CLIApprovalChannel,
+    LLMJSONError,
+    ToolCallResult,
+    ToolDef,
+    ToolNotFoundError,
+    chat_json,
+    chat_with_tools,
 )
 
 __all__ = [
+    # AgentTeam exports
+    "AgentConfig",
+    "AgentTeam",
+    "AgentTeamResult",
+    "DelegationEvent",
+    "CostLimitExceededError",
+    # LLM-related exports
     "LLMClient",
-    "LLMProvider",
     "LLMResponse",
+    "LLMProvider",
+    "OpenAIProvider",
+    "AnthropicProvider",
+    "DeepSeekProvider",
+    "OpenRouterProvider",
+    "MiMoProvider",
+    "GeminiProvider",
+    "MistralProvider",
+    "CohereProvider",
+    "OllamaProvider",
+    # Structured tool exports
+    "ToolDef",
+    "ToolCallResult",
+    "LLMJSONError",
+    "ToolNotFoundError",
+    "ApprovalDeniedError",
+    "CLIApprovalChannel",
+    "CallableApprovalChannel",
+    "chat_json",
+    "chat_with_tools",
+    # Cost tracking exports
+    "CostTracker",
+    "CostSummary",
+    # MCP server exports
+    "MCPServer",
+    "MCPServerConfig",
+    "MCPToolCallCost",
+    "to_mcp_server",
+    # Benchmark exports
+    "BenchmarkComparison",
+    "BenchmarkReport",
+    "BenchmarkResult",
+    "BenchmarkRunner",
+    "BenchmarkTask",
+    "MetricCollector",
+    "TaskMetrics",
+    "contains",
+    "evaluate",
+    "exact_match",
+    "fuzzy_match",
 ]
