@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "doc-001",
+      "name": "Write docstring for cache function",
+      "prompt": "Write a comprehensive Google-style docstring for the following function. Include Args, Returns, and Raises sections.\n\n```python\ndef get_user_data(user_id: int, db_connection, use_cache: bool = True) -> dict | None:\n    if use_cache:\n        cached = cache.get(f\"user:{user_id}\")\n        if cached:\n            return cached\n    cursor = db_connection.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE id = ?\", (user_id,))\n    row = cursor.fetchone()\n    if row is None:\n        return None\n    user_data = dict(row)\n    if use_cache:\n        cache.set(f\"user:{user_id}\", user_data, ttl=300)\n    return user_data\n```\n\nReturn only the docstring (including the triple-quotes).",
+      "expected_answer": "\"\"\"Retrieve user data from the database, with optional caching.\n\nArgs:\n    user_id: The unique identifier of the user.\n    db_connection: An active database connection object.\n    use_cache: Whether to check and populate the cache (default: True).\n\nReturns:\n    A dictionary of user data if found, or None if the user does not exist.\n\nRaises:\n    DatabaseError: If the database query fails.\n\"\"\"",
+      "evaluator": "fuzzy_match",
+      "metadata": {"category": "documentation", "difficulty": "easy"}
+    }
+  ]
+}

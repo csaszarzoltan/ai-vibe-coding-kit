@@ -1,0 +1,148 @@
+# =============================================================================
+# [OPTIONAL] LLM Provider Integration Testing Workflow
+# =============================================================================
+# This is a COPY-PASTE template for running automated tests against the LLM
+# providers included in the AI Vibe Coding Kit. It is NOT enabled by default.
+#
+# Why this exists:
+#   The kit's standard `test.yml` workflow runs all tests with mocked HTTP
+#   calls (no real API keys needed). This template adds an integration layer
+#   that validates actual provider connectivity, response parsing, and cost
+#   calculations — useful for CI gating before deployment or release.
+#
+# How it works:
+#   - Installs the kit + dev dependencies via pip
+#   - Runs ruff lint check and pytest targeting LLM provider test modules
+#   - Sets required provider API keys from GitHub Secrets as environment vars
+#   - Provider-specific tests (both unit-mocked and integration) are included
+#   - All 300+ existing unit tests pass without real API keys (mocked)
+#   - Optional integration tests (e.g., @pytest.mark.integration) run when
+#     the corresponding API key secret is present
+#
+# To activate:
+#   1. Rename this file from llm-integration-test.yml.disabled to
+#      llm-integration-test.yml (or remove the '.disabled' extension)
+#   2. Add the API keys you want to test as GitHub Actions secrets:
+#      Settings → Secrets and variables → Actions → New repository secret
+#   3. Push to main or manually trigger via the GitHub UI
+#
+# Prerequisites:
+#   - Python 3.11+ (tested on 3.11 and 3.12)
+#   - pip install -e ".[dev]" (handled automatically in the workflow)
+#
+# Secrets you can add (all optional — only add what you want to test):
+#   OPENAI_API_KEY      — OpenAI provider (GPT-4, GPT-5, etc.)
+#   ANTHROPIC_API_KEY   — Anthropic provider (Claude 3.5, Claude 4, etc.)
+#   DEEPSEEK_API_KEY    — DeepSeek provider (DeepSeek-V3, R1)
+#   OPENROUTER_API_KEY  — OpenRouter provider (100+ models)
+#   MIMO_API_KEY        — MiMo provider (mimo-v2.5)
+#   GEMINI_API_KEY      — Google Gemini provider (Gemini 2.5 Flash/Pro)
+#   MISTRAL_API_KEY     — Mistral provider (Mistral Large, Small)
+#   CO_API_KEY          — Cohere provider (Command A+, RAG pipeline)
+#
+# Note: Ollama tests run against a local model server — skip them in CI by
+# default (they are always unit-mocked). If you self-host Ollama in CI, add
+# an OLLAMA_HOST env var pointing to your server.
+#
+# See also:
+#   - .github/workflows/test.yml    — Standard CI (mocked, no keys needed)
+#   - .github/workflows/deploy.yml  — Railway deployment template
+#   - tests/test_llm_wrapper.py     — Core 5-provider tests
+#   - tests/test_gemini_provider.py — Gemini provider tests
+#   - tests/test_mistral_provider.py — Mistral provider tests
+#   - tests/test_cohere_provider.py — Cohere provider tests
+#   - tests/test_ollama_provider.py — Ollama provider tests
+# =============================================================================
+
+name: LLM Integration Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+      # Continue all matrix jobs even if one fails
+      fail-fast: false
+
+    # ── Environment variables from GitHub Secrets ──────────────────────────
+    # Each provider reads its API key from an env var.
+    # Only variables with a corresponding secret are set — others are empty,
+    # and the unit-mocked tests still pass without them.
+    # ───────────────────────────────────────────────────────────────────────
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      MIMO_API_KEY: ${{ secrets.MIMO_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      CO_API_KEY: ${{ secrets.CO_API_KEY }}
+      # OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}     # Uncomment if you self-host Ollama
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Show registered providers
+        run: |
+          python -c "
+          from ai_vibe_coding.llm_wrapper import LLMClient
+          print(f'Registered providers ({len(LLMClient.PROVIDERS)}):')
+          for name, cls in LLMClient.PROVIDERS.items():
+              print(f'  - {name}: {cls.__name__}')
+          "
+
+      - name: Lint provider modules with ruff
+        run: ruff check src/ai_vibe_coding/
+
+      - name: Run unit tests (all providers mocked — no API keys needed)
+        run: |
+          pytest tests/ -v --tb=short -m "not integration" --junitxml=junit-unit.xml
+
+      - name: Run provider-specific tests (unit + integration if keys present)
+        run: |
+          pytest tests/test_llm_wrapper.py tests/test_gemini_provider.py \
+                 tests/test_mistral_provider.py tests/test_cohere_provider.py \
+                 tests/test_ollama_provider.py tests/test_cost_tracker.py \
+                 tests/test_structured.py \
+                 -v --tb=short --junitxml=junit-providers.xml
+
+      - name: Report which provider API keys are configured
+        run: |
+          echo "### API Key Status ###"
+          for key in OPENAI_API_KEY ANTHROPIC_API_KEY DEEPSEEK_API_KEY \
+                     OPENROUTER_API_KEY MIMO_API_KEY GEMINI_API_KEY \
+                     MISTRAL_API_KEY CO_API_KEY; do
+            if [ -n "${!key}" ]; then
+              echo "  ✅ $key is set (${#key} chars)"
+            else
+              echo "  ⬜ $key is NOT set — relevant integration tests are mocked"
+            fi
+          done
+
+      - name: Upload test results (artifacts)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: junit-*.xml

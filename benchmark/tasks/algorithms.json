@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "algo-001",
+      "name": "Quicksort implementation",
+      "prompt": "Implement the quicksort algorithm in Python as a function quicksort(arr) that sorts a list of integers in ascending order. Use the Lomuto or Hoare partition scheme. Return only the function definition.",
+      "expected_answer": "def quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)",
+      "evaluator": "contains",
+      "metadata": {"category": "algorithms", "difficulty": "medium"}
+    }
+  ]
+}

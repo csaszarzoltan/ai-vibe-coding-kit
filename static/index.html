@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Playground</title>
+    <link rel="stylesheet" href="playground.css">
+</head>
+<body>
+    <header>
+        <h1>LLM Playground</h1>
+    </header>
+    <main>
+        <!-- Provider Selection -->
+        <section id="provider-selector">
+            <h2>Providers</h2>
+            <label>
+                <input type="checkbox" data-provider="openai" id="provider-openai">
+                OpenAI
+            </label>
+            <label>
+                <input type="checkbox" data-provider="anthropic" id="provider-anthropic">
+                Anthropic
+            </label>
+            <label>
+                <input type="checkbox" data-provider="deepseek" id="provider-deepseek">
+                DeepSeek
+            </label>
+            <label>
+                <input type="checkbox" data-provider="openrouter" id="provider-openrouter">
+                OpenRouter
+            </label>
+            <label>
+                <input type="checkbox" data-provider="mimo" id="provider-mimo">
+                MiMo
+            </label>
+            <label>
+                <input type="checkbox" data-provider="gemini" id="provider-gemini">
+                Gemini
+            </label>
+            <label>
+                <input type="checkbox" data-provider="mistral" id="provider-mistral">
+                Mistral
+            </label>
+            <label>
+                <input type="checkbox" data-provider="cohere" id="provider-cohere">
+                Cohere
+            </label>
+            <label>
+                <input type="checkbox" data-provider="ollama" id="provider-ollama">
+                Ollama
+            </label>
+        </section>
+
+        <!-- Prompt Input -->
+        <section id="prompt-section">
+            <h2>Prompt</h2>
+            <textarea id="prompt-input" placeholder="Enter your prompt here..." rows="4"></textarea>
+        </section>
+
+        <!-- Compare Button -->
+        <button id="compare-btn" disabled>Compare</button>
+
+        <!-- Select All / Clear All buttons (P1) -->
+        <div id="toggle-controls">
+            <button id="select-all-btn" type="button">Select All</button>
+            <button id="clear-all-btn" type="button">Clear All</button>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results-grid"></div>
+
+        <!-- Error banner placeholder -->
+        <div id="error-banner" class="error-banner" hidden></div>
+    </main>
+    <script src="playground.js"></script>
+</body>
+</html>

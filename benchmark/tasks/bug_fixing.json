@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "bug-fix-001",
+      "name": "Fix off-by-one error in sum function",
+      "prompt": "The following function has a bug. Fix it so that it correctly returns the sum of integers from 1 to n (inclusive).\n\n```python\ndef sum_to_n(n):\n    total = 0\n    for i in range(1, n):\n        total += i\n    return total\n```\n\nReturn only the corrected function definition.",
+      "expected_answer": "def sum_to_n(n):\n    total = 0\n    for i in range(1, n + 1):\n        total += i\n    return total",
+      "evaluator": "contains",
+      "metadata": {"category": "bug-fixing", "difficulty": "easy"}
+    },
+    {
+      "id": "bug-fix-002",
+      "name": "Fix mutable default argument bug",
+      "prompt": "The following function has a classic Python bug. Fix the issue so that the function works correctly when called multiple times without the target argument.\n\n```python\ndef append_to(element, target=[]):\n    target.append(element)\n    return target\n```\n\nReturn only the corrected function definition.",
+      "expected_answer": "def append_to(element, target=None):\n    if target is None:\n        target = []\n    target.append(element)\n    return target",
+      "evaluator": "contains",
+      "metadata": {"category": "bug-fixing", "difficulty": "easy"}
+    }
+  ]
+}

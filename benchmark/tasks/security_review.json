@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "security-001",
+      "name": "Find SQL injection vulnerability",
+      "prompt": "Review the following code for security vulnerabilities. Identify all issues and provide a fixed version of the function.\n\n```python\ndef get_user_profile(user_id):\n    conn = sqlite3.connect('app.db')\n    cursor = conn.cursor()\n    query = f\"SELECT * FROM users WHERE id = '{user_id}'\"\n    cursor.execute(query)\n    row = cursor.fetchone()\n    conn.close()\n    return row\n```\n\nReturn only the fixed function definition.",
+      "expected_answer": "def get_user_profile(user_id):\n    conn = sqlite3.connect('app.db')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE id = ?\", (user_id,))\n    row = cursor.fetchone()\n    conn.close()\n    return row",
+      "evaluator": "contains",
+      "metadata": {"category": "security-review", "difficulty": "medium"}
+    }
+  ]
+}

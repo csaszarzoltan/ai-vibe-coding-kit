@@ -16,6 +16,9 @@ from ai_vibe_coding.structured import (
     ToolCallResult,
     ToolDef,
     ToolNotFoundError,
+    ApprovalDeniedError,
+    CLIApprovalChannel,
+    CallableApprovalChannel,
     chat_json,
     chat_with_tools,
 )
@@ -68,6 +71,13 @@ class TestInterfaceSmoke:
         """ToolNotFoundError should be an Exception."""
         assert issubclass(ToolNotFoundError, Exception)
 
+    def test_approval_denied_error_exists(self):
+        """ApprovalDeniedError should be an Exception with tool_name and arguments."""
+        assert issubclass(ApprovalDeniedError, Exception)
+        err = ApprovalDeniedError("send_email", {"to": "test@example.com"})
+        assert err.tool_name == "send_email"
+        assert err.arguments == {"to": "test@example.com"}
+
     def test_chat_json_is_callable(self):
         """chat_json should be a callable function."""
         assert callable(chat_json)
@@ -75,6 +85,18 @@ class TestInterfaceSmoke:
     def test_chat_with_tools_is_callable(self):
         """chat_with_tools should be a callable function."""
         assert callable(chat_with_tools)
+
+    def test_cli_approval_channel_exists(self):
+        """CLIApprovalChannel should be instantiable."""
+        channel = CLIApprovalChannel(timeout=30.0)
+        assert channel.timeout == 30.0
+
+    def test_callable_approval_channel_exists(self):
+        """CallableApprovalChannel should wrap a callable."""
+        def approve_all(tool: str, args: dict) -> bool:
+            return True
+        channel = CallableApprovalChannel(approve_all)
+        assert channel("any_tool", {}) is True
 
 
 # ──────────────────────────────────────────────────────────────
@@ -170,3 +192,146 @@ class TestChatWithTools:
             client = LLMClient(provider="openai", api_key="fake")
             with pytest.raises(ToolNotFoundError):
                 chat_with_tools(client, "Do something", [weather_tool])
+
+    @pytest.mark.unit
+    def test_chat_with_tools_requires_approval_cli(self):
+        """chat_with_tools() should prompt for approval when require_approval is set."""
+        weather_tool = ToolDef(
+            name="get_weather",
+            description="Get weather",
+            parameters={"type": "object", "properties": {"city": {"type": "string"}}},
+        )
+        with patch.object(LLMClient, "chat") as mock_chat:
+            mock_chat.return_value = LLMResponse(
+                content='{"name": "get_weather", "arguments": {"city": "Zurich"}}',
+                provider="openai",
+                model="gpt-4",
+                tokens_used=20,
+                cost_usd=0.0002,
+                latency_ms=80.0,
+            )
+            client = LLMClient(provider="openai", api_key="fake")
+            # Mock the CLI approval to return True (approve)
+            with patch.object(CLIApprovalChannel, "__call__", return_value=True) as mock_approve:
+                result = chat_with_tools(
+                    client,
+                    "What's the weather in Zurich?",
+                    [weather_tool],
+                    require_approval={"get_weather": "cli"},
+                )
+
+        assert isinstance(result, ToolCallResult)
+        assert result.tool_name == "get_weather"
+        mock_approve.assert_called_once_with("get_weather", {"city": "Zurich"})
+
+    @pytest.mark.unit
+    def test_chat_with_tools_denies_approval(self):
+        """chat_with_tools() should raise ApprovalDeniedError when approval is denied."""
+        delete_tool = ToolDef(
+            name="delete_user",
+            description="Delete a user",
+            parameters={"type": "object", "properties": {"user_id": {"type": "string"}}},
+        )
+        with patch.object(LLMClient, "chat") as mock_chat:
+            mock_chat.return_value = LLMResponse(
+                content='{"name": "delete_user", "arguments": {"user_id": "123"}}',
+                provider="openai",
+                model="gpt-4",
+                tokens_used=20,
+                cost_usd=0.0002,
+                latency_ms=80.0,
+            )
+            client = LLMClient(provider="openai", api_key="fake")
+            # Mock the CLI approval to return False (deny)
+            with patch.object(CLIApprovalChannel, "__call__", return_value=False):
+                with pytest.raises(ApprovalDeniedError) as exc_info:
+                    chat_with_tools(
+                        client,
+                        "Delete user 123",
+                        [delete_tool],
+                        require_approval={"delete_user": "cli"},
+                    )
+
+        assert exc_info.value.tool_name == "delete_user"
+        assert exc_info.value.arguments == {"user_id": "123"}
+
+    @pytest.mark.unit
+    def test_chat_with_tools_custom_callable_approval(self):
+        """chat_with_tools() should accept custom callable for approval."""
+        send_email_tool = ToolDef(
+            name="send_email",
+            description="Send an email",
+            parameters={"type": "object", "properties": {"to": {"type": "string"}}},
+        )
+        with patch.object(LLMClient, "chat") as mock_chat:
+            mock_chat.return_value = LLMResponse(
+                content='{"name": "send_email", "arguments": {"to": "test@example.com"}}',
+                provider="openai",
+                model="gpt-4",
+                tokens_used=20,
+                cost_usd=0.0002,
+                latency_ms=80.0,
+            )
+            client = LLMClient(provider="openai", api_key="fake")
+            # Custom approval function that approves only specific recipients
+            def custom_approve(tool: str, args: dict) -> bool:
+                return args.get("to") == "allowed@example.com"
+
+            # This should be denied
+            with pytest.raises(ApprovalDeniedError):
+                chat_with_tools(
+                    client,
+                    "Send email",
+                    [send_email_tool],
+                    require_approval={"send_email": custom_approve},
+                )
+
+            # This should be approved
+            mock_chat.return_value = LLMResponse(
+                content='{"name": "send_email", "arguments": {"to": "allowed@example.com"}}',
+                provider="openai",
+                model="gpt-4",
+                tokens_used=20,
+                cost_usd=0.0002,
+                latency_ms=80.0,
+            )
+            result = chat_with_tools(
+                client,
+                "Send email",
+                [send_email_tool],
+                require_approval={"send_email": custom_approve},
+            )
+            assert result.tool_name == "send_email"
+            assert result.arguments == {"to": "allowed@example.com"}
+
+    @pytest.mark.unit
+    def test_chat_with_tools_no_approval_for_ungated_tool(self):
+        """chat_with_tools() should not require approval for tools not in require_approval."""
+        weather_tool = ToolDef(
+            name="get_weather",
+            description="Get weather",
+        )
+        send_email_tool = ToolDef(
+            name="send_email",
+            description="Send email",
+        )
+        with patch.object(LLMClient, "chat") as mock_chat:
+            mock_chat.return_value = LLMResponse(
+                content='{"name": "get_weather", "arguments": {"city": "Zurich"}}',
+                provider="openai",
+                model="gpt-4",
+                tokens_used=20,
+                cost_usd=0.0002,
+                latency_ms=80.0,
+            )
+            client = LLMClient(provider="openai", api_key="fake")
+            # Only send_email requires approval
+            result = chat_with_tools(
+                client,
+                "What's the weather?",
+                [weather_tool, send_email_tool],
+                require_approval={"send_email": "cli"},
+            )
+
+        assert result.tool_name == "get_weather"
+        # No approval should have been requested for get_weather

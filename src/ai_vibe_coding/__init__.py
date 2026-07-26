@@ -11,6 +11,19 @@ from .benchmark_runner import (
     BenchmarkRunner,
     BenchmarkTask,
 )
+from .chain_templates import (
+    AgentWithToolsChain,
+    ChainContext,
+    ChainError,
+    ChainResult,
+    ChainRunner,
+    ChainStep,
+    ConditionalChain,
+    HITLStep,
+    MapReduceChain,
+    ParallelChain,
+    SequentialChain,
+)
 from .cost_tracker import (
     CostSummary,
     CostTracker,
@@ -65,6 +78,18 @@ __all__ = [
     "AgentTeamResult",
     "DelegationEvent",
     "CostLimitExceededError",
+    # Chain template exports
+    "AgentWithToolsChain",
+    "ChainContext",
+    "ChainError",
+    "ChainResult",
+    "ChainRunner",
+    "ChainStep",
+    "ConditionalChain",
+    "HITLStep",
+    "MapReduceChain",
+    "ParallelChain",
+    "SequentialChain",
     # LLM-related exports
     "LLMClient",
     "LLMResponse",

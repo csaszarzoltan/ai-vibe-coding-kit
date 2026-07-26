@@ -1,0 +1,25 @@
+# Railway Deployment Config — AI Vibe Coding Kit
+# See shared/patterns/railway-deploy-config.md for details
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# CRITICAL: Use sh -c wrapper for ${PORT} expansion.
+# Without sh -c, Railway passes the variable literally and uvicorn crashes.
+startCommand = "sh -c \"uvicorn ai_vibe_coding.app:app --host 0.0.0.0 --port ${PORT:-8000}\""
+
+[environments.production.variables]
+ENVIRONMENT = "production"
+LOG_LEVEL = "info"
+PYTHONUNBUFFERED = "1"
+
+[environments.staging.variables]
+ENVIRONMENT = "staging"
+LOG_LEVEL = "debug"

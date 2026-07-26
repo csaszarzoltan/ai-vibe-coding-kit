@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "refactor-001",
+      "name": "Refactor deeply nested conditionals",
+      "prompt": "Refactor the following code to reduce nesting using early returns / guard clauses. Make it more readable without changing behavior.\n\n```python\ndef process_user(data):\n    if data is not None:\n        if 'name' in data:\n            if len(data['name']) > 0:\n                if 'age' in data:\n                    return f\"{data['name']} is {data['age']} years old\"\n                else:\n                    return f\"{data['name']} has no age\"\n    return 'Invalid data'\n```\n\nReturn only the refactored function definition.",
+      "expected_answer": "def process_user(data):\n    if data is None:\n        return 'Invalid data'\n    if not data.get('name'):\n        return 'Invalid data'\n    age = data.get('age')\n    if age is not None:\n        return f\"{data['name']} is {age} years old\"\n    return f\"{data['name']} has no age\"",
+      "evaluator": "fuzzy_match",
+      "metadata": {"category": "refactoring", "difficulty": "medium"}
+    }
+  ]
+}

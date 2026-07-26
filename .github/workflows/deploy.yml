@@ -1,0 +1,53 @@
+# =============================================================================
+# [OPTIONAL] Railway Deployment Workflow
+# =============================================================================
+# This is a COPY-PASTE template for deploying the AI Vibe Coding Kit to
+# Railway via Docker. It is NOT enabled by default.
+#
+# To activate:
+#   1. Remove the '.disabled' extension or rename the file to deploy.yml
+#   2. Add RAILWAY_TOKEN as a GitHub Actions secret (Settings → Secrets)
+#   3. Push to the main branch
+#
+# Prerequisites:
+#   - Dockerfile (already exists at project root)
+#   - railway.toml (already exists at project root)
+#   - A Railway project linked to your account
+#
+# How to get a RAILWAY_TOKEN:
+#   railway login
+#   railway token create --name github-actions
+#   → copy the token and add to GitHub Secrets
+#
+# How to link the project (one-time):
+#   railway link --project <your-project-name>
+#
+# See: https://docs.railway.app/guides/public-networking
+# =============================================================================
+
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Railway
+        uses: railwayapp/actions/deploy@v3
+        with:
+          # Generate this token with: railway token create --name github-actions
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          # The Dockerfile path — already exists at project root
+          dockerfile: Dockerfile
+          # The railway.toml config — already exists at project root
+          config: railway.toml
+          # Optional: deploy only if these files changed
+          # onlyChanges: false

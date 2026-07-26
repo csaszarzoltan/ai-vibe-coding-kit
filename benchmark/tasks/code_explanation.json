@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "explain-001",
+      "name": "Explain a decorator function",
+      "prompt": "Explain what the following Python code does, line by line, and describe the design pattern it implements.\n\n```python\ndef timer_decorator(func):\n    import time\n    def wrapper(*args, **kwargs):\n        start = time.perf_counter()\n        result = func(*args, **kwargs)\n        elapsed = time.perf_counter() - start\n        print(f\"{func.__name__} took {elapsed:.4f}s\")\n        return result\n    return wrapper\n```\n\nFocus on: what syntactic sugar enables this, the closure pattern, and how it preserves the original function's interface.",
+      "expected_answer": "The timer_decorator function is a Python decorator that measures and prints the execution time of any function it wraps. It implements the decorator design pattern using a closure.",
+      "evaluator": "fuzzy_match",
+      "metadata": {"category": "code-explanation", "difficulty": "easy"}
+    }
+  ]
+}

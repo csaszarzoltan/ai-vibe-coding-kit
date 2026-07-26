@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "perf-001",
+      "name": "Optimize duplicate-finding function",
+      "prompt": "The following function finds duplicate items in a list. It works correctly but is very slow for large inputs. Optimize it to run in O(n) time instead of O(n\u00b2) while keeping the same interface and behavior.\n\n```python\ndef find_duplicates(items):\n    duplicates = []\n    for i in range(len(items)):\n        for j in range(i + 1, len(items)):\n            if items[i] == items[j] and items[i] not in duplicates:\n                duplicates.append(items[i])\n    return duplicates\n```\n\nReturn only the optimized function definition.",
+      "expected_answer": "def find_duplicates(items):\n    seen = set()\n    duplicates = []\n    for item in items:\n        if item in seen:\n            if item not in duplicates:\n                duplicates.append(item)\n        else:\n            seen.add(item)\n    return duplicates",
+      "evaluator": "contains",
+      "metadata": {"category": "performance-optimization", "difficulty": "medium"}
+    }
+  ]
+}

@@ -49,6 +49,30 @@ PRICING: dict[str, dict[str, dict[str, float]]] = {
     "mimo": {
         "mimo-v2.5": {"input": 0.0004, "output": 0.002},
     },
+    "gemini": {
+        "gemini-2.5-flash": {"input": 0.000075, "output": 0.00030},
+        "gemini-2.5-pro": {"input": 0.00125, "output": 0.00500},
+        "gemini-2.0-flash": {"input": 0.00004, "output": 0.00015},
+    },
+    "mistral": {
+        "mistral-large-latest": {"input": 0.004, "output": 0.012},
+        "mistral-small-latest": {"input": 0.001, "output": 0.003},
+        "mistral-moderation-latest": {"input": 0.0001, "output": 0.0001},
+    },
+    "cohere": {
+        "command-a-plus-05-2026": {"input": 0.003, "output": 0.015},
+        "command-r-plus-08-2024": {"input": 0.003, "output": 0.015},
+        "command-r-08-2024": {"input": 0.0005, "output": 0.0015},
+        "embed-v4.0": {"input": 0.0001, "output": 0.0001},
+        "rerank-v4.0-pro": {"input": 0.001, "output": 0.001},
+    },
+    "ollama": {
+        "gemma3": {"input": 0.0, "output": 0.0},
+        "llama3": {"input": 0.0, "output": 0.0},
+        "mistral": {"input": 0.0, "output": 0.0},
+        "phi4": {"input": 0.0, "output": 0.0},
+        "qwen2.5": {"input": 0.0, "output": 0.0},
+    },
 }
 
 

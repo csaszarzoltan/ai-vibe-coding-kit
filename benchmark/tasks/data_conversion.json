@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "convert-001",
+      "name": "Convert JSON to XML string",
+      "prompt": "Write a Python function json_to_xml(data: dict, root_name: str = 'root') -> str that converts a JSON/dict object to an XML string. Simple values become elements. Nested dicts become nested elements. Lists become repeated elements. Return only the function definition.\n\nExample:\nInput: {\"name\": \"Alice\", \"age\": 30, \"hobbies\": [\"reading\", \"cycling\"]}\nExpected XML-like output: <root><name>Alice</name><age>30</age><hobbies>reading</hobbies><hobbies>cycling</hobbies></root>",
+      "expected_answer": "def json_to_xml(data, root_name='root'):\n    import xml.etree.ElementTree as ET\n    def build(parent, key, value):\n        if isinstance(value, dict):\n            elem = ET.SubElement(parent, key)\n            for k, v in value.items():\n                build(elem, k, v)\n        elif isinstance(value, list):\n            for item in value:\n                build(parent, key, item)\n        else:\n            elem = ET.SubElement(parent, key)\n            elem.text = str(value)\n    root = ET.Element(root_name)\n    for k, v in data.items():\n        build(root, k, v)\n    return ET.tostring(root, encoding='unicode')",
+      "evaluator": "contains",
+      "metadata": {"category": "data-conversion", "difficulty": "medium"}
+    }
+  ]
+}

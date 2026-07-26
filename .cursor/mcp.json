@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ai-vibe-coding": {
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/examples/standalone_mcp_server.py"
+      ],
+      "env": {
+        "ALLOWED_BASE_DIR": "${workspaceFolder}",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

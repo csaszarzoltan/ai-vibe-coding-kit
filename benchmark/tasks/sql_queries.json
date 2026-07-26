@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "sql-001",
+      "name": "SQL query to find duplicate emails",
+      "prompt": "Write a SQL query to find all duplicate email addresses in a table called 'users' that has columns 'id' (INTEGER PRIMARY KEY), 'name' (TEXT), and 'email' (TEXT). Return the email address and the number of times it appears, sorted by count descending. Return only the SQL query (no markdown fences).",
+      "expected_answer": "SELECT email, COUNT(*) as count\nFROM users\nGROUP BY email\nHAVING COUNT(*) > 1\nORDER BY count DESC",
+      "evaluator": "contains",
+      "metadata": {"category": "sql", "difficulty": "medium"}
+    }
+  ]
+}

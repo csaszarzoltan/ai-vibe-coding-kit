@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "regex-001",
+      "name": "Regex to match email addresses",
+      "prompt": "Write a Python regex pattern (as a raw string) that matches valid email addresses. It should handle: standard emails like user@example.com, dotted names like first.last@company.co.uk, and plus-addressing like user+tag@domain.org. Return only the regex pattern as a Python raw string (e.g. r'...').",
+      "expected_answer": "r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'",
+      "evaluator": "contains",
+      "metadata": {"category": "regex", "difficulty": "medium"}
+    }
+  ]
+}
