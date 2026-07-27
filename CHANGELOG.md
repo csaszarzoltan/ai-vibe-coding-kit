@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-07-27
+
+### Added
+
+- **LLM Failover & Resilience Patterns** — `src/ai_vibe_coding/resilience.py`:
+  - `CircuitBreaker` — state machine (CLOSED/OPEN/HALF_OPEN) with configurable thresholds
+  - `RetryPolicy` — exponential backoff with jitter, configurable max retries and retryable statuses
+  - `FallbackChain` — multi-provider fallback (primary → secondary → tertiary) with health gating
+  - `HealthChecker` — rolling window health scoring (latency, error rate, availability)
+  - `TimeoutBudget` — per-provider/operation timeout configuration
+  - `ResponseCache` — stale-while-revalidate caching with configurable TTL
+  - `Observability` — structured events, counters, and callback hooks for every resilience layer
+  - `ResilientLLMClient` — facade wrapping LLMClient with all resilience layers
+
 ## [0.7.0] - 2026-07-27
 
 ### Added
