@@ -25,17 +25,16 @@ Public API:
 from __future__ import annotations
 
 import concurrent.futures
+import contextlib
 import enum
 import hashlib
 import json
-import random
 import threading
 import time
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
-
 
 # ======================================================================
 # Exceptions
@@ -48,7 +47,10 @@ class CircuitBreakerOpenError(Exception):
     def __init__(self, provider: str = "", message: str = "") -> None:
         self.provider = provider
         self.message = message
-        super().__init__(f"Circuit breaker OPEN for {provider}: {message}" if message else f"Circuit breaker OPEN for {provider}")
+        msg = f"Circuit breaker OPEN for {provider}"
+        if message:
+            msg = f"{msg}: {message}"
+        super().__init__(msg)
 
 
 class TimeoutBudgetError(Exception):
@@ -282,7 +284,9 @@ class CircuitBreaker:
         if state == CircuitState.OPEN:
             raise CircuitBreakerOpenError(provider=provider, message="Circuit is OPEN")
 
-    def on_state_change(self, callback: Callable[[str, CircuitState, CircuitState], None]) -> None:
+    def on_state_change(
+        self, callback: Callable[[str, CircuitState, CircuitState], None]
+    ) -> None:
         """Register a callback: (provider, old_state, new_state) -> None."""
         self._callbacks.append(callback)
 
@@ -362,7 +366,11 @@ class FallbackChain:
                 # Success — return result with this provider
                 return FallbackResult(
                     provider=provider,
-                    circuit_state=self._circuit_breaker.get_state(provider) if self._circuit_breaker else CircuitState.CLOSED,
+                    circuit_state=(
+                        self._circuit_breaker.get_state(provider)
+                        if self._circuit_breaker
+                        else CircuitState.CLOSED
+                    ),
                 )
             except fallback_on as e:
                 last_error = e
@@ -452,7 +460,7 @@ class HealthChecker:
         total = len(samples)
         failures = total - successes
         error_rate = failures / total
-        avg_latency = sum(l for l, _ in samples) / total
+        avg_latency = sum(lat for lat, _ in samples) / total
         availability = successes / total
 
         # Determine health status
@@ -500,13 +508,19 @@ class ResponseCache:
     def _get_config(self, provider: str) -> ResponseCacheConfig:
         if provider in self._config:
             return self._config[provider]
-        return ResponseCacheConfig(ttl_seconds=self._global_ttl, swr_seconds=self._global_swr)
+        return ResponseCacheConfig(
+            ttl_seconds=self._global_ttl, swr_seconds=self._global_swr
+        )
 
-    def _make_key(self, provider: str, model: str, messages: list[dict[str, Any]]) -> str:
+    def _make_key(
+        self, provider: str, model: str, messages: list[dict[str, Any]]
+    ) -> str:
         raw = json.dumps({"p": provider, "m": model, "msgs": messages}, sort_keys=True)
         return hashlib.sha256(raw.encode()).hexdigest()
 
-    def get(self, provider: str, model: str, messages: list[dict[str, Any]]) -> str | None:
+    def get(
+        self, provider: str, model: str, messages: list[dict[str, Any]]
+    ) -> str | None:
         """Return cached content or None on miss."""
         key = self._make_key(provider, model, messages)
         with self._lock:
@@ -523,7 +537,9 @@ class ResponseCache:
                 return None  # TTL expired, treat as miss
             return entry.content
 
-    def set(self, provider: str, model: str, messages: list[dict[str, Any]], content: str) -> None:
+    def set(
+        self, provider: str, model: str, messages: list[dict[str, Any]], content: str
+    ) -> None:
         """Store response in cache."""
         key = self._make_key(provider, model, messages)
         cfg = self._get_config(provider)
@@ -535,8 +551,10 @@ class ResponseCache:
                 ttl=cfg.ttl_seconds,
             )
 
-    def is_stale(self, provider: str, model: str, messages: list[dict[str, Any]]) -> bool:
-        """Return True if the cache entry exists but its TTL has expired (SWR window open)."""
+    def is_stale(
+        self, provider: str, model: str, messages: list[dict[str, Any]]
+    ) -> bool:
+        """Return True if cache entry exists but TTL expired (SWR window open)."""
         key = self._make_key(provider, model, messages)
         with self._lock:
             entry = self._store.get(key)
@@ -655,7 +673,9 @@ class ResilientLLMClient:
         **kwargs: Any,
     ) -> ResilientResponse:
         """Stream with failover."""
-        return self._execute_with_failover(messages, model, operation="stream", **kwargs)
+        return self._execute_with_failover(
+            messages, model, operation="stream", **kwargs
+        )
 
     def _call_with_timeout(
         self,
@@ -670,7 +690,9 @@ class ResilientLLMClient:
             try:
                 return future.result(timeout=timeout)
             except concurrent.futures.TimeoutError:
-                raise TimeoutBudgetError(provider=provider, operation=operation)
+                raise TimeoutBudgetError(
+                    provider=provider, operation=operation
+                ) from None
 
     def _execute_with_failover(
         self,
@@ -682,7 +704,6 @@ class ResilientLLMClient:
         """Internal: try each provider with circuit breaker, retry, cache, timeout."""
         primary_providers = self._providers
 
-        last_error: Exception | None = None
         circuit_state = CircuitState.CLOSED
         retry_count = 0
         latency_ms = 0.0
@@ -737,7 +758,9 @@ class ResilientLLMClient:
                     # Don't pass provider to the client — let the client's own
                     # provider selection work; we track the provider ourselves.
                     resp = self._call_with_timeout(
-                        lambda m=messages, md=model, kw=kwargs: client_method(m, md, **kw),
+                        lambda m=messages, md=model, kw=kwargs, cm=client_method: cm(
+                            m, md, **kw
+                        ),
                         timeout,
                         provider,
                         operation,
@@ -748,16 +771,17 @@ class ResilientLLMClient:
 
                     # Extract content from response
                     content = resp.content if hasattr(resp, "content") else str(resp)
-                    resp_model = getattr(resp, "model", model or getattr(self._client, "default_model", ""))
+                    default_model = getattr(self._client, "default_model", "")
+                    resp_model = getattr(
+                        resp, "model", model or default_model
+                    )
 
                     # Record success in circuit breaker
                     self._circuit_breaker.record_success(provider)
 
                     # Cache the response
-                    try:
+                    with contextlib.suppress(Exception):
                         self._cache.set(provider, model, messages, content)
-                    except Exception:
-                        pass
 
                     return ResilientResponse(
                         content=content,
@@ -769,25 +793,22 @@ class ResilientLLMClient:
                         latency_ms=latency_ms,
                     )
 
-                except TimeoutBudgetError as e:
+                except TimeoutBudgetError:
                     self._observability.emit(ResilienceEvent(
                         type="timeout",
                         provider=provider,
                         timestamp=time.time(),
                     ))
-                    last_error = e
                     circuit_state = self._circuit_breaker.get_state(provider)
                     self._circuit_breaker.record_failure(provider)
                     # Don't retry on timeout — move to next provider
                     break
 
-                except CircuitBreakerOpenError as e:
-                    last_error = e
+                except CircuitBreakerOpenError:
                     circuit_state = CircuitState.OPEN
                     break
 
-                except Exception as e:
-                    last_error = e
+                except Exception:
                     retry_count += 1
                     self._observability.emit(ResilienceEvent(
                         type="retry",

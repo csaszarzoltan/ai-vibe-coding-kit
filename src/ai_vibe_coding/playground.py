@@ -37,7 +37,6 @@ from ai_vibe_coding.provider_examples import (
     OllamaProvider,
 )
 
-
 # ──────────────────────────────────────────────────────────────
 # Request / Response models
 # ──────────────────────────────────────────────────────────────
@@ -79,7 +78,9 @@ class PlaygroundProviderResult(BaseModel):
 class PlaygroundCompareRequest(BaseModel):
     """Request body for POST /api/playground/compare."""
 
-    prompt: str = Field(..., min_length=1, description="The user prompt to send to providers")
+    prompt: str = Field(
+        ..., min_length=1, description="The user prompt to send to providers"
+    )
     providers: list[str] | None = Field(
         default=None,
         description="List of providers to compare (default: all 9)",
@@ -260,7 +261,10 @@ def _check_rate_limit(client_ip: str) -> None:
     if len(timestamps) >= RATE_LIMIT_MAX:
         raise HTTPException(
             status_code=429,
-            detail=f"Rate limit exceeded. Max {RATE_LIMIT_MAX} requests per {RATE_LIMIT_WINDOW}s.",
+            detail=(
+                f"Rate limit exceeded. "
+                f"Max {RATE_LIMIT_MAX} requests per {RATE_LIMIT_WINDOW}s."
+            ),
         )
     timestamps.append(now)
     _rate_limit_store[client_ip] = timestamps
@@ -321,7 +325,9 @@ def _call_provider(
         total_end = time.monotonic()
         content = "".join(chunks)
         total_ms = (total_end - start) * 1000
-        time_to_first = (first_token_time - start) * 1000 if first_token_time else total_ms
+        time_to_first = (
+            (first_token_time - start) * 1000 if first_token_time else total_ms
+        )
 
         # Fallback to chat() if streaming returned nothing (empty or not supported)
         if not chunks and not content:
@@ -398,7 +404,10 @@ def create_router() -> APIRouter:
         if not _validate_ssrf_in_prompt(request.prompt):
             raise HTTPException(
                 status_code=422,
-                detail="Prompt contains URLs targeting private/internal networks (SSRF blocked)",
+                detail=(
+                "Prompt contains URLs targeting private/internal "
+                "networks (SSRF blocked)"
+            ),
             )
 
         # ── Provider validation ──

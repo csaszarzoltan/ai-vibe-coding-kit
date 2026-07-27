@@ -12,8 +12,6 @@ pytest markers:
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from ai_vibe_coding.benchmark_runner import (
@@ -22,7 +20,6 @@ from ai_vibe_coding.benchmark_runner import (
     BenchmarkRunner,
     BenchmarkTask,
 )
-
 
 # ──────────────────────────────────────────────────────────────
 # Interface smoke tests (should PASS — verify API surface exists)
@@ -187,7 +184,7 @@ class TestBenchmarkRunnerAddProvider:
     @pytest.mark.unit
     def test_add_provider_overwrites_existing(self):
         """add_provider() should allow replacing an existing provider."""
-        from ai_vibe_coding.llm_wrapper import OpenAIProvider, AnthropicProvider
+        from ai_vibe_coding.llm_wrapper import AnthropicProvider, OpenAIProvider
 
         runner = BenchmarkRunner()
         runner.add_provider("provider_a", OpenAIProvider(api_key="fake"))

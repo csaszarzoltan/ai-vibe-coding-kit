@@ -16,7 +16,6 @@ import pytest
 
 from ai_vibe_coding import cli
 
-
 # ──────────────────────────────────────────────────────────────
 # Interface smoke tests (should PASS — verify API surface exists)
 # ──────────────────────────────────────────────────────────────
@@ -55,7 +54,6 @@ class TestCLIRun:
     def test_cli_run_with_args(self):
         """Running with --providers and --tasks should produce output."""
         import sys
-        from io import StringIO
 
         # Simulate CLI invocation
         saved_argv = sys.argv
@@ -117,7 +115,6 @@ class TestCLIListTasks:
     def test_cli_list_tasks_subcommand(self):
         """list-tasks subcommand should list tasks from a task file."""
         import sys
-        from io import StringIO
 
         saved_argv = sys.argv
         try:

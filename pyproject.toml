@@ -27,6 +27,10 @@ dev = [
     "pytest-mock>=3.12.0",
     "ruff>=0.4.0",
     "responses>=0.25.0",
+    "ollama>=0.3.0",
+    "mistralai>=1.0.0",
+    "cohere>=5.0.0",
+    "google-genai>=1.0.0",
 ]
 
 [build-system]

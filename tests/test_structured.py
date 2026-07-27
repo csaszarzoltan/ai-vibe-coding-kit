@@ -12,13 +12,13 @@ import pytest
 
 from ai_vibe_coding.llm_wrapper import LLMClient, LLMResponse
 from ai_vibe_coding.structured import (
+    ApprovalDeniedError,
+    CallableApprovalChannel,
+    CLIApprovalChannel,
     LLMJSONError,
     ToolCallResult,
     ToolDef,
     ToolNotFoundError,
-    ApprovalDeniedError,
-    CLIApprovalChannel,
-    CallableApprovalChannel,
     chat_json,
     chat_with_tools,
 )

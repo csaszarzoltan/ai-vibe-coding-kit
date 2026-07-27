@@ -20,8 +20,9 @@ import os
 import sys
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal, Protocol, Union
+from typing import Any, Literal, Protocol
 
 from ai_vibe_coding.llm_wrapper import LLMClient, LLMResponse
 
@@ -101,7 +102,10 @@ class CLIApprovalChannel:
             file=sys.stderr,
         )
         print(f"   Arguments: {json.dumps(arguments, indent=2)}", file=sys.stderr)
-        print(f"   Approve? [y/N] (timeout: {self.timeout:.0f}s): ", end="", flush=True, file=sys.stderr)
+        print(
+            f"   Approve? [y/N] (timeout: {self.timeout:.0f}s): ",
+            end="", flush=True, file=sys.stderr,
+        )
 
         # Use a thread to handle timeout
         result: dict[str, Any] = {"value": None, "done": False}
@@ -152,9 +156,12 @@ class SlackApprovalChannel:
         """Send approval request to Slack and poll for response."""
         import requests
 
-        # Send initial approval request
         payload = {
-            "text": f"🔐 *Approval Required*\n*Tool:* `{tool_name}`\n*Arguments:* ```{json.dumps(arguments, indent=2)}```\n\nReact with ✅ to approve or ❌ to deny.",
+            "text": (
+                f"\U0001f510 *Approval Required*\n*Tool:* `{tool_name}`\n"
+                f"*Arguments:* ```{json.dumps(arguments, indent=2)}```"
+                "\n\nReact with \u2705 to approve or \u274c to deny."
+            ),
         }
         try:
             requests.post(self.webhook_url, json=payload, timeout=10)
@@ -181,7 +188,7 @@ class TelegramApprovalChannel:
     def __init__(
         self,
         bot_token: str,
-        chat_id: Union[str, int],
+        chat_id: str | int,
         polling_interval: float = 2.0,
         timeout: float = 300.0,
     ) -> None:
@@ -204,9 +211,13 @@ class TelegramApprovalChannel:
 
         # Send approval message with inline keyboard
         url = f"https://api.telegram.org/bot{self.bot_token}/sendMessage"
+        args_json = json.dumps(arguments, indent=2)
         payload = {
             "chat_id": self.chat_id,
-            "text": f"🔐 *Approval Required*\n*Tool:* `{tool_name}`\n*Arguments:* ```{json.dumps(arguments, indent=2)}```",
+            "text": (
+                f"\U0001f510 *Approval Required*\n*Tool:* `{tool_name}`\n"
+                f"*Arguments:* ```{args_json}```"
+            ),
             "parse_mode": "Markdown",
             "reply_markup": {
                 "inline_keyboard": [
@@ -229,7 +240,11 @@ class TelegramApprovalChannel:
         while time.time() - start_time < self.timeout:
             try:
                 get_url = f"https://api.telegram.org/bot{self.bot_token}/getUpdates"
-                resp = requests.get(get_url, params={"offset": offset, "timeout": 10}, timeout=15)
+                resp = requests.get(
+                    get_url,
+                    params={"offset": offset, "timeout": 10},
+                    timeout=15,
+                )
                 data = resp.json()
                 for update in data.get("result", []):
                     offset = update["update_id"] + 1
@@ -253,7 +268,8 @@ class CallableApprovalChannel:
         """Initialize with a callable.
 
         Args:
-            func: Callable taking (tool_name, arguments) -> bool (True=approve, False=deny).
+            func: Callable taking (tool_name, arguments) -> bool
+                (True=approve, False=deny).
         """
         self.func = func
 
@@ -263,13 +279,10 @@ class CallableApprovalChannel:
 
 
 # Channel type for convenience
-ApprovalChannelType = Union[
-    Literal["cli"],
-    Literal["slack"],
-    Literal["telegram"],
-    Callable[[str, dict[str, Any]], bool],
-    ApprovalChannel,
-]
+ApprovalChannelType = (
+    Literal["cli"] | Literal["slack"] | Literal["telegram"]
+    | Callable[[str, dict[str, Any]], bool] | ApprovalChannel
+)
 
 
 @dataclass
@@ -356,7 +369,6 @@ def chat_with_tools(
         ApprovalDeniedError: If human approval is denied for a gated tool.
     """
     tool_names = [t.name for t in tools]
-    tool_map = {t.name: t for t in tools}
     tool_desc = "\n".join(
         f"- {t.name}: {t.description}" for t in tools
     )
@@ -424,7 +436,8 @@ def _resolve_approval_channel(
             webhook_url = os.environ.get("SLACK_APPROVAL_WEBHOOK")
             if not webhook_url:
                 raise ValueError(
-                    "Slack approval requires SLACK_APPROVAL_WEBHOOK environment variable"
+                    "Slack approval requires SLACK_APPROVAL_WEBHOOK "
+                    "environment variable"
                 )
             return SlackApprovalChannel(webhook_url)
         elif channel_spec == "telegram":
@@ -432,17 +445,19 @@ def _resolve_approval_channel(
             chat_id = os.environ.get("TELEGRAM_APPROVAL_CHAT_ID")
             if not bot_token or not chat_id:
                 raise ValueError(
-                    "Telegram approval requires TELEGRAM_BOT_TOKEN and TELEGRAM_APPROVAL_CHAT_ID environment variables"
+                    "Telegram approval requires TELEGRAM_BOT_TOKEN "
+                    "and TELEGRAM_APPROVAL_CHAT_ID environment variables"
                 )
             return TelegramApprovalChannel(bot_token, chat_id)
         else:
             raise ValueError(f"Unknown approval channel: {channel_spec}")
     elif callable(channel_spec):
         # Check if it's already an ApprovalChannel instance
-        if hasattr(channel_spec, "__call__") and hasattr(channel_spec, "__class__"):
-            # Check if it's one of our channel classes
-            if channel_spec.__class__.__name__.endswith("ApprovalChannel"):
-                return channel_spec
+        if (
+            callable(channel_spec)
+            and channel_spec.__class__.__name__.endswith("ApprovalChannel")
+        ):
+            return channel_spec
         # Otherwise wrap in CallableApprovalChannel
         return CallableApprovalChannel(channel_spec)
     else:

@@ -139,11 +139,12 @@ class MCPServer:
         tool_names = ", ".join(t.name for t in self.tools)
         return (
             f"AI assistant with access to tools: {tool_names}. "
-            f"Provider: {self.client.provider_name}, Model: {self.client.client.model}. "
+            f"Provider: {self.client.provider_name}, "
+            f"Model: {self.client.client.model}. "
             "Call tools by name with appropriate arguments."
         )
 
-    def _register_mcp_tool(self, mcp: FastMCP, tool_def: ToolDef) -> None:
+    def _register_mcp_tool(self, mcp: Any, tool_def: ToolDef) -> None:
         """Register a ToolDef as an MCP tool that executes the actual tool logic.
 
         We create a typed wrapper function that:
@@ -181,7 +182,8 @@ class MCPServer:
 
         # Create prompt that asks LLM to call the specific tool with given args
         prompt = (
-            f"Call the tool '{tool_name}' with these arguments: {json.dumps(arguments)}. "
+            f"Call the tool '{tool_name}' with these arguments: "
+            f"{json.dumps(arguments)}. "
             "Return only the tool result."
         )
 

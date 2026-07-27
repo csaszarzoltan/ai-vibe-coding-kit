@@ -17,8 +17,6 @@ pytest markers:
 
 from __future__ import annotations
 
-import json
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -30,10 +28,8 @@ from ai_vibe_coding.playground import (
     PlaygroundCompareResponse,
     PlaygroundProviderResult,
     ProviderLatency,
-    create_router,
-    _extract_response_highlights,
     _reset_rate_limiter,
-    _validate_ssrf_in_prompt,
+    create_router,
 )
 
 # ──────────────────────────────────────────────────────────────
@@ -63,7 +59,7 @@ class TestPlaygroundInterfaceSmoke:
             "cohere",
             "ollama",
         ]
-        assert ALL_PROVIDERS == expected
+        assert expected == ALL_PROVIDERS
         assert len(ALL_PROVIDERS) == 9
 
     def test_all_providers_unique(self):

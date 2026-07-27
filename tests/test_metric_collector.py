@@ -12,8 +12,6 @@ pytest markers:
 
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from ai_vibe_coding.metric_collector import (
@@ -25,7 +23,6 @@ from ai_vibe_coding.metric_collector import (
     exact_match,
     fuzzy_match,
 )
-
 
 # ──────────────────────────────────────────────────────────────
 # Interface smoke tests (should PASS — verify API surface exists)
