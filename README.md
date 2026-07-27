@@ -1,8 +1,8 @@
 # AI Vibe Coding Kit
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests: 524](https://img.shields.io/badge/tests-524%20total-brightgreen.svg)]()
-[![Version: 0.7.0](https://img.shields.io/badge/version-0.7.0-blue.svg)]()
+[![Tests: 611](https://img.shields.io/badge/tests-611%20total-brightgreen.svg)]()
+[![Version: 0.8.0](https://img.shields.io/badge/version-0.8.0-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CI: Test](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml/badge.svg)](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml)
 
@@ -35,6 +35,16 @@ Multi-provider LLM API wrapper with cost tracking, structured output, and tool c
 - `CostTracker` with thread-safe `record()`, `get_summary()`, `export_csv()`, `export_json()`
 - `CostSummary` dataclass with `to_dict()` and `to_table()` (ASCII table)
 - Per-provider and per-model cost breakdowns
+
+### LLM Failover & Resilience Patterns (`src/ai_vibe_coding/resilience.py`)
+- `CircuitBreaker` — state machine (CLOSED/OPEN/HALF_OPEN) with configurable failure/success thresholds and per-provider isolation
+- `RetryPolicy` — exponential backoff with jitter, configurable max retries and retryable status codes
+- `FallbackChain` — ordered multi-provider fallback (primary → secondary → tertiary) with health gating
+- `HealthChecker` — rolling-window health scoring tracking latency, error rate, and availability per provider
+- `TimeoutBudget` — per-provider and per-operation timeout configuration with global defaults
+- `ResponseCache` — stale-while-revalidate caching with configurable TTL and per-provider overrides
+- `Observability` — structured event emission, counter metrics, and callback hooks for every resilience layer
+- `ResilientLLMClient` — facade wrapping LLMClient with all resilience layers configured via `ResilienceConfig`
 
 ### Benchmark Suite (`src/ai_vibe_coding/benchmark_runner.py`, `metric_collector.py`, `cli.py`)
 - `BenchmarkTask` and `BenchmarkRunner` — define and orchestrate benchmark tasks across providers
@@ -405,6 +415,72 @@ pricing update workflow, and API reference.
 
 ---
 
+## Production Resilience
+
+The kit ships with production-grade failover patterns for enterprise AI reliability.
+
+### Quick Start
+
+```python
+from ai_vibe_coding import LLMClient, CircuitBreakerConfig, RetryPolicyConfig, ResilienceConfig, ResilientLLMClient
+
+config = ResilienceConfig(
+    circuit_breaker=CircuitBreakerConfig(failure_threshold=5, open_timeout=30.0),
+    retry=RetryPolicyConfig(max_retries=3, base_delay=1.0),
+)
+client = ResilientLLMClient(LLMClient(provider="openai"), config=config)
+
+# Auto-retry with circuit breaker, timeout enforcement
+response = client.chat_with_failover(
+    [{"role": "user", "content": "Hello"}],
+    model="gpt-4",
+)
+print(f"Response from {response.provider} (retries: {response.retry_count}, circuit: {response.circuit_state.value})")
+```
+
+### Configuring Timeout Budgets
+
+```python
+from ai_vibe_coding import TimeoutBudget, TimeoutConfig
+
+budget = TimeoutBudget(
+    global_default=TimeoutConfig(chat=30.0, stream=60.0),
+    per_provider={
+        "openai": TimeoutConfig(chat=15.0, stream=30.0),
+        "ollama": TimeoutConfig(chat=60.0, stream=120.0),
+    }
+)
+timeout = budget.get_timeout("openai", "chat")  # 15.0 seconds
+```
+
+### Health Monitoring
+
+```python
+from ai_vibe_coding import HealthChecker
+
+checker = HealthChecker(window_size=100)
+# Record samples
+checker.record_sample("openai", 1200, success=True)   # 1.2s latency, success
+checker.record_sample("openai", 30000, success=False)  # timeout, failure
+
+status = checker.check("openai")
+print(f"Status: {status.status.value}, Error rate: {status.error_rate:.1%}, Latency: {status.latency_ms:.0f}ms")
+```
+
+### Resilience Configuration Reference
+
+All resilience layers are configured via `ResilienceConfig`:
+
+| Config Field | Type | Default | Description |
+|-------------|------|---------|-------------|
+| `circuit_breaker` | `CircuitBreakerConfig` | `None` | Failure/success thresholds and open timeout |
+| `retry` | `RetryPolicyConfig` | `None` | Max retries, base delay, retryable status codes |
+| `timeout` | `dict[str, TimeoutConfig]` | `None` | Per-provider timeout overrides |
+| `global_timeout` | `TimeoutConfig` | `None` | Global fallback timeout |
+| `cache` | `dict[str, ResponseCacheConfig]` | `None` | Per-provider cache TTL/SWR config |
+
+---
+
 ## Installation
 
 ### From source (recommended for development)
@@ -454,7 +530,7 @@ pytest tests/test_frontend_playground.py -v
 ruff check src/ tests/
 ```
 
-All 378 tests pass with no real API keys required. HTTP calls are mocked via `unittest.mock` and `responses`.
+All 611 tests pass with no real API keys required. HTTP calls are mocked via `unittest.mock` and `responses`.
 
 ## CI/CD Integration
 
@@ -933,7 +1009,7 @@ Contributions are welcome! Please:
 1. Fork the repo and create a feature branch
 2. Write tests for new features (TDD)
 3. Ensure `ruff check src/ tests/` passes
-4. Ensure `pytest tests/` passes (all 378 tests, no API keys needed)
+4. Ensure `pytest tests/` passes (all 611 tests, no API keys needed)
 5. Review the [CI/CD workflows](.github/workflows/) — `test.yml` runs automatically on PRs
 6. Submit a pull request
 
