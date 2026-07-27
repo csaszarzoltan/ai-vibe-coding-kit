@@ -328,6 +328,83 @@ security model, troubleshooting, and the programmatic API.
 
 ---
 
+## Cost Optimizer — Compare & Save on LLM Costs
+
+Estimate and compare LLM API costs across 9 providers with the `ai-vibe-bench cost` CLI.
+Get task-type-aware recommendations for coding, chat, analysis, and translation
+without making a single API call.
+
+### Quick comparison
+
+```bash
+ai-vibe-bench cost compare 1000 500
+```
+
+Output shows all 24 models from all 9 providers ranked by total cost (cheapest first),
+with per-1K-token normalised costs.
+
+### Estimate a single call
+
+```bash
+ai-vibe-bench cost estimate openai gpt-4 1000 500
+```
+
+Expected output:
+
+```
+Provider:     openai
+Model:        gpt-4
+Input tokens: 1000
+Output tokens:500
+Total cost:   $0.060000
+```
+
+### Get a recommendation
+
+Find the best provider for your workload:
+
+```bash
+ai-vibe-bench cost recommend coding 5000 2000
+```
+
+Output ranks providers by a weighted value score that balances cost, quality,
+and speed according to the task profile.
+
+### Python API
+
+```python
+from ai_vibe_coding.cost_calculator import calculate_cost, compare_all, recommend_for_task
+
+# Quick cost check
+cost = calculate_cost(1000, 500, "openai", "gpt-4")
+print(f"Cost: ${cost:.4f}")
+
+# Compare providers
+options = compare_all(1000, 500)
+for opt in options[:5]:
+    print(f"{opt['provider']:12s} {opt['model']:20s} ${opt['total_cost']:.6f}")
+
+# Task-specific recommendation
+recs = recommend_for_task(5000, 2000, "coding")
+for rec in recs:
+    print(f"{rec['provider']:12s} {rec['model']:20s} "
+          f"${rec['total_cost']:.6f}  (score: {rec['value_score']:.2f})")
+```
+
+### Pricing data browser
+
+```bash
+ai-vibe-bench cost pricing
+ai-vibe-bench cost pricing --provider openai
+ai-vibe-bench cost pricing --provider openai --model gpt-4
+```
+
+See [docs/cost-optimizer.md](docs/cost-optimizer.md) for the full reference
+with provider pricing tables, task profiles, cost profiles JSON structure,
+pricing update workflow, and API reference.
+
+---
+
 ## Installation
 
 ### From source (recommended for development)
