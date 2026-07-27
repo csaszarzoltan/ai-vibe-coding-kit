@@ -1,8 +1,8 @@
 # AI Vibe Coding Kit
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests: 378](https://img.shields.io/badge/tests-378%20passed-brightgreen.svg)]()
-[![Version: 0.6.0](https://img.shields.io/badge/version-0.6.0-blue.svg)]()
+[![Tests: 524](https://img.shields.io/badge/tests-524%20total-brightgreen.svg)]()
+[![Version: 0.7.0](https://img.shields.io/badge/version-0.7.0-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CI: Test](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml/badge.svg)](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml)
 
@@ -487,10 +487,48 @@ jobs:
 
 Pricing is stored in the `PRICING` dict in `llm_wrapper.py` — update it when providers change their rates.
 
+### Prompt Chaining & Agent Workflow Templates (`src/ai_vibe_coding/chain_templates.py`)
+
+Compose LLM calls into multi-step workflows with 7 chain patterns:
+
+- **SequentialChain** — ordered A→B→C pipeline with state passing between steps
+- **ConditionalChain** — gate routing with true/false branches and converge steps
+- **ParallelChain** — fan-out/fan-in with `ThreadPoolExecutor` and configurable aggregation
+- **MapReduceChain** — split/process/merge for documents exceeding context windows
+- **AgentWithToolsChain** — ReAct-style tool-calling loop with configurable max iterations
+- **HITLStep** — human-in-the-loop approval gates with callable or CLI channels
+- **ChainRunner** — universal chain execution with streaming mode
+
+All chains share the same `.run(input_data=None) -> ChainResult` interface, providing
+consistent cost tracking, token accounting, and step-by-step debugging.
+
+```python
+from ai_vibe_coding import LLMClient, SequentialChain, ChainRunner
+
+client = LLMClient(provider="openai")
+
+def draft(ctx):
+    return client.chat(f"Draft an email about: {ctx.steps.get('input', '')}")
+
+def proofread(ctx):
+    return client.chat(f"Proofread this email:\n{ctx.steps['draft']}")
+
+draft.name = "draft"
+proofread.name = "proofread"
+
+chain = SequentialChain(steps=[draft, proofread])
+result = ChainRunner().run(chain, "Team standup reminder")
+print(f"Status: {result.status}, Cost: ${result.total_cost_usd:.4f}")
+```
+
+See [docs/prompt-chaining.md](docs/prompt-chaining.md) for the full pattern reference,
+real-world use cases, and API documentation.
+
 ## Documentation
 
 - [Quick Start Guide](docs/quickstart.md)
 - [API Reference](docs/api-reference.md)
+- [Prompt Chaining Guide](docs/prompt-chaining.md)
 - [Model Comparison & Pricing](docs/model-comparison.md)
 - [Benchmark Suite Guide](docs/benchmark-guide.md)
 - [MCP Server Guide](docs/mcp-guide.md)

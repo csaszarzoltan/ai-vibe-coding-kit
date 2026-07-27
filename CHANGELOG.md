@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-07-27
+
+### Added
+
+- **LLM Cost Calculator** — `src/ai_vibe_coding/cost_calculator.py`:
+  - `calculate_cost()` — deterministic cost for any provider/model/token count
+  - `compare_all()` — ranked cost comparison across all 9 providers
+  - `recommend_for_task()` — task-type-aware provider recommendations
+  - 100% test coverage on calculation logic
+- **Task type profiles** — `src/ai_vibe_coding/cost_profiles.json`:
+  - 5 profiles: coding, chat, analysis, translation, general
+  - Configurable weights for cost/quality/latency trade-offs
+- **Cost CLI** — `ai-vibe-cost` subcommands:
+  - `ai-vibe-cost estimate <provider> <model> <input> <output>` — cost query
+  - `ai-vibe-cost compare <input> <output> [--providers]` — provider comparison
+  - `ai-vibe-cost recommend <task_type> <input> <output> [--providers]` — recommendations
+  - `ai-vibe-cost pricing [--provider] [--model]` — pricing data browser
+
 ## [0.6.1] - 2026-07-24
 
 ### Added

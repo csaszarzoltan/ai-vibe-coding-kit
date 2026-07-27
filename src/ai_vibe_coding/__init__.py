@@ -24,6 +24,14 @@ from .chain_templates import (
     ParallelChain,
     SequentialChain,
 )
+from .cost_calculator import (
+    CostOption,
+    RankedOption,
+    TaskProfile,
+    calculate_cost,
+    compare_all,
+    recommend_for_task,
+)
 from .cost_tracker import (
     CostSummary,
     CostTracker,
@@ -114,8 +122,14 @@ __all__ = [
     "chat_json",
     "chat_with_tools",
     # Cost tracking exports
-    "CostTracker",
+    "calculate_cost",
+    "compare_all",
+    "CostOption",
     "CostSummary",
+    "CostTracker",
+    "RankedOption",
+    "recommend_for_task",
+    "TaskProfile",
     # MCP server exports
     "MCPServer",
     "MCPServerConfig",

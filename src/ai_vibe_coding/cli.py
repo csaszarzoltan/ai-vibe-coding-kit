@@ -1,11 +1,13 @@
-"""CLI entry point for running benchmarks.
+"""CLI entry point for running benchmarks and cost queries.
 
 Provides the ``ai-vibe-bench`` command-line interface with subcommands:
 - ``run``: Run benchmarks with configurable providers, models, and tasks.
 - ``list-tasks``: List available benchmark tasks from a task file.
 - ``list-providers``: List available providers based on env-available API keys.
+- ``cost``: Cost estimation and optimization (with sub-subcommands).
 
-Module dependencies: benchmark_runner, metric_collector, argparse (stdlib), sys
+Module dependencies: benchmark_runner, metric_collector, cost_calculator,
+argparse (stdlib), sys
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ def main() -> None:
     """Main entry point for the ai-vibe-bench CLI.
 
     Parses command-line arguments, dispatches to the appropriate subcommand
-    (run, list-tasks, list-providers), and exits with appropriate exit code.
+    (run, list-tasks, list-providers, cost), and exits with appropriate exit code.
     """
     parser = argparse.ArgumentParser(
         prog="ai-vibe-bench",
@@ -81,6 +83,75 @@ def main() -> None:
     # --- list-providers subcommand ---
     subparsers.add_parser("list-providers", help="List available providers")
 
+    # --- cost subcommand ---
+    cost_parser = subparsers.add_parser(
+        "cost", help="Cost estimation and optimization"
+    )
+    cost_subparsers = cost_parser.add_subparsers(dest="cost_command")
+
+    # cost estimate
+    est_parser = cost_subparsers.add_parser(
+        "estimate", help="Estimate cost for a specific provider and model"
+    )
+    est_parser.add_argument("provider", nargs="?", default=None, help="Provider name")
+    est_parser.add_argument("model", nargs="?", default=None, help="Model name")
+    est_parser.add_argument(
+        "input_tokens", nargs="?", type=int, default=None, help="Input token count"
+    )
+    est_parser.add_argument(
+        "output_tokens", nargs="?", type=int, default=None, help="Output token count"
+    )
+
+    # cost compare
+    cmp_parser = cost_subparsers.add_parser(
+        "compare", help="Compare costs across providers"
+    )
+    cmp_parser.add_argument(
+        "input_tokens", nargs="?", type=int, default=None, help="Input token count"
+    )
+    cmp_parser.add_argument(
+        "output_tokens", nargs="?", type=int, default=None, help="Output token count"
+    )
+    cmp_parser.add_argument(
+        "--providers",
+        default=None,
+        help="Comma-separated list of providers to include",
+    )
+
+    # cost recommend
+    rec_parser = cost_subparsers.add_parser(
+        "recommend", help="Recommend best provider for a task type"
+    )
+    rec_parser.add_argument(
+        "task_type", nargs="?", default=None, help="Task type (coding, chat, etc.)"
+    )
+    rec_parser.add_argument(
+        "input_tokens", nargs="?", type=int, default=None, help="Input token count"
+    )
+    rec_parser.add_argument(
+        "output_tokens", nargs="?", type=int, default=None, help="Output token count"
+    )
+    rec_parser.add_argument(
+        "--providers",
+        default=None,
+        help="Comma-separated list of providers to include",
+    )
+
+    # cost pricing
+    prc_parser = cost_subparsers.add_parser(
+        "pricing", help="Show pricing data for providers and models"
+    )
+    prc_parser.add_argument(
+        "--provider",
+        default=None,
+        help="Provider name to filter by",
+    )
+    prc_parser.add_argument(
+        "--model",
+        default=None,
+        help="Model name to filter by",
+    )
+
     args = parser.parse_args()
 
     if args.command == "run":
@@ -89,6 +160,8 @@ def main() -> None:
         _handle_list_tasks(args)
     elif args.command == "list-providers":
         _handle_list_providers()
+    elif args.command == "cost":
+        _handle_cost(args)
     else:
         parser.print_help()
 
@@ -226,3 +299,199 @@ def _handle_list_providers() -> None:
     print("  mistral    (requires MISTRAL_API_KEY)")
     print("  cohere     (requires COHERE_API_KEY)")
     print("  ollama     (local, no API key required)")
+
+
+# =====================================================================
+# Cost subcommand handlers
+# =====================================================================
+
+
+def _handle_cost(args: argparse.Namespace) -> None:
+    """Handle the 'cost' subcommand by dispatching to sub-subcommand handlers."""
+    from ai_vibe_coding.cost_calculator import (
+        PRICING,
+        calculate_cost,
+        compare_all,
+        recommend_for_task,
+    )
+
+    if args.cost_command == "estimate":
+        _handle_cost_estimate(args, calculate_cost)
+    elif args.cost_command == "compare":
+        _handle_cost_compare(args, compare_all)
+    elif args.cost_command == "recommend":
+        _handle_cost_recommend(args, recommend_for_task)
+    elif args.cost_command == "pricing":
+        _handle_cost_pricing(args, PRICING)
+    else:
+        # No cost subcommand given — print cost help
+        print("Usage: ai-vibe-bench cost <subcommand> [...]")
+        print()
+        print("Subcommands:")
+        print("  estimate <provider> <model> <input> <output>  Estimate cost")
+        print("  compare <input> <output> [--providers ...]    Compare all providers")
+        print("  recommend <type> <input> <output> [...]       Recommend for task type")
+        print("  pricing [--provider ...] [--model ...]        Show pricing data")
+
+
+def _handle_cost_estimate(
+    args: argparse.Namespace,
+    calculate_cost_func,
+) -> None:
+    """Handle 'cost estimate' subcommand."""
+    provider = args.provider
+    model = args.model
+    input_tokens = args.input_tokens
+    output_tokens = args.output_tokens
+
+    if not provider or not model or input_tokens is None or output_tokens is None:
+        print(
+            "Usage: ai-vibe-bench cost estimate <provider> <model> <input_tokens> "
+            "<output_tokens>",
+            file=sys.stderr,
+        )
+        return
+
+    try:
+        cost = calculate_cost_func(input_tokens, output_tokens, provider, model)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return
+
+    print(f"Provider:     {provider}")
+    print(f"Model:        {model}")
+    print(f"Input tokens: {input_tokens}")
+    print(f"Output tokens:{output_tokens}")
+    print(f"Total cost:   ${cost:.6f}")
+
+
+def _handle_cost_compare(
+    args: argparse.Namespace,
+    compare_all_func,
+) -> None:
+    """Handle 'cost compare' subcommand."""
+    input_tokens = args.input_tokens
+    output_tokens = args.output_tokens
+
+    if input_tokens is None or output_tokens is None:
+        print(
+            "Usage: ai-vibe-bench cost compare <input_tokens> <output_tokens> "
+            "[--providers ...]",
+            file=sys.stderr,
+        )
+        return
+
+    providers = None
+    if args.providers:
+        providers = [p.strip() for p in args.providers.split(",")]
+
+    results = compare_all_func(input_tokens, output_tokens, providers=providers)
+
+    # Print as aligned table
+    _print_cost_table(results)
+
+
+def _handle_cost_recommend(
+    args: argparse.Namespace,
+    recommend_for_task_func,
+) -> None:
+    """Handle 'cost recommend' subcommand."""
+    task_type = args.task_type
+    input_tokens = args.input_tokens
+    output_tokens = args.output_tokens
+
+    if not task_type or input_tokens is None or output_tokens is None:
+        print(
+            "Usage: ai-vibe-bench cost recommend <task_type> <input_tokens> "
+            "<output_tokens> [--providers ...]",
+            file=sys.stderr,
+        )
+        return
+
+    providers = None
+    if args.providers:
+        providers = [p.strip() for p in args.providers.split(",")]
+
+    if task_type not in (
+        "coding",
+        "chat",
+        "analysis",
+        "translation",
+        "general",
+    ):
+        print(f"Note: Unknown task type '{task_type}', falling back to 'general'")
+
+    results = recommend_for_task_func(
+        input_tokens, output_tokens, task_type, providers=providers
+    )
+
+    _print_recommendation_table(results)
+
+
+def _handle_cost_pricing(
+    args: argparse.Namespace,
+    pricing_dict: dict,
+) -> None:
+    """Handle 'cost pricing' subcommand."""
+    provider_filter = args.provider
+    model_filter = args.model
+
+    for prov in sorted(pricing_dict.keys()):
+        if provider_filter and prov != provider_filter:
+            continue
+        print(f"\n{prov}:")
+        for model_name, rates in pricing_dict[prov].items():
+            if model_filter and model_name != model_filter:
+                continue
+            print(
+                f"  {model_name:30s} "
+                f"input=${rates['input']:.6f}/1K  "
+                f"output=${rates['output']:.6f}/1K"
+            )
+
+
+# =====================================================================
+# Output formatting helpers
+# =====================================================================
+
+
+def _print_cost_table(results: list[dict]) -> None:
+    """Print a table of cost options sorted by total cost."""
+    if not results:
+        print("No results.")
+        return
+
+    # Header
+    print(
+        f"{'Provider':12s} {'Model':25s} {'Input Cost':12s} {'Output Cost':13s} "
+        f"{'Total Cost':11s} {'Cost/1K':9s}"
+    )
+    print("-" * 85)
+
+    for r in results:
+        print(
+            f"{r['provider']:12s} {r['model']:25s} "
+            f"${r['input_cost']:<9.6f}  ${r['output_cost']:<9.6f}  "
+            f"${r['total_cost']:<8.6f}  ${r['cost_per_1k_tokens']:<6.6f}"
+        )
+
+
+def _print_recommendation_table(results: list[dict]) -> None:
+    """Print a table of ranked recommendations sorted by value score."""
+    if not results:
+        print("No results.")
+        return
+
+    # Header
+    print(
+        f"{'Rank':5s} {'Provider':12s} {'Model':25s} {'Total Cost':11s} "
+        f"{'Value Score':12s} {'Explanation':30s}"
+    )
+    print("-" * 100)
+
+    for i, r in enumerate(results, 1):
+        explanation = r.get("explanation", "")
+        print(
+            f"{i:<5d} {r['provider']:12s} {r['model']:25s} "
+            f"${r['total_cost']:<8.6f}  {r['value_score']:<10.2f}  {explanation:<30s}"
+        )
