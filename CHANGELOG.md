@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-07-28
+
+### Added
+
+- **Agent Orchestration Templates** — `src/ai_vibe_coding/agent_templates.py`:
+  - 4 orchestration patterns: `AgentPipeline` (sequential), `AgentFanOut`/`AgentFanIn` (parallel),
+    `AgentSupervisor` (hierarchical), `AgentPubSubCoordinator` (pub/sub)
+  - Foundation layer: `AgentMessage`, `MessageBus`, `SharedState`
+  - Error handling: `AgentCircuitBreaker`, `AgentRetryPolicy`, `AgentFallback` with DLQ support
+  - 4 working examples in `examples/` with multi-provider support
+- **82 behavioral tests** for agent templates (695 total tests, 0 regressions)
+
 ## [0.8.0] - 2026-07-27
 
 ### Added
