@@ -1,8 +1,8 @@
 # ai-vibe-coding-kit
 
 **Status:** 🟢 Active  
-**Version:** 0.9.0  
-**Domain:** Multi-provider LLM API wrapper with cost tracking, structured output, tool calling, and agent orchestration  
+**Version:** 0.10.0  
+**Domain:** Multi-provider LLM API wrapper with cost tracking, structured output, tool calling, agent orchestration, and enterprise patterns  
 **Score:** 8/10  
 **Last updated:** 2026-07-28
 
@@ -19,14 +19,20 @@
 - ✅ **Agent Orchestration** — 4 patterns: sequential pipeline, parallel fan-out/fan-in, hierarchical supervisor, pub/sub event-driven
 - ✅ **Error Handling** — AgentCircuitBreaker, AgentRetryPolicy with dead-letter queue, AgentFallback
 - ✅ **Foundation Layer** — MessageBus (pub/sub), SharedState (namespace-isolated key-value store)
+- ✅ **Enterprise Patterns** — 3 production-grade subsystems for scaling LLM pipelines:
+  - Rate Limiting & Quota Management (TokenBucket, SlidingWindowCounter, AdaptiveRateLimiter, QuotaManager)
+  - Chaos Engineering (FaultInjector, ExperimentRunner, ChaosScenario, ObservabilityHook)
+  - Scheduled Scanning & Monitoring (DriftDetector, PromptRegressionTester, CostAnomalyDetector, SLAChecker, Scheduler)
 
-## Next Steps (v0.10.0+)
+## Next Steps (v0.11.0+)
 
 - **Streaming in AgentPipeline** — yield per-step tokens as they arrive
 - **Agent memory persistence** — conversation history across run() calls for supervisor and workers
 - **Visual pipeline debugger** — web UI showing agent call graphs and step-level latency/cost
 - **Distributed agent execution** — async agents running on separate processes or machines
 - **Auto-scaling worker pools** — dynamic agent registration based on workload
+- **Rate limiter persistence** — survival across process restarts (Redis-backed TokenBucket, etc.)
+- **Chaos experiment dashboards** — web UI for launching and monitoring fault injection experiments
 
 ## Feature Details
 
@@ -39,6 +45,9 @@
 | Prompt Chaining | `src/ai_vibe_coding/chain_templates.py` | 50+ | ✅ |
 | Agent Team | `src/ai_vibe_coding/agent_team.py` | — | ✅ |
 | Agent Templates | `src/ai_vibe_coding/agent_templates.py` | 82 | ✅ |
+| Rate Limiting | `src/ai_vibe_coding/rate_limiting.py` | — | ✅ |
+| Chaos Engineering | `src/ai_vibe_coding/chaos_engineering.py` | — | ✅ |
+| Scheduled Scanning | `src/ai_vibe_coding/scheduled_scanning.py` | — | ✅ |
 | Benchmark Suite | `src/ai_vibe_coding/benchmark_runner.py` | 62 | ✅ |
 | LLM Playground | `src/ai_vibe_coding/playground.py` | 42 | ✅ |
 | MCP Server | `src/ai_vibe_coding/mcp_server.py` | — | ✅ |
@@ -47,8 +56,8 @@
 
 ## Metrics
 
-- **Total tests:** 695 (all pass, no API keys needed)
-- **Package version:** 0.9.0
+- **Total tests:** 875 (all pass, no API keys needed)
+- **Package version:** 0.10.0
 - **Python:** 3.11+
 - **License:** MIT
 

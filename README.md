@@ -1,8 +1,8 @@
 # AI Vibe Coding Kit
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests: 695](https://img.shields.io/badge/tests-695%20total-brightgreen.svg)]()
-[![Version: 0.9.0](https://img.shields.io/badge/version-0.9.0-blue.svg)]()
+[![Tests: 875](https://img.shields.io/badge/tests-875%20total-brightgreen.svg)]()
+[![Version: 0.10.0](https://img.shields.io/badge/version-0.10.0-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CI: Test](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml/badge.svg)](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml)
 
@@ -52,6 +52,25 @@ Multi-provider LLM API wrapper with cost tracking, structured output, and tool c
 - `MetricCollector` and `BenchmarkReport` — aggregate accuracy, latency, cost, and reliability metrics
 - `ai-vibe-bench` CLI — run benchmarks, list tasks, list available providers
 - Evaluator functions: `exact_match`, `fuzzy_match`, `contains`
+
+### Rate Limiting & Quota Management (`src/ai_vibe_coding/rate_limiting.py`)
+- `TokenBucket` — fixed-capacity token bucket with refill rate
+- `SlidingWindowCounter` — per-window request counting with rolling window
+- `AdaptiveRateLimiter` — rate adaptation based on provider health scores
+- `QuotaManager` — per-provider/user quotas with burst handling and cost-aware allocation
+
+### Chaos Engineering (`src/ai_vibe_coding/chaos_engineering.py`)
+- `FaultInjector` — injects 7 fault types (timeout, rate-limit, latency-spike, partial/malformed/empty response, provider failure)
+- `ChaosScenario` / `FaultProfile` — define experiment parameters
+- `ExperimentRunner` — full lifecycle: prepare → inject → observe → clean
+- `ObservabilityHook` — metrics capture with callback subscriptions
+
+### Scheduled Scanning & Monitoring (`src/ai_vibe_coding/scheduled_scanning.py`)
+- `DriftDetector` — statistical drift detection against computed baselines
+- `PromptRegressionTester` — track prompt quality scores over time
+- `CostAnomalyDetector` — flag cost spikes exceeding configurable thresholds
+- `SLAChecker` — latency, error rate, and uptime compliance checks
+- `Scheduler` — interval-based task scheduler for periodic scanning
 
 ### Examples & Guides (`examples/`)
 - `llm_api_wrapper.py` — legacy standalone wrapper (OpenAI + MiMo)
@@ -548,6 +567,191 @@ migration guides.
 
 ---
 
+## Enterprise Patterns
+
+Production-grade patterns for running LLM pipelines at scale — rate limiting, chaos
+engineering, and scheduled scanning. Each pattern integrates with the existing
+[Production Resilience](#production-resilience) and [Agent Orchestration Templates](#agent-orchestration-templates).
+
+All components are exported from `ai_vibe_coding`:
+
+### Rate Limiting & Quota Management
+
+Throttle and allocate LLM API usage with four configurable strategies, all
+thread-safe and using monotonic time.
+
+```python
+from ai_vibe_coding import TokenBucket, SlidingWindowCounter
+from ai_vibe_coding import AdaptiveRateLimiter, RateLimiterState
+from ai_vibe_coding import QuotaManager, QuotaConfig
+
+# Token bucket — fixed capacity, refills at N tokens/second
+bucket = TokenBucket(capacity=10.0, refill_rate=1.0)
+if bucket.consume(1.0):
+    print("Request allowed")  # True if tokens available
+print(f"Available: {bucket.available_tokens}")  # current tokens
+
+# Sliding window — max N requests per rolling window
+counter = SlidingWindowCounter(window_size=60.0, max_requests=100)
+if counter.allow():
+    print("Request within window limit")
+print(f"Remaining: {counter.remaining()}")  # requests before limit
+
+# Adaptive rate limiter — adjusts to provider health
+adaptive = AdaptiveRateLimiter(max_rate=10.0, min_rate=0.5)
+adaptive.update_health(0.8)  # provider health score (0.0–1.0)
+if adaptive.allow():
+    print("Request allowed under adapted rate")
+print(f"State: {adaptive.state.value}, Rate: {adaptive.current_rate}")
+
+# Quota manager — per-provider/user budgets with burst
+manager = QuotaManager(configs=[
+    QuotaConfig(provider="openai", user="team-a",
+                max_daily_tokens=1_000_000, max_monthly_cost=100.0),
+])
+if manager.check_quota("openai", "team-a"):
+    manager.record_usage("openai", "team-a", tokens=500, cost=0.015)
+    print("Usage recorded within quota")
+else:
+    print("Quota exceeded — switch provider or wait")
+
+# Cost-aware allocation within remaining budget
+allocation = manager.cost_aware_allocation("openai", "team-a", 5000)
+print(f"Allocated: {allocation.allocated_tokens}, "
+      f"Remaining: ${allocation.remaining_budget:.2f}")
+```
+
+| Class | Strategy | Key Features |
+|-------|----------|-------------|
+| `TokenBucket` | Fixed capacity + refill | `consume()`, `available_tokens`, `refill()`, `reset()` |
+| `SlidingWindowCounter` | Rolling time window | `allow()`, `remaining()`, `time_until_next_slot()` |
+| `AdaptiveRateLimiter` | Health-based adaptation | `update_health()`, 3 states (NORMAL/THROTTLED/BACKED_OFF) |
+| `QuotaManager` | Per-provider/user budgets | `check_quota()`, `record_usage()`, `allocate_burst()`, `cost_aware_allocation()` |
+
+### Chaos Engineering
+
+Test resilience of your LLM pipelines by injecting faults under controlled
+experiments. Integrates with the existing circuit breaker and retry layers in
+[resilience.py](#production-resilience).
+
+```python
+from ai_vibe_coding import (
+    ChaosScenario, FaultProfile, FaultType,
+    FaultInjector, ExperimentRunner, ExperimentStatus,
+)
+
+# Define a fault scenario
+scenario = ChaosScenario(
+    name="openai-timeout-test",
+    target_provider="openai",
+    fault_profile=FaultProfile(
+        fault_type=FaultType.TIMEOUT,
+        duration_ms=5000.0,
+        probability=0.5,
+    ),
+    duration_seconds=30.0,
+    conditions={"min_health": 0.3},
+)
+
+# Run a full experiment lifecycle: prepare → inject → observe → clean
+runner = ExperimentRunner()
+result = runner.run(scenario)
+print(f"Status: {result.status.value}")
+print(f"Faults injected: {result.faults_injected}")
+
+# Available fault types
+for ft in FaultType:
+    print(f"  {ft.value}")  # timeout, rate-limit, latency-spike, ...
+
+# Observability hooks capture metrics during experiments
+runner.observability_hook.capture(
+    latency_ms=1200.0, error_count=2, circuit_state="HALF_OPEN",
+)
+avg_latency = runner.observability_hook.get_average_latency()
+error_rate = runner.observability_hook.get_error_rate()
+print(f"Avg latency: {avg_latency:.0f}ms, Error rate: {error_rate:.1%}")
+```
+
+| Component | Role | API Highlights |
+|-----------|------|---------------|
+| `ChaosScenario` | Experiment definition | `FaultProfile`, `duration_seconds`, `conditions`, `tags` |
+| `FaultType` | 7 fault types | TIMEOUT, RATE_LIMIT, LATENCY_SPIKE, PARTIAL_RESPONSE, PROVIDER_FAILURE, EMPTY_RESPONSE, MALFORMED_RESPONSE |
+| `FaultInjector` | Fault injection engine | `register_scenario()`, `should_inject()`, `inject_fault()` |
+| `ExperimentRunner` | Lifecycle manager | `prepare()` → `inject()` → `observe()` → `clean()`, or single `run()` |
+| `ObservabilityHook` | Metrics capture | `capture()`, `get_average_latency()`, `get_error_rate()`, callback subscriptions |
+
+### Scheduled Scanning
+
+Automate drift detection, prompt regression testing, cost anomaly detection, SLA
+compliance checks, and periodic execution scheduling.
+
+```python
+from ai_vibe_coding import (
+    DriftDetector, PromptRegressionTester,
+    CostAnomalyDetector, SLAChecker, Scheduler, ScanType,
+)
+from ai_vibe_coding import ScanResult
+
+# Drift detection — compare against a statistical baseline
+detector = DriftDetector(name="response-length", deviation_threshold=2.0)
+detector.compute_baseline(
+    [{"response_length": 150}, {"response_length": 200},
+     {"response_length": 175}],
+    metric="response_length",
+)
+report = detector.detect("response_length", 500)
+print(f"Drift: {report.is_drifted}, z-score: {report.drift_score:.2f}")
+
+# Prompt regression — track quality scores over time
+tester = PromptRegressionTester(default_threshold=0.1)
+report = tester.evaluate("prompt-42", current_score=0.45)
+print(f"Regression: {report.is_regression} (Δ={report.score_change:+.4f})")
+
+# Cost anomaly detection
+anomaly = CostAnomalyDetector(deviation_threshold=1.5)
+anomaly.set_baseline("openai", baseline_daily_cost=50.0)
+anomaly.record_daily_cost("openai", 120.0)
+report = anomaly.check("openai")
+print(f"Anomalous: {report.is_anomalous} ({report.deviation_ratio:.1f}x baseline)")
+
+# SLA compliance checks
+checker = SLAChecker()
+checker.record_latency("openai", 1200.0)
+checker.record_error("openai")
+checker.record_uptime("openai", True)
+latency_report = checker.check_latency("openai", max_latency_ms=5000.0)
+error_report   = checker.check_error_rate("openai", max_error_rate=0.05)
+uptime_report  = checker.check_uptime("openai", min_uptime=0.99)
+print(f"Latency SLA: {latency_report.compliance_status.value}")
+print(f"Error SLA:   {error_report.compliance_status.value}")
+print(f"Uptime SLA:  {uptime_report.compliance_status.value}")
+
+# Schedule periodic scanning
+scheduler = Scheduler()
+scheduler.add_task(
+    task_id="drift-check-hourly",
+    scan_type=ScanType.DRIFT,
+    callback=lambda: ScanResult(summary="drift-check-ok"),
+    interval_seconds=3600.0,
+)
+scheduler.start()
+results = scheduler.run_due()  # or run_all() for immediate
+scheduler.stop()
+```
+
+| Component | Role | Key Methods |
+|-----------|------|-------------|
+| `DriftDetector` | Statistical drift detection | `compute_baseline()`, `detect()`, `set_baseline()` |
+| `PromptRegressionTester` | Prompt quality regression | `evaluate()`, `record_score()`, `get_scores()` |
+| `CostAnomalyDetector` | Cost spike detection | `set_baseline()`, `record_daily_cost()`, `check()` |
+| `SLAChecker` | Latency/error/uptime SLA | `check_latency()`, `check_error_rate()`, `check_uptime()` |
+| `Scheduler` | Interval-based execution | `add_task()`, `run_due()`, `start()`, `stop()` |
+
+Each scanning detector can be wired into the `Scheduler` for periodic
+execution, providing continuous observability for production LLM pipelines.
+
+---
+
 ## Installation
 
 ### From source (recommended for development)
@@ -597,7 +801,7 @@ pytest tests/test_frontend_playground.py -v
 ruff check src/ tests/
 ```
 
-All 695 tests pass with no real API keys required. HTTP calls are mocked via `unittest.mock` and `responses`.
+All 875 tests pass with no real API keys required. HTTP calls are mocked via `unittest.mock` and `responses`.
 
 ## CI/CD Integration
 
@@ -1040,6 +1244,9 @@ src/ai_vibe_coding/
     provider_examples.py — extended providers: Gemini, Mistral, Cohere, Ollama
     structured.py        — JSON mode and tool calling
     cost_tracker.py      — thread-safe cost tracking and export
+    rate_limiting.py     — TokenBucket, SlidingWindowCounter, AdaptiveRateLimiter, QuotaManager
+    chaos_engineering.py — FaultInjector, ExperimentRunner, ChaosScenario, ObservabilityHook
+    scheduled_scanning.py — DriftDetector, PromptRegressionTester, CostAnomalyDetector, SLAChecker, Scheduler
     benchmark_runner.py  — benchmark orchestration (tasks, runners, comparisons)
     metric_collector.py  — metrics aggregation, reporting, evaluators
     cli.py               — ai-vibe-bench CLI entry point
@@ -1077,7 +1284,7 @@ Contributions are welcome! Please:
 1. Fork the repo and create a feature branch
 2. Write tests for new features (TDD)
 3. Ensure `ruff check src/ tests/` passes
-4. Ensure `pytest tests/` passes (all 695 tests, no API keys needed)
+4. Ensure `pytest tests/` passes (all 875 tests, no API keys needed)
 5. Review the [CI/CD workflows](.github/workflows/) — `test.yml` runs automatically on PRs
 6. Submit a pull request
 
