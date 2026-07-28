@@ -46,6 +46,18 @@ from .chain_templates import (
     ParallelChain,
     SequentialChain,
 )
+from .chaos_engineering import (
+    ChaosScenario,
+    ExperimentPhase,
+    ExperimentResult,
+    ExperimentRunner,
+    ExperimentStatus,
+    FaultInjector,
+    FaultProfile,
+    FaultType,
+    MetricSnapshot,
+    ObservabilityHook,
+)
 from .cost_calculator import (
     CostOption,
     RankedOption,
@@ -89,6 +101,18 @@ from .provider_examples import (
     MistralProvider,
     OllamaProvider,
 )
+from .rate_limiting import (
+    AdaptiveRateLimiter,
+    CostAwareAllocation,
+    QuotaConfig,
+    QuotaManager,
+    QuotaPeriod,
+    QuotaUsage,
+    RateLimiterState,
+    RateLimitExceeded,
+    SlidingWindowCounter,
+    TokenBucket,
+)
 from .resilience import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -113,6 +137,21 @@ from .resilience import (
     TimeoutBudget,
     TimeoutBudgetError,
     TimeoutConfig,
+)
+from .scheduled_scanning import (
+    AlertLevel,
+    ComplianceStatus,
+    CostAnomalyDetector,
+    CostAnomalyReport,
+    DriftDetector,
+    DriftReport,
+    PromptRegressionReport,
+    PromptRegressionTester,
+    ScanResult,
+    ScanType,
+    Scheduler,
+    SLAChecker,
+    SLAReport,
 )
 from .structured import (
     ApprovalDeniedError,
@@ -239,4 +278,40 @@ __all__ = [
     "TimeoutBudget",
     "TimeoutBudgetError",
     "TimeoutConfig",
+    # Rate Limiting exports
+    "AdaptiveRateLimiter",
+    "CostAwareAllocation",
+    "QuotaConfig",
+    "QuotaManager",
+    "QuotaPeriod",
+    "QuotaUsage",
+    "RateLimitExceeded",
+    "RateLimiterState",
+    "SlidingWindowCounter",
+    "TokenBucket",
+    # Chaos Engineering exports
+    "ChaosScenario",
+    "ExperimentPhase",
+    "ExperimentResult",
+    "ExperimentRunner",
+    "ExperimentStatus",
+    "FaultInjector",
+    "FaultProfile",
+    "FaultType",
+    "MetricSnapshot",
+    "ObservabilityHook",
+    # Scheduled Scanning exports
+    "AlertLevel",
+    "ComplianceStatus",
+    "CostAnomalyDetector",
+    "CostAnomalyReport",
+    "DriftDetector",
+    "DriftReport",
+    "PromptRegressionReport",
+    "PromptRegressionTester",
+    "SLAChecker",
+    "SLAReport",
+    "ScanResult",
+    "ScanType",
+    "Scheduler",
 ]
