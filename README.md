@@ -1,8 +1,8 @@
 # AI Vibe Coding Kit
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests: 611](https://img.shields.io/badge/tests-611%20total-brightgreen.svg)]()
-[![Version: 0.8.0](https://img.shields.io/badge/version-0.8.0-blue.svg)]()
+[![Tests: 695](https://img.shields.io/badge/tests-695%20total-brightgreen.svg)]()
+[![Version: 0.9.0](https://img.shields.io/badge/version-0.9.0-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CI: Test](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml/badge.svg)](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml)
 
@@ -481,6 +481,73 @@ All resilience layers are configured via `ResilienceConfig`:
 
 ---
 
+## Agent Orchestration Templates
+
+Compose multiple LLM agents into coordinated workflows with 4 built-in
+orchestration patterns. Each pattern supports heterogeneous providers, cost
+limits, circuit breakers, and shared state.
+
+### Quick Start — Sequential Pipeline
+
+```python
+from ai_vibe_coding import AgentPipeline
+from ai_vibe_coding.llm_wrapper import LLMClient
+
+research = LLMClient(provider="openai", model="gpt-4o-mini")
+writer   = LLMClient(provider="anthropic", model="claude-3-haiku-20240307")
+reviewer = LLMClient(provider="deepseek", model="deepseek-chat")
+
+pipeline = AgentPipeline(agents=[research, writer, reviewer])
+result = pipeline.run("Impact of quantum computing on cryptography")
+print(f"Status: {result.status}, Cost: ${result.total_cost_usd:.4f}")
+```
+
+### Quick Start — Pub/Sub Event-Driven
+
+```python
+from ai_vibe_coding import AgentMessage, AgentPubSubCoordinator, MessageBus
+
+bus = MessageBus()
+coordinator = AgentPubSubCoordinator(message_bus=bus)
+
+def on_alert(msg: AgentMessage) -> None:
+    print(f"ALERT: {msg.payload}")
+
+coordinator.register_agent("alerter", on_alert, subscription="alert.*")
+coordinator.start()
+
+# Sensor publishes → analyzer detects anomaly → alerter fires
+bus.publish(AgentMessage(from_agent="sensor", to_agent=None,
+            type="sensor.cpu", payload={"value": 95}))
+coordinator.stop()
+```
+
+### All 4 Patterns
+
+| Pattern | Class | Use Case |
+|---------|-------|----------|
+| **Sequential Pipeline** | `AgentPipeline` | Research → Write → Review (fixed order) |
+| **Parallel Fan-Out/Fan-In** | `AgentFanOut` + `AgentFanIn` | Technical + Business + Security analysis |
+| **Hierarchical Supervisor** | `AgentSupervisor` | LLM routes tasks to specialists |
+| **Pub/Sub Event-Driven** | `AgentPubSubCoordinator` | Agent reacts to matching message types |
+
+### Foundation Layer
+
+- `MessageBus` — thread-safe pub/sub with wildcard type filtering
+- `SharedState` — thread-safe key-value store with namespace isolation
+
+### Error Handling
+
+- `AgentCircuitBreaker` — per-provider failure threshold gate
+- `AgentRetryPolicy` — exponential backoff with dead-letter queue
+- `AgentFallback` — primary → fallback failover
+
+See [docs/agent-orchestration.md](docs/agent-orchestration.md) for the full
+reference with code examples, architecture diagrams, cost management, and
+migration guides.
+
+---
+
 ## Installation
 
 ### From source (recommended for development)
@@ -530,7 +597,7 @@ pytest tests/test_frontend_playground.py -v
 ruff check src/ tests/
 ```
 
-All 611 tests pass with no real API keys required. HTTP calls are mocked via `unittest.mock` and `responses`.
+All 695 tests pass with no real API keys required. HTTP calls are mocked via `unittest.mock` and `responses`.
 
 ## CI/CD Integration
 
@@ -682,6 +749,7 @@ real-world use cases, and API documentation.
 - [Quick Start Guide](docs/quickstart.md)
 - [API Reference](docs/api-reference.md)
 - [Prompt Chaining Guide](docs/prompt-chaining.md)
+- [Agent Orchestration Guide](docs/agent-orchestration.md)
 - [Model Comparison & Pricing](docs/model-comparison.md)
 - [Benchmark Suite Guide](docs/benchmark-guide.md)
 - [MCP Server Guide](docs/mcp-guide.md)
@@ -1009,7 +1077,7 @@ Contributions are welcome! Please:
 1. Fork the repo and create a feature branch
 2. Write tests for new features (TDD)
 3. Ensure `ruff check src/ tests/` passes
-4. Ensure `pytest tests/` passes (all 611 tests, no API keys needed)
+4. Ensure `pytest tests/` passes (all 695 tests, no API keys needed)
 5. Review the [CI/CD workflows](.github/workflows/) — `test.yml` runs automatically on PRs
 6. Submit a pull request
 
