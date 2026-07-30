@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="300">
+    <title>LLM Cost & Latency Dashboard</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: auto; }
+        h1 { color: #333; }
+        .card { background: white; border-radius: 8px; padding: 16px; margin: 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .sparkline { width: 100%; height: 60px; }
+        .bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 100px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+        .date-range { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .date-range label { font-weight: 600; }
+        .date-range input { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .date-range button { padding: 6px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .date-range button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLM Cost & Latency Dashboard</h1>
+        <!-- Date range filter -->
+        <div class="card">
+            <div class="date-range">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date">
+                <button id="filter-btn" onclick="applyDateFilter()">Filter</button>
+            </div>
+        </div>
+        <!-- Summary card -->
+        <div class="card" id="summary-card">
+            <p>Loading summary...</p>
+        </div>
+        <!-- Sparkline / chart area -->
+        <div class="card" id="sparkline-card">
+            <svg class="sparkline" viewBox="0 0 200 60"></svg>
+        </div>
+        <div class="card" id="chart-card">
+            <div class="bar-chart"></div>
+        </div>
+        <!-- Data table -->
+        <div class="card" id="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Provider</th>
+                        <th>Model</th>
+                        <th>Cost</th>
+                        <th>Tokens</th>
+                        <th>Latency</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Auto-refresh every 30 seconds
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+
+        function applyDateFilter() {
+            var startDate = document.getElementById('start_date').value;
+            var endDate = document.getElementById('end_date').value;
+            // Filtering logic will be implemented by the developer
+            console.log('Filter: ' + startDate + ' to ' + endDate);
+        }
+    </script>
+</body>
+</html>
