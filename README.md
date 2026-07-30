@@ -1302,3 +1302,51 @@ MIT License — see [LICENSE](LICENSE) for details.
 ---
 
 Star this repo if you find it useful!
+
+## AI Engineering Control Plane
+
+Version 0.11 adds a durable, browser-based command center without replacing the existing Python SDK, benchmark CLI, MCP server, or playground.
+
+### Workspaces
+
+- `/control/providers` manages provider availability, model access, scoped virtual keys, and quotas.
+- `/control/traces` reconstructs provider calls, retries, tools, latency, cost, and redacted metadata.
+- `/control/evaluations` models candidate experiments and enforceable release thresholds.
+- `/control/security` records prompt, data, tool, and excessive-agency findings.
+- `/control/budgets` exposes spend state and performs fail-closed request preflight checks.
+- `/control/agents` tracks workflow checkpoints and human approvals without repeating completed tool calls.
+
+The server-rendered UI is responsive, supports dark mode, includes skip navigation and visible focus, and represents empty and recovery states explicitly. Run the application with:
+
+```bash
+uvicorn ai_vibe_coding.app:app --host 127.0.0.1 --port 8000
+```
+
+Set `AI_VIBE_CONTROL_DB` to the SQLite database path. The default is `/tmp/ai_vibe_control.db`, which is appropriate for local development only. Production deployments should place the database on protected persistent storage and add the deployment's identity provider and tenant authorization middleware.
+
+### API example
+
+```bash
+curl -X PUT http://localhost:8000/api/v1/providers/openai \
+  -H 'Content-Type: application/json' \
+  -d '{"models":["gpt-4o-mini"],"enabled":true}'
+
+curl -X POST http://localhost:8000/api/v1/virtual-keys \
+  -H 'Content-Type: application/json' \
+  -d '{"tenant":"team-a","models":["gpt-4o-mini"],"budget":25.0}'
+```
+
+Raw virtual keys are returned once and only their SHA-256 digest is persisted. The `GET /api/v1/authorize` endpoint validates model scope and projected spend before a provider call.
+
+### Control-plane tests
+
+```bash
+python -m pytest -q tests/test_control_plane.py
+python -m pytest -q
+ruff check src tests
+ruff format --check src tests
+python -m compileall -q src tests
+python -m build --no-isolation
+```
+
+Control-plane tests do not use provider networks or real credentials. Existing optional provider suites still require their documented SDK extras.

@@ -220,3 +220,7 @@ Thread-safe cost tracker for LLM API calls.
 
 - `to_dict() -> dict` — JSON-serializable representation
 - `to_table() -> str` — aligned ASCII table string
+
+## Control-plane API (v1)
+
+The additive control-plane interface exposes provider configuration, one-time virtual-key issuance, preflight authorization, trace ingestion/export, evaluation experiments, security scans, and agent runs under `/api/v1`. See [AI Engineering Control Plane](control-plane.md) for states, trust boundaries, recovery, and compatibility.

@@ -166,8 +166,15 @@ def search_web(query: str, max_results: int = 5) -> str:
         Formatted search results with titles, URLs, and snippets
     """
     url = "https://html.duckduckgo.com/html"
-    response = httpx.post(url, data={"q": query}, timeout=15.0)
-    response.raise_for_status()
+    try:
+        response = httpx.post(url, data={"q": query}, timeout=15.0)
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        return (
+            "Search service unavailable. Retry later or use another approved "
+            "search adapter. "
+            f"Reference: SEARCH_DEPENDENCY_FAILED ({type(exc).__name__})"
+        )
 
     # Extract result blocks from the HTML response
     results: list[dict[str, str]] = []

@@ -138,3 +138,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Version bumped from 0.2.0 to 0.3.0
 - Added `.gitignore` for Python build artifacts
+
+## [0.11.0] - 2026-07-30
+
+### Added
+
+- A durable AI engineering control plane covering provider policy, virtual keys, budgets, traces, evaluation gates, AI security scans, and checkpointed agent approvals.
+- Six responsive command-center workspaces with keyboard navigation, live status messaging, empty states, recovery guidance, and dark-mode support.
+- Versioned `/api/v1` contracts for provider configuration, virtual keys, trace ingestion/export, experiments, security scans, agent runs, and preflight authorization.
+- Fail-closed model and budget policies, idempotent trace ingestion, spend deduplication, secret redaction, release threshold enforcement, blocking security findings, and self-approval prevention.
+- Deterministic unit, persistence, security, UI-state, accessibility, and route-contract tests.
+
+### Changed
+
+- Bumped the package and application version to 0.11.0.
