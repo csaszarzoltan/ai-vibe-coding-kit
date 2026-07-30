@@ -247,3 +247,108 @@ class TestReset:
         summary = tracker.get_summary()
         assert summary.call_count == 0
         assert summary.total_cost == 0.0
+
+
+# ──────────────────────────────────────────────────────────────
+# Interface tests for extended CostTracker methods (P0-B)
+# ──────────────────────────────────────────────────────────────
+
+
+class TestCostTrackerExtensionInterface:
+    """Verify new methods added by P0-B extension exist."""
+
+    def test_init_accepts_db_path(self):
+        """CostTracker should accept optional db_path parameter."""
+        tracker = CostTracker(db_path=":memory:")
+        assert tracker is not None
+
+    def test_init_without_db_path(self):
+        """CostTracker should still work without db_path (backward compat)."""
+        tracker = CostTracker()
+        assert tracker is not None
+
+    def test_has_set_store(self):
+        """CostTracker should have set_store method."""
+        assert hasattr(CostTracker, "set_store")
+
+    def test_has_get_store(self):
+        """CostTracker should have get_store method."""
+        assert hasattr(CostTracker, "get_store")
+
+    def test_has_get_daily_cost(self):
+        """CostTracker should have get_daily_cost method."""
+        assert hasattr(CostTracker, "get_daily_cost")
+
+    def test_has_get_latency_percentiles(self):
+        """CostTracker should have get_latency_percentiles method."""
+        assert hasattr(CostTracker, "get_latency_percentiles")
+
+
+# ──────────────────────────────────────────────────────────────
+# Behavioral tests for extended CostTracker methods — must FAIL
+# ──────────────────────────────────────────────────────────────
+
+
+class TestCostTrackerExtensionBehavior:
+    """Behavioral tests for new methods."""
+
+    @pytest.mark.unit
+    def test_set_store_accepts_store(self):
+        """set_store() should accept a store instance."""
+        from ai_vibe_coding.cost_store import SqliteCostStore
+
+        tracker = CostTracker()
+        store = SqliteCostStore(":memory:")
+        tracker.set_store(store)
+        assert tracker.get_store() is store
+
+    @pytest.mark.unit
+    def test_get_store_returns_store(self):
+        """get_store() should return the current store."""
+        from ai_vibe_coding.cost_store import SqliteCostStore
+
+        tracker = CostTracker()
+        store = SqliteCostStore(":memory:")
+        tracker.set_store(store)
+        result = tracker.get_store()
+        assert result is store
+
+    @pytest.mark.unit
+    def test_get_daily_cost_returns_list(self):
+        """get_daily_cost() should return a list of dicts."""
+        tracker = CostTracker()
+        tracker.record(_make_response(cost=0.01, tokens=100))
+        result = tracker.get_daily_cost()
+        assert isinstance(result, list)
+
+    @pytest.mark.unit
+    def test_get_daily_cost_with_date_filter(self):
+        """get_daily_cost() should accept date range filters."""
+        tracker = CostTracker(db_path=":memory:")
+        tracker.record(_make_response(cost=0.01, tokens=100))
+        result = tracker.get_daily_cost(
+            start_date="2026-07-01",
+            end_date="2026-07-31",
+        )
+        assert isinstance(result, list)
+
+    @pytest.mark.unit
+    def test_get_latency_percentiles_returns_float(self):
+        """get_latency_percentiles() should return a float."""
+        tracker = CostTracker()
+        tracker.record(_make_response(cost=0.01, tokens=100))
+        result = tracker.get_latency_percentiles(percentile=95.0)
+        assert isinstance(result, float)
+
+    @pytest.mark.unit
+    def test_get_latency_percentiles_with_filters(self):
+        """get_latency_percentiles() should accept all filters."""
+        tracker = CostTracker(db_path=":memory:")
+        tracker.record(_make_response())
+        result = tracker.get_latency_percentiles(
+            percentile=99.0,
+            start_date="2026-07-01",
+            end_date="2026-07-31",
+            provider="openai",
+        )
+        assert isinstance(result, float)

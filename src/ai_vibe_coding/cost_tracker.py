@@ -84,9 +84,11 @@ class CostTracker:
         tracker.export_csv("costs.csv")
     """
 
-    def __init__(self) -> None:
+    def __init__(self, db_path: str | Path | None = None) -> None:
         self._lock = threading.Lock()
         self._records: list[dict[str, Any]] = []
+        self._store: Any = None
+        self._db_path: str | Path | None = db_path
 
     def record(self, response: LLMResponse) -> None:
         """Record an LLMResponse and accumulate its cost."""
@@ -98,6 +100,9 @@ class CostTracker:
             "tokens_out": response.output_tokens,
             "tokens_used": response.tokens_used,
             "cost_usd": response.cost_usd,
+            "latency_ms": response.latency_ms,
+            "session_id": response.session_id,
+            "tags": response.tags,
         }
         with self._lock:
             self._records.append(entry)
@@ -165,6 +170,114 @@ class CostTracker:
         output.parent.mkdir(parents=True, exist_ok=True)
         with open(output, "w") as f:
             json.dump(data, f, indent=2)
+
+    def set_store(self, store: Any) -> None:
+        """Set the SQLite cost store for persistence.
+
+        Args:
+            store: An SqliteCostStore instance for persistent storage.
+        """
+        self._store = store
+
+    def get_store(self) -> Any:
+        """Get the current SQLite cost store, if any."""
+        return self._store
+
+    def get_daily_cost(
+        self,
+        start_date: str | None = None,
+        end_date: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Get daily cost breakdown via the cost store.
+
+        Args:
+            start_date: Optional start date filter (ISO format).
+            end_date: Optional end date filter (ISO format).
+
+        Returns:
+            List of dicts with keys: date, total_cost, total_tokens,
+            request_count.
+        """
+        if self._store is not None:
+            return self._store.get_daily_rollup(
+                start_date=start_date, end_date=end_date
+            )
+        # Fallback: aggregate from in-memory records
+        with self._lock:
+            records = list(self._records)
+        daily: dict[str, dict[str, Any]] = {}
+        for r in records:
+            day = r["timestamp"][:10]
+            if day not in daily:
+                daily[day] = {
+                    "date": day,
+                    "total_cost": 0.0,
+                    "total_tokens": 0,
+                    "request_count": 0,
+                    "avg_latency_ms": 0.0,
+                }
+            daily[day]["total_cost"] += r["cost_usd"]
+            daily[day]["total_tokens"] += r["tokens_in"] + r["tokens_out"]
+            daily[day]["request_count"] += 1
+        result = sorted(daily.values(), key=lambda d: d["date"])
+        # Compute averages
+        for d in result:
+            if d["request_count"] > 0:
+                d["avg_latency_ms"] = (
+                    sum(
+                        r.get("latency_ms", 0.0)
+                        for r in records
+                        if r["timestamp"][:10] == d["date"]
+                    )
+                    / d["request_count"]
+                )
+        return result
+
+    def get_latency_percentiles(
+        self,
+        percentile: float = 95.0,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        provider: str | None = None,
+    ) -> float:
+        """Get latency at the specified percentile via the cost store.
+
+        Args:
+            percentile: Percentile to compute (e.g. 95.0 for p95).
+            start_date: Optional start date filter (ISO format).
+            end_date: Optional end date filter (ISO format).
+            provider: Optional provider filter.
+
+        Returns:
+            Latency value in milliseconds at the requested percentile.
+        """
+        if self._store is not None:
+            return self._store.get_latency_percentiles(
+                percentile=percentile,
+                start_date=start_date,
+                end_date=end_date,
+                provider=provider,
+            )
+        # Fallback: compute from in-memory records
+        with self._lock:
+            records = list(self._records)
+        values = [
+            r.get("latency_ms", 0.0)
+            for r in records
+            if (start_date is None or r["timestamp"][:10] >= start_date[:10])
+            and (end_date is None or r["timestamp"][:10] <= end_date[:10])
+            and (provider is None or r["provider"] == provider)
+        ]
+        if not values:
+            return 0.0
+        values.sort()
+        if percentile >= 100.0:
+            return values[-1]
+        if percentile <= 0.0:
+            return values[0]
+        idx = int(len(values) * percentile / 100.0)
+        idx = min(idx, len(values) - 1)
+        return values[idx]
 
     def reset(self) -> None:
         """Clear all recorded costs."""

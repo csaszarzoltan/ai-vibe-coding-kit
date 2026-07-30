@@ -89,6 +89,8 @@ class LLMResponse:
         latency_ms: Response latency in milliseconds.
         input_tokens: Number of input/prompt tokens.
         output_tokens: Number of output/completion tokens.
+        session_id: Optional session identifier for grouping requests.
+        tags: Optional key-value tags for categorizing requests.
         raw: Raw provider response dict for debugging.
     """
 
@@ -100,6 +102,8 @@ class LLMResponse:
     latency_ms: float
     input_tokens: int = 0
     output_tokens: int = 0
+    session_id: str | None = None
+    tags: dict[str, Any] | None = None
     raw: dict[str, Any] = field(default_factory=dict)
 
 
