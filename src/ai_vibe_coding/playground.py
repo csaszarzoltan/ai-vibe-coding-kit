@@ -41,6 +41,8 @@ from ai_vibe_coding.provider_examples import (
 # Request / Response models
 # ──────────────────────────────────────────────────────────────
 
+MAX_PROMPT_LENGTH = 20_000
+
 
 class ProviderLatency(BaseModel):
     """Latency metrics for a single provider call."""
@@ -87,7 +89,10 @@ class PlaygroundCompareRequest(BaseModel):
     """Request body for POST /api/playground/compare."""
 
     prompt: str = Field(
-        ..., min_length=1, description="The user prompt to send to providers"
+        ...,
+        min_length=1,
+        max_length=MAX_PROMPT_LENGTH,
+        description="The user prompt to send to providers",
     )
     providers: list[str] | None = Field(
         default=None,

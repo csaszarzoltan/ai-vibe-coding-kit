@@ -1,0 +1,22 @@
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/test_next_version_ux.py:231:5
+    |
+230 |   def test_prompt_length_is_bounded_by_api_contract():
+231 | /     from pydantic import ValidationError
+232 | |     from ai_vibe_coding.playground import PlaygroundCompareRequest, MAX_PROMPT_LENGTH
+    | |_____________________________________________________________________________________^
+233 |
+234 |       assert MAX_PROMPT_LENGTH == 20000
+    |
+help: Organize imports
+    |
+231 |     from pydantic import ValidationError
+    -     from ai_vibe_coding.playground import PlaygroundCompareRequest, MAX_PROMPT_LENGTH
+232 |
+233 +     from ai_vibe_coding.playground import MAX_PROMPT_LENGTH, PlaygroundCompareRequest
+234 +
+235 |     assert MAX_PROMPT_LENGTH == 20000
+    |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

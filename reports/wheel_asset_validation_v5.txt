@@ -1,0 +1,3 @@
+wheel= ai_vibe_coding_kit-0.11.0-py3-none-any.whl
+required_assets_present= True
+missing= []

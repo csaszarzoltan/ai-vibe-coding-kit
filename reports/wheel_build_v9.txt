@@ -1,0 +1,167 @@
+* Getting build dependencies for wheel...
+/mnt/data/testenv/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  corresp(dist, value, root_dir)
+running egg_info
+creating src/ai_vibe_coding_kit.egg-info
+writing src/ai_vibe_coding_kit.egg-info/PKG-INFO
+writing dependency_links to src/ai_vibe_coding_kit.egg-info/dependency_links.txt
+writing entry points to src/ai_vibe_coding_kit.egg-info/entry_points.txt
+writing requirements to src/ai_vibe_coding_kit.egg-info/requires.txt
+writing top-level names to src/ai_vibe_coding_kit.egg-info/top_level.txt
+writing manifest file 'src/ai_vibe_coding_kit.egg-info/SOURCES.txt'
+reading manifest file 'src/ai_vibe_coding_kit.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/ai_vibe_coding_kit.egg-info/SOURCES.txt'
+* Building wheel...
+/mnt/data/testenv/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+!!
+
+        ********************************************************************************
+        Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+
+        By 2027-Feb-18, you need to update your project and remove deprecated calls
+        or your builds will no longer be supported.
+
+        See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+        ********************************************************************************
+
+!!
+  corresp(dist, value, root_dir)
+running bdist_wheel
+running build
+running build_py
+copying src/ai_vibe_coding/rate_limiting.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/cost_comparison.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/playground.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/cost_calculator.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/chaos_engineering.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/metric_collector.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/cost_tracker.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/agent_templates.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/scheduled_scanning.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/agent_team.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/structured.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/control_plane.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/llm_wrapper.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/benchmark_runner.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/cost_api.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/control_api.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/provider_examples.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/mcp_server.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/app.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/resilience.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/cli.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/chain_templates.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/budget_alert.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/cost_store.py -> build/lib/ai_vibe_coding
+copying src/ai_vibe_coding/__init__.py -> build/lib/ai_vibe_coding
+running egg_info
+writing src/ai_vibe_coding_kit.egg-info/PKG-INFO
+writing dependency_links to src/ai_vibe_coding_kit.egg-info/dependency_links.txt
+writing entry points to src/ai_vibe_coding_kit.egg-info/entry_points.txt
+writing requirements to src/ai_vibe_coding_kit.egg-info/requires.txt
+writing top-level names to src/ai_vibe_coding_kit.egg-info/top_level.txt
+reading manifest file 'src/ai_vibe_coding_kit.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'src/ai_vibe_coding_kit.egg-info/SOURCES.txt'
+copying src/ai_vibe_coding/static/index.html -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/cost_dashboard.html -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/playground.js -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/control.css -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/playground.css -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/control.css -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/cost_dashboard.html -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/index.html -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/playground.css -> build/lib/ai_vibe_coding/static
+copying src/ai_vibe_coding/static/playground.js -> build/lib/ai_vibe_coding/static
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/ai_vibe_coding
+copying build/lib/ai_vibe_coding/rate_limiting.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/cost_comparison.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/playground.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/cost_calculator.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/chaos_engineering.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/metric_collector.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/cost_tracker.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/agent_templates.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/scheduled_scanning.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/agent_team.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/structured.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/control_plane.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/llm_wrapper.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/benchmark_runner.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/cost_api.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/control_api.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/provider_examples.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/mcp_server.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/app.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/resilience.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/cli.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/chain_templates.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/budget_alert.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/cost_store.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+copying build/lib/ai_vibe_coding/__init__.py -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding
+creating build/bdist.linux-x86_64/wheel/ai_vibe_coding/static
+copying build/lib/ai_vibe_coding/static/control.css -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding/static
+copying build/lib/ai_vibe_coding/static/index.html -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding/static
+copying build/lib/ai_vibe_coding/static/playground.js -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding/static
+copying build/lib/ai_vibe_coding/static/playground.css -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding/static
+copying build/lib/ai_vibe_coding/static/cost_dashboard.html -> build/bdist.linux-x86_64/wheel/./ai_vibe_coding/static
+running install_egg_info
+Copying src/ai_vibe_coding_kit.egg-info to build/bdist.linux-x86_64/wheel/./ai_vibe_coding_kit-0.11.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/ai_vibe_coding_kit-0.11.0.dist-info/WHEEL
+creating '/mnt/data/wheelhouse/.tmp-vydeok27/ai_vibe_coding_kit-0.11.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'ai_vibe_coding/__init__.py'
+adding 'ai_vibe_coding/agent_team.py'
+adding 'ai_vibe_coding/agent_templates.py'
+adding 'ai_vibe_coding/app.py'
+adding 'ai_vibe_coding/benchmark_runner.py'
+adding 'ai_vibe_coding/budget_alert.py'
+adding 'ai_vibe_coding/chain_templates.py'
+adding 'ai_vibe_coding/chaos_engineering.py'
+adding 'ai_vibe_coding/cli.py'
+adding 'ai_vibe_coding/control_api.py'
+adding 'ai_vibe_coding/control_plane.py'
+adding 'ai_vibe_coding/cost_api.py'
+adding 'ai_vibe_coding/cost_calculator.py'
+adding 'ai_vibe_coding/cost_comparison.py'
+adding 'ai_vibe_coding/cost_store.py'
+adding 'ai_vibe_coding/cost_tracker.py'
+adding 'ai_vibe_coding/llm_wrapper.py'
+adding 'ai_vibe_coding/mcp_server.py'
+adding 'ai_vibe_coding/metric_collector.py'
+adding 'ai_vibe_coding/playground.py'
+adding 'ai_vibe_coding/provider_examples.py'
+adding 'ai_vibe_coding/rate_limiting.py'
+adding 'ai_vibe_coding/resilience.py'
+adding 'ai_vibe_coding/scheduled_scanning.py'
+adding 'ai_vibe_coding/structured.py'
+adding 'ai_vibe_coding/static/control.css'
+adding 'ai_vibe_coding/static/cost_dashboard.html'
+adding 'ai_vibe_coding/static/index.html'
+adding 'ai_vibe_coding/static/playground.css'
+adding 'ai_vibe_coding/static/playground.js'
+adding 'ai_vibe_coding_kit-0.11.0.dist-info/licenses/LICENSE'
+adding 'ai_vibe_coding_kit-0.11.0.dist-info/METADATA'
+adding 'ai_vibe_coding_kit-0.11.0.dist-info/WHEEL'
+adding 'ai_vibe_coding_kit-0.11.0.dist-info/entry_points.txt'
+adding 'ai_vibe_coding_kit-0.11.0.dist-info/top_level.txt'
+adding 'ai_vibe_coding_kit-0.11.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built ai_vibe_coding_kit-0.11.0-py3-none-any.whl

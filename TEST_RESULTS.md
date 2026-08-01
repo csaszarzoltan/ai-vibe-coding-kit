@@ -76,3 +76,57 @@ A third RED cycle captured three expected failures for missing error metadata, s
 - Complete regression suite: **1005 passed, 0 failed**
 - Modified Python files: **Ruff passed**
 - Wheel build and static-asset validation: **passed**
+
+## Export and copy validation
+
+A fourth RED cycle captured three expected failures for missing export controls, privacy-aware export logic, and use of the ambient browser event in copy feedback. After implementation:
+
+- Next-version UX tests: **11 passed**
+- Complete regression suite: **1008 passed, 0 failed**
+- Modified Python files: **Ruff passed**
+- Wheel build and static-asset validation: **passed**
+
+## Keyboard and local-history validation
+
+A fifth RED cycle captured three expected failures for missing keyboard help, missing history deletion, and unsafe shortcut interception. After implementation:
+
+- Next-version UX tests: **14 passed**
+- Complete regression suite: **1011 passed, 0 failed**
+- Modified Python files: **Ruff passed**
+- Wheel build and static-asset validation: **passed**
+
+## Preferred-result decision validation
+
+A sixth RED cycle captured three expected failures for missing preference controls, absent decision evidence in exports, and missing local decision-state behavior. After implementation:
+
+- Next-version UX tests: **17 passed**
+- Complete regression suite: **1014 passed, 0 failed**
+- Modified Python files: **Ruff passed**
+- Wheel build and static-asset validation: **passed**
+
+## Aggregate summary validation
+
+A seventh RED cycle captured three expected failures for the missing accessible summary, missing metric-specific leaders, and absent partial/empty-state handling. After implementation:
+
+- Next-version UX tests: **20 passed**
+- Complete regression suite: **1017 passed, 0 failed**
+- Modified Python files: **Ruff passed**
+- Wheel build and static-asset validation: **passed**
+
+## Run-scoping and history-restoration validation
+
+An eighth RED cycle captured three expected failures for stale decision state, incomplete system-prompt restoration, and insufficient recent-run context. After implementation:
+
+- Next-version UX tests: **23 passed**
+- Complete regression suite: **1020 passed, 0 failed**
+- Modified Python files: **Ruff passed**
+- Wheel build and static-asset validation: **passed**
+
+## Prompt-boundary validation
+
+A ninth RED cycle captured three expected failures for the missing server boundary, absent character counter, and missing accessible validation. After implementation:
+
+- Next-version UX tests: **26 passed**
+- Complete regression suite: **1023 passed, 0 failed**
+- Modified Python files: **Ruff passed**
+- Wheel build and static-asset validation: **passed**

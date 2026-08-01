@@ -90,3 +90,39 @@ The package-data declaration now includes HTML, JavaScript, and CSS. A wheel was
 Provider exceptions are now mapped to stable, user-facing categories: credential, quota, timeout, network, policy, or generic provider error. Result cards display the category and a textual recovery action so status is not communicated by color alone.
 
 Failed cards also expose a scoped Retry provider action. It submits only the failed provider with the current prompt and system prompt, merges the new attempt into the existing result set, and preserves successful outputs. The retry emits a privacy-minimal browser event containing only the provider slug.
+
+## Continuation: privacy-aware exports and copy reliability
+
+Users can now download a completed comparison as either a human-readable Markdown decision record or schema-versioned JSON. The export captures the prompt, optional system prompt, generation time, provider/model identity, output, cost, token use, latency, and error recovery evidence. Known raw and authentication fields are removed before serialization, and file creation occurs locally in the browser.
+
+The copy helper was also corrected to receive the triggering button explicitly. It no longer depends on the non-standard browser-global `event` object, improving compatibility and reliable feedback.
+
+## Continuation: keyboard efficiency and local-history control
+
+The playground now provides discoverable keyboard shortcuts for repeated work: Ctrl/Cmd+Enter runs a valid comparison, `/` focuses the prompt outside editable controls, `?` toggles shortcut help, and Escape closes it. The help panel manages focus when opened and returns focus to its trigger when closed.
+
+Users can also clear device-local comparison history explicitly. Clearing history updates the empty state immediately and emits a privacy-minimal event without exposing prompts or outputs. Shortcut handling checks the event target to avoid interfering with ordinary typing and form controls.
+
+## Continuation: preferred-result decisions
+
+Users can now mark one successful provider output as preferred and record an optional decision note. The selected card has an `aria-pressed` control state, visible label, outline, and live summary. Selecting the same provider again clears the preference.
+
+Decision evidence is stored only in browser-local storage. Markdown and JSON exports now include the preferred provider and rationale, making comparison outputs suitable for review and handoff. The emitted preference event contains only provider identity and selected state, not the decision note or response content.
+
+## Continuation: aggregate comparison evidence
+
+The results workflow now includes a live comparison summary. It reports successful and failed attempts, aggregate observed cost and token use, the lowest-latency provider, and the lowest-cost provider. Partial and all-failed outcomes receive distinct textual guidance, and non-finite or missing metrics are handled defensively.
+
+The summary explicitly avoids calling a provider “best.” This prevents a fast or inexpensive response from being mistaken for the highest-quality choice and complements the preferred-result decision workflow.
+
+## Continuation: run-scoped decisions and complete restoration
+
+Decision evidence no longer leaks between unrelated comparisons. A successful new comparison clears the previous preferred provider and decision note before rendering new results. Scoped provider retry deliberately does not clear the current decision context because it repairs the same comparison rather than replacing it.
+
+Recent local runs now preserve and restore the optional system prompt in addition to the user prompt and provider set. Entries expose localized timestamps and provider counts in both visible labels and more descriptive accessible names. Invalid historical timestamps degrade to a safe unknown-time label instead of breaking history rendering.
+
+## Continuation: prompt-length guardrails
+
+The playground and API now share a 20,000-character prompt boundary. A live counter shows current usage and remaining capacity, with stronger visual feedback near the limit. The prompt is connected to counter and validation text through `aria-describedby`, and invalid state is communicated through `aria-invalid` plus visible text rather than color alone.
+
+The server-side Pydantic model enforces the same maximum, preventing clients from bypassing browser validation. Boundary tests verify that exactly 20,000 characters are accepted and 20,001 are rejected.

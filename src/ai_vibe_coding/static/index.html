@@ -60,7 +60,11 @@
         <!-- Prompt Input -->
         <section id="prompt-section">
             <h2>Prompt</h2>
-            <textarea id="prompt-input" placeholder="Enter your prompt here..." rows="4"></textarea>
+            <textarea id="prompt-input" placeholder="Enter your prompt here..." rows="4" maxlength="20000" aria-describedby="prompt-character-count prompt-validation-message"></textarea>
+            <div class="prompt-input-meta">
+                <span id="prompt-character-count" aria-live="polite">0 of 20,000 characters</span>
+                <span id="prompt-validation-message" class="validation-message" role="status"></span>
+            </div>
         </section>
 
         <section id="advanced-options" aria-labelledby="advanced-heading">
@@ -78,6 +82,13 @@
             <button id="clear-all-btn" type="button">Clear All</button>
         </div>
 
+        <section id="decision-panel" class="decision-panel" aria-labelledby="decision-heading">
+            <h2 id="decision-heading">Decision evidence</h2>
+            <p id="preferred-result-summary" class="preferred-result-summary" aria-live="polite">No preferred result selected.</p>
+            <label for="decision-note">Decision note <span class="optional">optional, stored on this device</span></label>
+            <textarea id="decision-note" rows="3" placeholder="Why is the selected response preferred?"></textarea>
+        </section>
+
         <section class="results-toolbar" aria-label="Result controls">
             <label for="sort-results">Sort results</label>
             <select id="sort-results">
@@ -85,6 +96,15 @@
                 <option value="cost">Lowest cost</option>
                 <option value="provider">Provider name</option>
             </select>
+            <div class="export-controls" aria-label="Export comparison">
+                <button id="export-markdown" class="secondary-button" type="button" disabled>Export Markdown</button>
+                <button id="export-json" class="secondary-button" type="button" disabled>Export JSON</button>
+            </div>
+        </section>
+
+        <section id="comparison-summary" class="comparison-summary" aria-labelledby="comparison-summary-heading" aria-live="polite">
+            <h2 id="comparison-summary-heading">Comparison summary</h2>
+            <p class="empty-state">No comparison results yet.</p>
         </section>
 
         <!-- Results Container -->
@@ -94,8 +114,27 @@
         <div id="error-banner" class="error-banner" role="alert" hidden></div>
 
         <section id="recent-runs" aria-labelledby="recent-runs-heading">
-            <h2 id="recent-runs-heading">Recent comparisons</h2>
-            <p class="empty-state">Your three most recent comparisons will appear here on this device.</p>
+            <div class="section-heading-row">
+                <h2 id="recent-runs-heading">Recent comparisons</h2>
+                <button id="clear-history" class="secondary-button" type="button">Clear local history</button>
+            </div>
+            <div id="recent-runs-list">
+                <p class="empty-state">Your three most recent comparisons will appear here on this device.</p>
+            </div>
+        </section>
+
+        <button id="shortcut-help-toggle" class="shortcut-help-toggle" type="button" aria-expanded="false" aria-controls="shortcut-help">Keyboard shortcuts</button>
+        <section id="shortcut-help" class="shortcut-help" aria-labelledby="shortcut-help-heading" hidden>
+            <div class="section-heading-row">
+                <h2 id="shortcut-help-heading">Keyboard shortcuts</h2>
+                <button id="shortcut-help-close" class="secondary-button" type="button">Close</button>
+            </div>
+            <dl>
+                <div><dt><kbd>Ctrl</kbd> + <kbd>Enter</kbd></dt><dd>Run comparison</dd></div>
+                <div><dt><kbd>/</kbd></dt><dd>Focus prompt</dd></div>
+                <div><dt><kbd>?</kbd></dt><dd>Open or close this help</dd></div>
+                <div><dt><kbd>Esc</kbd></dt><dd>Close this help</dd></div>
+            </dl>
         </section>
     </main>
     <script src="playground.js"></script>

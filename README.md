@@ -1383,3 +1383,34 @@ The wheel package includes the playground HTML, JavaScript, and CSS assets. Pack
 ### Provider failure recovery
 
 Provider failures now include a stable category and a suggested recovery action. Credential, quota, timeout, network, policy, and generic provider failures are distinguished. A failed result card offers **Retry provider**, which reruns only that provider and keeps successful results from the current comparison.
+
+### Export comparison evidence
+
+Completed comparisons can be exported locally as Markdown or schema-versioned JSON. Exports include prompt configuration, provider/model identity, outputs, cost, tokens, latency, and actionable error information. Known raw and authentication fields are removed before export. Export generation happens entirely in the browser and does not upload the report to another service.
+
+### Keyboard shortcuts and local privacy controls
+
+Frequent playground actions now support keyboard shortcuts:
+
+- **Ctrl/Cmd + Enter:** run the current comparison
+- **/**: focus the prompt when focus is not inside an editable control
+- **?:** open or close shortcut help
+- **Escape:** close shortcut help
+
+The recent-comparisons section includes **Clear local history**, which removes device-local history immediately. Shortcut handling intentionally avoids intercepting ordinary typing in inputs, textareas, selects, and editable content.
+
+### Preferred result and decision evidence
+
+Successful provider cards now offer **Mark preferred**. The selected card receives a visible, non-color-only control state and the Decision evidence panel identifies the preferred provider. An optional decision note can capture why the output was selected. Preference and note are stored only on the current device and are included in Markdown and JSON exports.
+
+### Comparison summary
+
+Completed results now produce an accessible aggregate summary showing successful and failed attempts, total observed cost, total token usage, lowest-latency provider, and lowest-cost provider. Partial comparisons explicitly state that completed outputs remain usable. The UI deliberately avoids labeling one provider as universally “best”; selection should follow the metric and decision evidence relevant to the task.
+
+### Run-scoped decisions and recent-run restoration
+
+Preferred-provider and decision-note state is scoped to the current comparison. Starting a genuinely new comparison clears stale decision evidence, while retrying one failed provider preserves the current decision context. Recent comparisons now restore the user prompt, system prompt, and configured provider selection. Each recent entry also shows a localized timestamp and provider count, with a descriptive screen-reader label.
+
+### Prompt-length guardrails
+
+Prompts are limited to 20,000 characters in both the browser and the Pydantic API contract. The prompt field shows current length and remaining capacity, announces changes politely to assistive technology, and exposes accessible validation state. The Compare action remains unavailable for invalid input, and direct oversized API requests receive normal request-validation errors.

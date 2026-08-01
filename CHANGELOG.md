@@ -176,3 +176,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added an accessible per-provider Retry action that preserves successful comparison results.
 - Added privacy-minimal retry telemetry containing only the provider slug.
 - Added TDD and regression coverage for credential failure categorization and retry UX.
+
+#### Privacy-aware comparison exports
+- Added local Markdown and schema-versioned JSON exports for completed comparisons.
+- Removed raw/authentication fields from exported provider payloads.
+- Added export evidence including prompt, optional system prompt, timestamp, model, cost, tokens, latency, errors, and recovery guidance.
+- Fixed copy feedback so it no longer depends on a browser-global event object.
+
+#### Keyboard efficiency and local-history controls
+- Added documented keyboard shortcuts for run, prompt focus, help, and help dismissal.
+- Added focus-safe shortcut handling that does not hijack normal text-entry keys.
+- Added an explicit Clear local history action and privacy-minimal history-cleared event.
+- Added accessible shortcut help with focus restoration and responsive presentation.
+
+#### Decision evidence and preferred-result workflow
+- Added a preferred-result action to successful provider cards.
+- Added a device-local decision note and accessible preferred-provider summary.
+- Added preferred-provider highlighting and toggle semantics.
+- Included preferred provider and decision rationale in Markdown and JSON exports.
+- Added privacy-minimal preferred-result telemetry and TDD coverage.
+
+#### Aggregate comparison evidence
+- Added an accessible comparison summary for success, failure, total cost, and total token usage.
+- Added explicit Lowest latency and Lowest cost indicators without presenting either as universally best.
+- Added clear partial-comparison and all-failed states while preserving usable completed results.
+- Added defensive handling for missing or non-numeric metrics and TDD coverage.
+
+#### Run-scoped decisions and complete recent-run restoration
+- Reset stale preferred-provider and decision-note state when a genuinely new comparison replaces results.
+- Preserved decision evidence during scoped provider retries.
+- Saved and restored the optional system prompt with recent local runs.
+- Added localized recent-run timestamps, provider counts, and descriptive accessible labels.
+- Added defensive handling for invalid historical timestamps and TDD coverage.
+
+#### Prompt-length guardrails and accessible validation
+- Added a shared 20,000-character prompt limit to the browser and API contract.
+- Added a localized live character counter with remaining capacity.
+- Added accessible validation messaging and `aria-invalid` state.
+- Prevented invalid oversized prompts from enabling comparison submission.
+- Added responsive near-limit feedback and TDD coverage for boundary behavior.

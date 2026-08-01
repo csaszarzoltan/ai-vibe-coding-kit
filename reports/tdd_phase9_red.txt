@@ -1,0 +1,39 @@
+.......................FFF                                               [100%]
+=================================== FAILURES ===================================
+________________ test_prompt_length_is_bounded_by_api_contract _________________
+
+    def test_prompt_length_is_bounded_by_api_contract():
+        from pydantic import ValidationError
+>       from ai_vibe_coding.playground import PlaygroundCompareRequest, MAX_PROMPT_LENGTH
+E       ImportError: cannot import name 'MAX_PROMPT_LENGTH' from 'ai_vibe_coding.playground' (/mnt/data/ai_vibe_coding_kit_work/src/ai_vibe_coding/playground.py)
+
+tests/test_next_version_ux.py:232: ImportError
+_________________ test_prompt_counter_and_limit_feedback_exist _________________
+
+    def test_prompt_counter_and_limit_feedback_exist():
+        html = HTML.read_text(encoding='utf-8')
+        js = JS.read_text(encoding='utf-8')
+>       assert 'id="prompt-character-count"' in html
+E       assert 'id="prompt-character-count"' in '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=devic...iv>\n            </dl>\n        </section>\n    </main>\n    <script src="playground.js"></script>\n</body>\n</html>\n'
+
+tests/test_next_version_ux.py:247: AssertionError
+_______ test_prompt_validation_is_accessible_and_prevents_oversized_runs _______
+
+    def test_prompt_validation_is_accessible_and_prevents_oversized_runs():
+        html = HTML.read_text(encoding='utf-8')
+        js = JS.read_text(encoding='utf-8')
+>       assert 'id="prompt-validation-message"' in html
+E       assert 'id="prompt-validation-message"' in '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=devic...iv>\n            </dl>\n        </section>\n    </main>\n    <script src="playground.js"></script>\n</body>\n</html>\n'
+
+tests/test_next_version_ux.py:257: AssertionError
+=============================== warnings summary ===============================
+../testenv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /mnt/data/testenv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_next_version_ux.py::test_prompt_length_is_bounded_by_api_contract
+FAILED tests/test_next_version_ux.py::test_prompt_counter_and_limit_feedback_exist
+FAILED tests/test_next_version_ux.py::test_prompt_validation_is_accessible_and_prevents_oversized_runs
+3 failed, 23 passed, 1 warning in 0.78s

@@ -1,3 +1,5 @@
+const PROMPT_MAX_LENGTH = 20000;
+
 // ──────────────────────────────────────────────────────────────
 // LLM Playground — comparison frontend (F3 + F4)
 // Vanilla JS, no dependencies
@@ -114,6 +116,7 @@ async function compare() {
 
     // ── Render results ──
     if (data && data.results) {
+      resetDecisionStateForNewRun();
       lastRenderedResults = data.results;
       renderResults(data.results);
       saveRecentRun(payload, data.results);
@@ -141,6 +144,7 @@ async function compare() {
 function renderResults(results) {
   const grid = document.getElementById('results-grid');
   if (!grid) return;
+  renderComparisonSummary(results);
 
   // ── Convert to array, sort by total latency ascending ──
   const entries = [];
@@ -169,6 +173,8 @@ function renderResults(results) {
 
   // ── Build cards ──
   grid.innerHTML = '';
+  document.getElementById('export-markdown')?.removeAttribute('disabled');
+  document.getElementById('export-json')?.removeAttribute('disabled');
   for (var j = 0; j < entries.length; j++) {
     var entry = entries[j];
     var card = createCard(entry, entry.provider === fastestProvider);
@@ -190,7 +196,8 @@ function createCard(result, isFastest) {
 
   // ── Card wrapper ──
   const card = document.createElement('div');
-  card.className = 'card' + (hasError ? ' card-error' : '');
+  card.className = 'card' + (hasError ? ' card-error' : '') +
+    (preferredProvider === prov ? ' preferred-provider' : '');
   card.setAttribute('data-provider', prov);
 
   // ── Header ──
@@ -306,6 +313,18 @@ function createCard(result, isFastest) {
     footer.appendChild(retryBtn);
   }
 
+  if (!hasError) {
+    const preferredBtn = document.createElement('button');
+    preferredBtn.className = 'preferred-btn';
+    preferredBtn.type = 'button';
+    preferredBtn.textContent = preferredProvider === prov ? 'Preferred' : 'Mark preferred';
+    preferredBtn.setAttribute('aria-pressed', String(preferredProvider === prov));
+    preferredBtn.addEventListener('click', function () {
+      selectPreferredResult(prov);
+    });
+    footer.appendChild(preferredBtn);
+  }
+
   // Copy button
   const copyBtnContainer = document.createElement('div');
   copyBtnContainer.style.marginLeft = 'auto';
@@ -315,7 +334,7 @@ function createCard(result, isFastest) {
   copyBtn.className = 'copy-btn';
   copyBtn.textContent = '\u{1F4CB} Copy';
   copyBtn.addEventListener('click', function () {
-    copyResponse(prov, model, hasError ? result.error : content);
+    copyResponse(prov, model, hasError ? result.error : content, copyBtn);
   });
   copyBtnContainer.appendChild(copyBtn);
   footer.appendChild(copyBtnContainer);
@@ -390,8 +409,16 @@ function updateButtonState() {
   var prompt = document.getElementById('prompt-input');
   var promptText = prompt ? prompt.value.trim() : '';
   var providers = getSelectedProviders();
+  var promptTooLong = promptText.length > PROMPT_MAX_LENGTH;
 
-  btn.disabled = !(promptText && providers.length > 0);
+  if (prompt) prompt.setAttribute('aria-invalid', String(promptTooLong));
+  var validation = document.getElementById('prompt-validation-message');
+  if (validation) {
+    validation.textContent = promptTooLong
+      ? 'Prompt is too long. Reduce it to 20,000 characters or fewer.'
+      : '';
+  }
+  btn.disabled = !(promptText && !promptTooLong && providers.length > 0);
 }
 
 /**
@@ -419,8 +446,9 @@ function clearAll() {
  * @param {string} provider - Provider name
  * @param {string} model - Model name
  * @param {string} content - Response text
+ * @param {HTMLElement|null} trigger - Button that initiated the copy
  */
-function copyResponse(provider, model, content) {
+function copyResponse(provider, model, content, trigger) {
   var text = 'Provider: ' + provider +
     (model ? ' (' + model + ')' : '') +
     '\n\n' + content;
@@ -428,14 +456,14 @@ function copyResponse(provider, model, content) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(
       function () {
-        showCopiedTooltip(event && event.target ? event.target : null);
+        showCopiedTooltip(trigger);
       },
       function () {
-        fallbackCopy(text);
+        fallbackCopy(text, trigger);
       }
     );
   } else {
-    fallbackCopy(text);
+    fallbackCopy(text, trigger);
   }
 }
 
@@ -443,7 +471,7 @@ function copyResponse(provider, model, content) {
  * Fallback copy using execCommand.
  * @param {string} text
  */
-function fallbackCopy(text) {
+function fallbackCopy(text, trigger) {
   var textarea = document.createElement('textarea');
   textarea.value = text;
   textarea.style.position = 'fixed';
@@ -452,7 +480,7 @@ function fallbackCopy(text) {
   textarea.select();
   try {
     document.execCommand('copy');
-    showCopiedTooltip(null);
+    showCopiedTooltip(trigger);
   } catch (e) {
     /* silently fail */
   }
@@ -498,6 +526,13 @@ document.addEventListener('DOMContentLoaded', function () {
     clearAllBtn.addEventListener('click', clearAll);
   }
 
+  document.getElementById('export-markdown')?.addEventListener('click', function () {
+    exportComparison('markdown');
+  });
+  document.getElementById('export-json')?.addEventListener('click', function () {
+    exportComparison('json');
+  });
+
   // Provider checkbox changes -> update button state
   getProviderCheckboxes().forEach(function (cb) {
     cb.addEventListener('change', updateButtonState);
@@ -506,7 +541,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Prompt input -> update button state
   var promptInput = document.getElementById('prompt-input');
   if (promptInput) {
-    promptInput.addEventListener('input', updateButtonState);
+    promptInput.addEventListener('input', function () {
+      updatePromptCharacterCount();
+      updateButtonState();
+    });
+    updatePromptCharacterCount();
   }
 
   // Initial button state
@@ -528,7 +567,9 @@ if (typeof MutationObserver !== 'undefined') {
 // Next-version workflow helpers: private, device-local preferences and history.
 const PLAYGROUND_PREFS_KEY = 'ai-vibe-playground-preferences-v1';
 const PLAYGROUND_RUNS_KEY = 'ai-vibe-playground-recent-runs-v1';
+const PLAYGROUND_DECISION_KEY = 'ai-vibe-playground-decision-v1';
 let lastRenderedResults = null;
+let preferredProvider = null;
 
 function savePreferences() {
   const prompt = document.getElementById('system-prompt-input');
@@ -559,7 +600,9 @@ function saveRecentRun(payload, results) {
     id: 'run-' + Date.now(),
     createdAt: new Date().toISOString(),
     prompt: payload.prompt,
+    systemPrompt: payload.system_prompt || '',
     providers: payload.providers,
+    providerCount: payload.providers.length,
     results: Object.values(results || {}).map(r => ({provider: r.provider, model: r.model, error: r.error || null}))
   });
   localStorage.setItem(PLAYGROUND_RUNS_KEY, JSON.stringify(runs.slice(0, 3)));
@@ -567,29 +610,101 @@ function saveRecentRun(payload, results) {
   document.dispatchEvent(new CustomEvent('playground:run-completed', {detail: {providerCount: payload.providers.length}}));
 }
 
+function formatRecentRunTime(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? 'Unknown time'
+    : date.toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'});
+}
+
 function loadRecentRuns() {
-  const host = document.getElementById('recent-runs');
+  const host = document.getElementById('recent-runs-list');
   if (!host) return;
   let runs = [];
   try { runs = JSON.parse(localStorage.getItem(PLAYGROUND_RUNS_KEY) || '[]'); } catch (_) { runs = []; }
-  const heading = '<h2 id="recent-runs-heading">Recent comparisons</h2>';
-  if (!runs.length) { host.innerHTML = heading + '<p class="empty-state">Your three most recent comparisons will appear here on this device.</p>'; return; }
+  if (!runs.length) {
+    host.innerHTML = '<p class="empty-state">Your three most recent comparisons will appear here on this device.</p>';
+    return;
+  }
   const list = document.createElement('ol');
   list.className = 'recent-run-list';
   runs.forEach(run => {
     const item = document.createElement('li');
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = run.prompt.slice(0, 80) + ' · ' + run.providers.join(', ');
+    const providerCount = run.providerCount || run.providers.length;
+    const runTime = formatRecentRunTime(run.createdAt);
+    button.textContent = run.prompt.slice(0, 80) + ' · ' +
+      providerCount + ' providers · ' + runTime;
+    button.setAttribute('aria-label',
+      'Restore comparison from ' + runTime + ' with ' +
+      providerCount + ' providers: ' + run.prompt.slice(0, 100));
     button.addEventListener('click', () => {
       document.getElementById('prompt-input').value = run.prompt;
-      getProviderCheckboxes().forEach(cb => { cb.checked = run.providers.includes(cb.dataset.provider); });
+      const systemPrompt = document.getElementById('system-prompt-input');
+      if (systemPrompt) systemPrompt.value = run.systemPrompt || '';
+      getProviderCheckboxes().forEach(cb => {
+        cb.checked = run.providers.includes(cb.dataset.provider) && !cb.disabled;
+      });
       updateButtonState();
       document.getElementById('prompt-input').focus();
     });
     item.appendChild(button); list.appendChild(item);
   });
-  host.innerHTML = heading; host.appendChild(list);
+  host.innerHTML = '';
+  host.appendChild(list);
+}
+
+function clearRecentRuns() {
+  localStorage.removeItem(PLAYGROUND_RUNS_KEY);
+  loadRecentRuns();
+  document.dispatchEvent(new CustomEvent('playground:history-cleared'));
+  document.getElementById('clear-history')?.focus();
+}
+
+function toggleShortcutHelp(forceOpen) {
+  const panel = document.getElementById('shortcut-help');
+  const toggle = document.getElementById('shortcut-help-toggle');
+  if (!panel || !toggle) return;
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : panel.hidden;
+  panel.hidden = !shouldOpen;
+  toggle.setAttribute('aria-expanded', String(shouldOpen));
+  if (shouldOpen) {
+    document.getElementById('shortcut-help-close')?.focus();
+  } else {
+    toggle.focus();
+  }
+}
+
+function isEditableTarget(target) {
+  if (!target) return false;
+  return target.tagName === 'TEXTAREA' ||
+    target.tagName === 'INPUT' ||
+    target.tagName === 'SELECT' ||
+    target.isContentEditable;
+}
+
+function handleKeyboardShortcut(event) {
+  const editable = isEditableTarget(event.target);
+  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    event.preventDefault();
+    if (!document.getElementById('compare-btn')?.disabled) compare();
+    return;
+  }
+  if (!editable && event.key === '/') {
+    event.preventDefault();
+    document.getElementById('prompt-input')?.focus();
+    return;
+  }
+  if (!editable && event.key === '?') {
+    event.preventDefault();
+    toggleShortcutHelp();
+    return;
+  }
+  if (event.key === 'Escape' && !document.getElementById('shortcut-help')?.hidden) {
+    event.preventDefault();
+    toggleShortcutHelp(false);
+  }
 }
 
 function sortAndRerender() {
@@ -606,6 +721,16 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('system-prompt-input')?.addEventListener('change', savePreferences);
   document.getElementById('sort-results')?.addEventListener('change', sortAndRerender);
   getProviderCheckboxes().forEach(cb => cb.addEventListener('change', savePreferences));
+  document.getElementById('clear-history')?.addEventListener('click', clearRecentRuns);
+  document.getElementById('decision-note')?.addEventListener('input', saveDecisionState);
+  loadDecisionState();
+  document.getElementById('shortcut-help-toggle')?.addEventListener('click', function () {
+    toggleShortcutHelp();
+  });
+  document.getElementById('shortcut-help-close')?.addEventListener('click', function () {
+    toggleShortcutHelp(false);
+  });
+  document.addEventListener('keydown', handleKeyboardShortcut);
 });
 
 /** Load safe setup readiness and annotate the existing provider choices. */
@@ -686,4 +811,250 @@ async function retryProvider(provider, button) {
       button.textContent = original;
     }
   }
+}
+
+
+/** Return a privacy-safe snapshot of the current comparison. */
+function buildExportSnapshot() {
+  const sanitizedResults = {};
+  Object.entries(lastRenderedResults || {}).forEach(([provider, result]) => {
+    const safeResult = Object.assign({}, result);
+    delete safeResult.raw;
+    delete safeResult.api_key;
+    delete safeResult.apiKey;
+    delete safeResult.authorization;
+    sanitizedResults[provider] = safeResult;
+  });
+  return {
+    schemaVersion: '1.0',
+    generatedAt: new Date().toISOString(),
+    prompt: document.getElementById('prompt-input')?.value || '',
+    systemPrompt: document.getElementById('system-prompt-input')?.value || '',
+    preferredProvider: preferredProvider,
+    decisionNote: document.getElementById('decision-note')?.value || '',
+    providers: Object.keys(sanitizedResults),
+    results: sanitizedResults
+  };
+}
+
+/** Build a readable Markdown decision record. */
+function buildMarkdownExport(snapshot) {
+  const lines = [
+    '# LLM Provider Comparison',
+    '',
+    '- Generated: ' + snapshot.generatedAt,
+    '- Providers: ' + snapshot.providers.join(', '),
+    '',
+    '## Prompt',
+    '',
+    snapshot.prompt || '(empty)',
+  ];
+  if (snapshot.systemPrompt) {
+    lines.push('', '## System prompt', '', snapshot.systemPrompt);
+  }
+  lines.push('', '## Decision', '');
+  lines.push('Preferred provider: ' + (snapshot.preferredProvider || '(not selected)'));
+  if (snapshot.decisionNote) {
+    lines.push('', snapshot.decisionNote);
+  }
+  Object.entries(snapshot.results).forEach(([provider, result]) => {
+    lines.push('', '## ' + provider + (result.model ? ' · ' + result.model : ''), '');
+    if (result.error) {
+      lines.push('**Status:** Error', '', result.error);
+      if (result.error_code) lines.push('', '**Category:** ' + result.error_code);
+      if (result.recovery_action) lines.push('', '**Recovery:** ' + result.recovery_action);
+    } else {
+      lines.push(result.content || '(empty response)');
+    }
+    lines.push(
+      '',
+      '- Cost: $' + Number(result.cost_usd || 0).toFixed(6),
+      '- Tokens: ' + String(result.tokens_used || 0),
+      '- Latency: ' + String(result.latency?.total_ms || 0) + ' ms'
+    );
+  });
+  return lines.join('\n');
+}
+
+/** Download UTF-8 content without sending comparison data to a server. */
+function downloadTextFile(filename, content, mimeType) {
+  const blob = new Blob([content], {type: mimeType + ';charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+/** Export the current comparison as Markdown or schema-versioned JSON. */
+function exportComparison(format) {
+  if (!lastRenderedResults || !Object.keys(lastRenderedResults).length) {
+    renderError('Run a comparison before exporting.');
+    return;
+  }
+  const snapshot = buildExportSnapshot();
+  const date = snapshot.generatedAt.slice(0, 10);
+  if (format === 'markdown') {
+    downloadTextFile(
+      'llm-comparison-' + date + '.md',
+      buildMarkdownExport(snapshot),
+      'text/markdown'
+    );
+  } else {
+    downloadTextFile(
+      'llm-comparison-' + date + '.json',
+      JSON.stringify(snapshot, null, 2),
+      'application/json'
+    );
+  }
+  document.dispatchEvent(new CustomEvent(
+    'playground:comparison-exported',
+    {detail: {format: format, providerCount: snapshot.providers.length}}
+  ));
+}
+
+
+/** Clear decision evidence when a genuinely new comparison replaces results. */
+function resetDecisionStateForNewRun() {
+  preferredProvider = null;
+  const decisionNote = document.getElementById('decision-note');
+  if (decisionNote) decisionNote.value = '';
+  localStorage.removeItem(PLAYGROUND_DECISION_KEY);
+  updatePreferredSummary();
+}
+
+/** Persist decision evidence only on the current device. */
+function saveDecisionState() {
+  const state = {
+    preferredProvider: preferredProvider,
+    decisionNote: document.getElementById('decision-note')?.value || ''
+  };
+  localStorage.setItem(PLAYGROUND_DECISION_KEY, JSON.stringify(state));
+}
+
+function loadDecisionState() {
+  let state = {};
+  try {
+    state = JSON.parse(localStorage.getItem(PLAYGROUND_DECISION_KEY) || '{}');
+  } catch (_) {
+    localStorage.removeItem(PLAYGROUND_DECISION_KEY);
+  }
+  preferredProvider = state.preferredProvider || null;
+  const note = document.getElementById('decision-note');
+  if (note) note.value = state.decisionNote || '';
+  updatePreferredSummary();
+}
+
+function updatePreferredSummary() {
+  const summary = document.getElementById('preferred-result-summary');
+  if (!summary) return;
+  summary.textContent = preferredProvider
+    ? 'Preferred provider: ' + preferredProvider
+    : 'No preferred result selected.';
+}
+
+function selectPreferredResult(provider) {
+  preferredProvider = preferredProvider === provider ? null : provider;
+  saveDecisionState();
+  updatePreferredSummary();
+  if (lastRenderedResults) renderResults(lastRenderedResults);
+  document.dispatchEvent(new CustomEvent(
+    'playground:preferred-result-selected',
+    {detail: {provider: provider, selected: preferredProvider === provider}}
+  ));
+}
+
+
+/** Render aggregate evidence without implying that one provider is universally best. */
+function renderComparisonSummary(results) {
+  const host = document.getElementById('comparison-summary');
+  if (!host) return;
+  const entries = Object.values(results || {});
+  if (!entries.length) {
+    host.innerHTML = '<h2 id="comparison-summary-heading">Comparison summary</h2>' +
+      '<p class="empty-state">No comparison results yet.</p>';
+    return;
+  }
+
+  const successful = entries.filter(item => !item.error);
+  const failed = entries.length - successful.length;
+  const totalCost = successful.reduce(
+    (sum, item) => sum + (Number.isFinite(Number(item.cost_usd)) ? Number(item.cost_usd) : 0),
+    0
+  );
+  const totalTokens = successful.reduce(
+    (sum, item) => sum + (Number.isFinite(Number(item.tokens_used)) ? Number(item.tokens_used) : 0),
+    0
+  );
+
+  let fastestProvider = null;
+  let fastestLatency = Infinity;
+  let cheapestProvider = null;
+  let cheapestCost = Infinity;
+  successful.forEach(item => {
+    const latency = Number(item.latency?.total_ms);
+    const cost = Number(item.cost_usd);
+    if (Number.isFinite(latency) && latency < fastestLatency) {
+      fastestLatency = latency;
+      fastestProvider = item.provider;
+    }
+    if (Number.isFinite(cost) && cost < cheapestCost) {
+      cheapestCost = cost;
+      cheapestProvider = item.provider;
+    }
+  });
+
+  const stateText = failed > 0 && successful.length > 0
+    ? 'This is a partial comparison. Completed results remain usable.'
+    : failed === entries.length
+      ? 'All provider attempts failed. Review recovery guidance and retry.'
+      : 'All selected provider attempts completed.';
+  const metrics = [
+    ['Successful', successful.length],
+    ['Failed', failed],
+    ['Total cost', '$' + totalCost.toFixed(6)],
+    ['Total tokens', totalTokens],
+    ['Lowest latency', fastestProvider || 'Not available'],
+    ['Lowest cost', cheapestProvider || 'Not available']
+  ];
+
+  const heading = document.createElement('h2');
+  heading.id = 'comparison-summary-heading';
+  heading.textContent = 'Comparison summary';
+  const status = document.createElement('p');
+  status.className = failed ? 'summary-status partial' : 'summary-status';
+  status.textContent = stateText;
+  const note = document.createElement('p');
+  note.className = 'summary-note';
+  note.textContent = "No provider is labeled 'best'; choose using the metric relevant to your task.";
+  const list = document.createElement('dl');
+  list.className = 'summary-metrics';
+  metrics.forEach(([label, value]) => {
+    const item = document.createElement('div');
+    const term = document.createElement('dt');
+    const detail = document.createElement('dd');
+    term.textContent = label;
+    detail.textContent = String(value);
+    item.append(term, detail);
+    list.appendChild(item);
+  });
+  host.replaceChildren(heading, status, list, note);
+}
+
+
+/** Keep prompt length and remaining capacity visible before submission. */
+function updatePromptCharacterCount() {
+  const prompt = document.getElementById('prompt-input');
+  const counter = document.getElementById('prompt-character-count');
+  if (!prompt || !counter) return;
+  const count = prompt.value.length;
+  const remaining = Math.max(0, PROMPT_MAX_LENGTH - count);
+  counter.textContent = count.toLocaleString() + ' of ' +
+    PROMPT_MAX_LENGTH.toLocaleString() + ' characters · ' +
+    remaining.toLocaleString() + ' characters remaining';
+  counter.classList.toggle('near-limit', remaining <= 1000);
+  counter.classList.toggle('at-limit', remaining === 0);
 }
