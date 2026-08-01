@@ -1,0 +1,2 @@
+Command: ruff check src/ai_vibe_coding/app.py src/ai_vibe_coding/playground.py tests/test_next_version_ux.py
+Result: All checks passed!

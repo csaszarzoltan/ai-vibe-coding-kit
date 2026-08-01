@@ -1,0 +1,4035 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 28%]
+..FFFFFFFFFFFFFF..............................FFFFFF.................... [ 36%]
+........................................................................ [ 43%]
+........................................................................ [ 50%]
+.........FFFFFFF............................F........................... [ 57%]
+.......F...FFFFFFFFFFF.FFFFFFFFFFFFFF................................... [ 64%]
+................FFFFFFFF.........................FFFFFFFFFFFFFFFF....... [ 72%]
+........................................................................ [ 79%]
+........................................................................ [ 86%]
+........................................................................ [ 93%]
+................................................................         [100%]
+=================================== FAILURES ===================================
+_______________ TestCohereBehavioral.test_chat_calls_client_chat _______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82e9f70>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_______________ TestCohereBehavioral.test_chat_uses_custom_model _______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a84e3da0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestCohereBehavioral.test_chat_handles_empty_content _____________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a84e09e0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestCohereBehavioral.test_chat_raises_on_sdk_error ______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a84d9f10>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+____________ TestCohereBehavioral.test_stream_yields_content_deltas ____________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ee180>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestCohereBehavioral.test_stream_uses_custom_model ______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ed4c0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestCohereBehavioral.test_stream_raises_on_sdk_error _____________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ec9e0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestCohereBehavioral.test_embed_returns_embeddings ______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ec560>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestCohereBehavioral.test_embed_uses_custom_model _______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ee780>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestCohereBehavioral.test_embed_passes_input_type _______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82eee40>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestCohereBehavioral.test_embed_raises_on_sdk_error ______________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ef4a0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+___________ TestCohereBehavioral.test_rerank_returns_sorted_results ____________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82efb60>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_________ TestCohereBehavioral.test_rerank_uses_custom_model_and_top_n _________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ec170>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestCohereBehavioral.test_rerank_raises_on_sdk_error _____________
+
+args = (<tests.test_cohere_provider.TestCohereBehavioral object at 0x7ff8a82ec770>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'cohere', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cohere'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_______________ TestCostApiBehavior.test_total_returns_cost_dict _______________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+_________________ TestCostApiBehavior.test_daily_returns_list __________________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+___________ TestCostApiBehavior.test_latency_percentiles_with_params ___________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+_______________ TestCostApiBehavior.test_budget_check_with_body ________________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+______________ TestCostApiBehavior.test_budget_alerts_with_limit _______________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+_________ TestCostApiBehavior.test_all_endpoints_raise_not_implemented _________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+____________ TestGeminiBehavioral.test_chat_calls_generate_content _____________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c2e10>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+_______________ TestGeminiBehavioral.test_chat_uses_custom_model _______________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c33b0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+_______________ TestGeminiBehavioral.test_chat_handles_none_text _______________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c3950>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+______________ TestGeminiBehavioral.test_chat_raises_on_sdk_error ______________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c3fb0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+________________ TestGeminiBehavioral.test_stream_yields_chunks ________________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c3590>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+______________ TestGeminiBehavioral.test_stream_uses_custom_model ______________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c2b40>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+_____________ TestGeminiBehavioral.test_stream_raises_on_sdk_error _____________
+
+args = (<tests.test_gemini_provider.TestGeminiBehavioral object at 0x7ff8a83c20c0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'google.genai'
+
+    def resolve_name(name):
+        """
+        Resolve a name to an object.
+    
+        It is expected that `name` will be a string in one of the following
+        formats, where W is shorthand for a valid Python identifier and dot stands
+        for a literal period in these pseudo-regexes:
+    
+        W(.W)*
+        W(.W)*:(W(.W)*)?
+    
+        The first form is intended for backward compatibility only. It assumes that
+        some part of the dotted name is a package, and the rest is an object
+        somewhere within that package, possibly nested inside other objects.
+        Because the place where the package stops and the object hierarchy starts
+        can't be inferred by inspection, repeated attempts to import must be done
+        with this form.
+    
+        In the second form, the caller makes the division point clear through the
+        provision of a single colon: the dotted name to the left of the colon is a
+        package to be imported, and the dotted name to the right is the object
+        hierarchy within that package. Only one import is needed in this form. If
+        it ends with the colon, then a module object is returned.
+    
+        The function will return an object (which might be a module), or raise one
+        of the following exceptions:
+    
+        ValueError - if `name` isn't in a recognised format
+        ImportError - if an import failed when it shouldn't have
+        AttributeError - if a failure occurred when traversing the object hierarchy
+                         within the imported package to get to the desired object.
+        """
+        global _NAME_PATTERN
+        if _NAME_PATTERN is None:
+            # Lazy import to speedup Python startup time
+            import re
+            dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
+            _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
+                                       f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
+                                       re.UNICODE)
+    
+        m = _NAME_PATTERN.match(name)
+        if not m:
+            raise ValueError(f'invalid format: {name!r}')
+        gd = m.groupdict()
+        if gd.get('cln'):
+            # there is a colon - a one-step import is all that's needed
+            mod = importlib.import_module(gd['pkg'])
+            parts = gd.get('obj')
+            parts = parts.split('.') if parts else []
+        else:
+            # no colon - have to iterate to find the package boundary
+            parts = name.split('.')
+            modname = parts.pop(0)
+            # first part *must* be a module/package.
+            mod = importlib.import_module(modname)
+            while parts:
+                p = parts[0]
+                s = f'{modname}.{p}'
+                try:
+                    mod = importlib.import_module(s)
+                    parts.pop(0)
+                    modname = s
+                except ImportError:
+                    break
+        # if we reach this point, mod is the module, already imported, and
+        # parts is the list of parts in the object hierarchy to be traversed, or
+        # an empty list if just the module is wanted.
+        result = mod
+        for p in parts:
+>           result = getattr(result, p)
+                     ^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'google' has no attribute 'genai'
+
+/usr/lib/python3.12/pkgutil.py:528: AttributeError
+___________ TestLLMClientAsync.test_chat_async_returns_llm_response ____________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+_____________________ TestMCPServer.test_create_mcp_server _____________________
+
+self = <tests.test_mcp_server.TestMCPServer object at 0x7ff8a83d0920>
+
+    def test_create_mcp_server(self):
+        """Test creating the internal FastMCP server."""
+        from ai_vibe_coding import LLMClient
+    
+        client = LLMClient(provider="openai", api_key="test-key")
+        tools = [
+            ToolDef(
+                name="add",
+                description="Add two numbers",
+                parameters={
+                    "type": "object",
+                    "properties": {"x": {"type": "integer"}, "y": {"type": "integer"}},
+                    "required": ["x", "y"],
+                },
+            ),
+        ]
+    
+        server = MCPServer(client=client, tools=tools)
+>       mcp = server._create_mcp_server()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_mcp_server.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ai_vibe_coding.mcp_server.MCPServer object at 0x7ff8a83c1820>
+
+    def _create_mcp_server(self):
+        """Create and configure the FastMCP server with our tools."""
+>       from mcp.server.fastmcp import FastMCP
+E       ModuleNotFoundError: No module named 'mcp'
+
+src/ai_vibe_coding/mcp_server.py:123: ModuleNotFoundError
+________________ TestMCPToolIntegration.test_tool_registration _________________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+__________________ TestMCPToolIntegration.test_multiple_tools __________________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+____________________ TestInterface.test_mcp_module_imports _____________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83c5190>
+
+    def test_mcp_module_imports(self):
+        """Import examples.standalone_mcp_server succeeds."""
+>       import examples.standalone_mcp_server  # noqa: F401
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_mcp_tools.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+___________________ TestInterface.test_read_file_tool_exists ___________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83c6a20>
+
+    def test_read_file_tool_exists(self):
+        """standalone_mcp_server.read_file is callable."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+__________________ TestInterface.test_write_file_tool_exists ___________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d0e30>
+
+    def test_write_file_tool_exists(self):
+        """standalone_mcp_server.write_file is callable."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+________________ TestInterface.test_list_directory_tool_exists _________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d0530>
+
+    def test_list_directory_tool_exists(self):
+        """standalone_mcp_server.list_directory is callable."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+__________________ TestInterface.test_search_web_tool_exists ___________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d3a40>
+
+    def test_search_web_tool_exists(self):
+        """standalone_mcp_server.search_web is callable."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+________________ TestInterface.test_execute_python_tool_exists _________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d01a0>
+
+    def test_execute_python_tool_exists(self):
+        """standalone_mcp_server.execute_python is callable."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+__________________ TestInterface.test_get_weather_tool_exists __________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d2f60>
+
+    def test_get_weather_tool_exists(self):
+        """standalone_mcp_server.get_weather is callable."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+_________________ TestInterface.test_all_tools_have_docstrings _________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d3290>
+
+    def test_all_tools_have_docstrings(self):
+        """Each tool function has a non-empty docstring with Args section."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+____________________ TestInterface.test_mcp_instance_exists ____________________
+
+self = <tests.test_mcp_tools.TestInterface object at 0x7ff8a83d3890>
+
+    def test_mcp_instance_exists(self):
+        """standalone_mcp_server.mcp is a FastMCP instance."""
+>       from mcp.server.fastmcp import FastMCP
+E       ModuleNotFoundError: No module named 'mcp'
+
+tests/test_mcp_tools.py:85: ModuleNotFoundError
+______________________ TestInterface.test_mcp_tool_names _______________________
+async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted
+________________ TestBehavioral.test_read_file_returns_content _________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d4bc0>
+
+    def test_read_file_returns_content(self):
+        """Reading a known file returns its content as a string."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+_______________ TestBehavioral.test_read_file_traversal_blocked ________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d5220>
+
+    def test_read_file_traversal_blocked(self):
+        """Path traversal with '..' raises ValueError."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+_________________ TestBehavioral.test_write_file_creates_file __________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d5820>
+
+    def test_write_file_creates_file(self):
+        """Writing content creates a file with correct content."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+______________ TestBehavioral.test_write_file_creates_parent_dirs ______________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d5e20>
+
+    def test_write_file_creates_parent_dirs(self):
+        """Writing to a nested path creates parent directories."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+_______________ TestBehavioral.test_write_file_traversal_blocked _______________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d64e0>
+
+    def test_write_file_traversal_blocked(self):
+        """Path traversal in write raises ValueError."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+__________________ TestBehavioral.test_list_directory_default __________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d6ae0>
+
+    def test_list_directory_default(self):
+        """Default path returns a formatted listing string."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+_______________ TestBehavioral.test_list_directory_invalid_path ________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d3d10>
+
+    def test_list_directory_invalid_path(self):
+        """Non-existent directory raises FileNotFoundError."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+________________ TestBehavioral.test_search_web_returns_results ________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d3830>
+
+    def test_search_web_returns_results(self):
+        """Web search returns a non-empty result string."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+__________________ TestBehavioral.test_execute_python_simple ___________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d2ea0>
+
+    def test_execute_python_simple(self):
+        """Simple code: print('hello') returns 'hello' in output."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+_______________ TestBehavioral.test_execute_python_syntax_error ________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d0230>
+
+    def test_execute_python_syntax_error(self):
+        """Syntax error returns error message (does not crash)."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+__________________ TestBehavioral.test_execute_python_timeout __________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d0dd0>
+
+    def test_execute_python_timeout(self):
+        """Infinite loop raises TimeoutError."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+________________ TestBehavioral.test_get_weather_returns_report ________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83c58e0>
+
+    def test_get_weather_returns_report(self):
+        """Weather report contains the requested city name."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+________________ TestBehavioral.test_get_weather_unit_handling _________________
+
+self = <tests.test_mcp_tools.TestBehavioral object at 0x7ff8a83d6960>
+
+    def test_get_weather_unit_handling(self):
+        """Both celsius and fahrenheit units produce different output."""
+>       from examples import standalone_mcp_server
+
+tests/test_mcp_tools.py:246: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    #!/usr/bin/env python3
+    """Standalone MCP server with 6 example tools using FastMCP decorators.
+    
+    This server demonstrates the standard FastMCP pattern using raw @mcp.tool()
+    decorators. No API keys required — all tools use stdlib or existing
+    dependencies (httpx for web search).
+    
+    Usage:
+        # Run the server (stdio transport, default):
+        python examples/standalone_mcp_server.py
+    
+        # Test with MCP Inspector:
+        pip install mcp
+        mcp dev examples/standalone_mcp_server.py
+    
+        # Connect Cursor IDE: see .cursor/mcp.json in repo root
+        # Connect Claude Desktop: see claude_desktop_config.json in repo root
+    
+    Security:
+        - Filesystem tools validate paths against ALLOWED_BASE_DIR (default: cwd)
+        - Code execution uses subprocess sandbox with timeout (default: 10s)
+        - No API keys needed — web search uses DuckDuckGo (unauthenticated)
+    """
+    
+    import os
+    import re
+    import subprocess
+    import sys
+    import tempfile
+    from pathlib import Path
+    
+    import httpx
+>   from mcp.server.fastmcp import FastMCP
+E   ModuleNotFoundError: No module named 'mcp'
+
+examples/standalone_mcp_server.py:33: ModuleNotFoundError
+________________ TestMistralBehavioral.test_chat_calls_complete ________________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dc050>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestMistralBehavioral.test_chat_uses_custom_model _______________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dc5f0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestMistralBehavioral.test_chat_handles_none_content _____________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dcc80>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestMistralBehavioral.test_chat_raises_on_sdk_error ______________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dd220>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_______________ TestMistralBehavioral.test_stream_yields_deltas ________________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dd820>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestMistralBehavioral.test_stream_uses_custom_model ______________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dde80>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+____________ TestMistralBehavioral.test_stream_raises_on_sdk_error _____________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83de480>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+__________ TestMistralBehavioral.test_chat_passes_messages_correctly ___________
+
+args = (<tests.test_mistral_provider.TestMistralBehavioral object at 0x7ff8a83dea80>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'mistralai', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'mistralai'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_______________ TestOllamaBehavioral.test_chat_calls_client_chat _______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83d8a40>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_______________ TestOllamaBehavioral.test_chat_uses_custom_model _______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e3110>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_________ TestOllamaBehavioral.test_chat_handles_missing_token_counts __________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e2810>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestOllamaBehavioral.test_chat_raises_on_sdk_error ______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e2450>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_______________ TestOllamaBehavioral.test_chat_uses_custom_host ________________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e1610>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+________________ TestOllamaBehavioral.test_stream_yields_chunks ________________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e1250>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestOllamaBehavioral.test_stream_uses_custom_model ______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e03b0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestOllamaBehavioral.test_stream_raises_on_sdk_error _____________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e3920>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestOllamaBehavioral.test_generate_returns_response ______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e2e40>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestOllamaBehavioral.test_generate_uses_custom_model _____________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e2960>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+____________ TestOllamaBehavioral.test_generate_raises_on_sdk_error ____________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e3770>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+____________ TestOllamaBehavioral.test_embed_returns_single_vector _____________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a83e3d70>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+___________ TestOllamaBehavioral.test_embed_returns_multiple_vectors ___________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a81e83e0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestOllamaBehavioral.test_embed_uses_custom_model _______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a81e8aa0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+_____________ TestOllamaBehavioral.test_embed_raises_on_sdk_error ______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a81e90a0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+______________ TestOllamaBehavioral.test_embed_passes_list_input _______________
+
+args = (<tests.test_ollama_provider.TestOllamaBehavioral object at 0x7ff8a81e96a0>,)
+keywargs = {}
+
+    @wraps(func)
+    def patched(*args, **keywargs):
+>       with self.decoration_helper(patched,
+                                    args,
+                                    keywargs) as (newargs, newkeywargs):
+
+/usr/lib/python3.12/unittest/mock.py:1393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1375: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+/usr/lib/python3.12/unittest/mock.py:1451: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+/usr/lib/python3.12/pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'ollama', package = None
+
+    def import_module(name, package=None):
+        """Import a module.
+    
+        The 'package' argument is required when performing a relative import. It
+        specifies the package to use as the anchor point from which to resolve the
+        relative import to an absolute import.
+    
+        """
+        level = 0
+        if name.startswith('.'):
+            if not package:
+                raise TypeError("the 'package' argument is required to perform a "
+                                f"relative import for {name!r}")
+            for character in name:
+                if character != '.':
+                    break
+                level += 1
+>       return _bootstrap._gcd_import(name[level:], package, level)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'ollama'
+
+/usr/lib/python3.12/importlib/__init__.py:90: ModuleNotFoundError
+=============================== warnings summary ===============================
+tests/test_cost_api.py:126
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_cost_api.py:126: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_cost_api.py:135
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_cost_api.py:135: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_cost_api.py:144
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_cost_api.py:144: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_cost_api.py:153
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_cost_api.py:153: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_cost_api.py:162
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_cost_api.py:162: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_cost_api.py:171
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_cost_api.py:171: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_llm_wrapper.py:207
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_llm_wrapper.py:207: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_mcp_server.py:209
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_mcp_server.py:209: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_mcp_server.py:235
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_mcp_server.py:235: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_mcp_tools.py:102
+  /mnt/data/ai_vibe_coding_kit_work/tests/test_mcp_tools.py:102: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+../../../opt/pyvenv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /opt/pyvenv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_chat_calls_client_chat
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_chat_uses_custom_model
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_chat_handles_empty_content
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_chat_raises_on_sdk_error
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_stream_yields_content_deltas
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_stream_uses_custom_model
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_stream_raises_on_sdk_error
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_embed_returns_embeddings
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_embed_uses_custom_model
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_embed_passes_input_type
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_embed_raises_on_sdk_error
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_rerank_returns_sorted_results
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_rerank_uses_custom_model_and_top_n
+FAILED tests/test_cohere_provider.py::TestCohereBehavioral::test_rerank_raises_on_sdk_error
+FAILED tests/test_cost_api.py::TestCostApiBehavior::test_total_returns_cost_dict
+FAILED tests/test_cost_api.py::TestCostApiBehavior::test_daily_returns_list
+FAILED tests/test_cost_api.py::TestCostApiBehavior::test_latency_percentiles_with_params
+FAILED tests/test_cost_api.py::TestCostApiBehavior::test_budget_check_with_body
+FAILED tests/test_cost_api.py::TestCostApiBehavior::test_budget_alerts_with_limit
+FAILED tests/test_cost_api.py::TestCostApiBehavior::test_all_endpoints_raise_not_implemented
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_chat_calls_generate_content
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_chat_uses_custom_model
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_chat_handles_none_text
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_chat_raises_on_sdk_error
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_stream_yields_chunks
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_stream_uses_custom_model
+FAILED tests/test_gemini_provider.py::TestGeminiBehavioral::test_stream_raises_on_sdk_error
+FAILED tests/test_llm_wrapper.py::TestLLMClientAsync::test_chat_async_returns_llm_response
+FAILED tests/test_mcp_server.py::TestMCPServer::test_create_mcp_server - Modu...
+FAILED tests/test_mcp_server.py::TestMCPToolIntegration::test_tool_registration
+FAILED tests/test_mcp_server.py::TestMCPToolIntegration::test_multiple_tools
+FAILED tests/test_mcp_tools.py::TestInterface::test_mcp_module_imports - Modu...
+FAILED tests/test_mcp_tools.py::TestInterface::test_read_file_tool_exists - M...
+FAILED tests/test_mcp_tools.py::TestInterface::test_write_file_tool_exists - ...
+FAILED tests/test_mcp_tools.py::TestInterface::test_list_directory_tool_exists
+FAILED tests/test_mcp_tools.py::TestInterface::test_search_web_tool_exists - ...
+FAILED tests/test_mcp_tools.py::TestInterface::test_execute_python_tool_exists
+FAILED tests/test_mcp_tools.py::TestInterface::test_get_weather_tool_exists
+FAILED tests/test_mcp_tools.py::TestInterface::test_all_tools_have_docstrings
+FAILED tests/test_mcp_tools.py::TestInterface::test_mcp_instance_exists - Mod...
+FAILED tests/test_mcp_tools.py::TestInterface::test_mcp_tool_names - Failed: ...
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_read_file_returns_content
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_read_file_traversal_blocked
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_write_file_creates_file
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_write_file_creates_parent_dirs
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_write_file_traversal_blocked
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_list_directory_default
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_list_directory_invalid_path
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_search_web_returns_results
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_execute_python_simple - ...
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_execute_python_syntax_error
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_execute_python_timeout
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_get_weather_returns_report
+FAILED tests/test_mcp_tools.py::TestBehavioral::test_get_weather_unit_handling
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_chat_calls_complete
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_chat_uses_custom_model
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_chat_handles_none_content
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_chat_raises_on_sdk_error
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_stream_yields_deltas
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_stream_uses_custom_model
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_stream_raises_on_sdk_error
+FAILED tests/test_mistral_provider.py::TestMistralBehavioral::test_chat_passes_messages_correctly
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_chat_calls_client_chat
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_chat_uses_custom_model
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_chat_handles_missing_token_counts
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_chat_raises_on_sdk_error
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_chat_uses_custom_host
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_stream_yields_chunks
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_stream_uses_custom_model
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_stream_raises_on_sdk_error
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_generate_returns_response
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_generate_uses_custom_model
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_generate_raises_on_sdk_error
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_embed_returns_single_vector
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_embed_returns_multiple_vectors
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_embed_uses_custom_model
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_embed_raises_on_sdk_error
+FAILED tests/test_ollama_provider.py::TestOllamaBehavioral::test_embed_passes_list_input
+78 failed, 922 passed, 11 warnings in 35.96s

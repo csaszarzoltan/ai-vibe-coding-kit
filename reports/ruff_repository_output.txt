@@ -1,0 +1,823 @@
+F401 [*] `ai_vibe_coding.agent_team.AgentTeamResult` imported but unused
+  --> examples/agent_supervisor_example.py:16:52
+   |
+14 | import os
+15 |
+16 | from ai_vibe_coding.agent_team import AgentConfig, AgentTeamResult
+   |                                                    ^^^^^^^^^^^^^^^
+17 | from ai_vibe_coding.agent_templates import AgentSupervisor
+18 | from ai_vibe_coding.llm_wrapper import LLMClient
+   |
+help: Remove unused import: `ai_vibe_coding.agent_team.AgentTeamResult`
+   |
+15 |
+   - from ai_vibe_coding.agent_team import AgentConfig, AgentTeamResult
+16 + from ai_vibe_coding.agent_team import AgentConfig
+17 | from ai_vibe_coding.agent_templates import AgentSupervisor
+   |
+
+F401 [*] `ai_vibe_coding.chaos_engineering.ExperimentStatus` imported but unused
+  --> examples/chaos_engineering_example.py:12:5
+   |
+10 |     ChaosScenario,
+11 |     ExperimentRunner,
+12 |     ExperimentStatus,
+   |     ^^^^^^^^^^^^^^^^
+13 |     FaultInjector,
+14 |     FaultProfile,
+   |
+help: Remove unused import: `ai_vibe_coding.chaos_engineering.ExperimentStatus`
+   |
+11 |     ExperimentRunner,
+   -     ExperimentStatus,
+12 |     FaultInjector,
+   |
+
+E501 Line too long (100 > 88)
+   --> examples/chaos_engineering_example.py:142:89
+    |
+141 |     from ai_vibe_coding.chaos_engineering import ExperimentPhase
+142 |     hook.capture(phase=ExperimentPhase.INJECTING, latency_ms=150.0, error_count=0, request_count=10)
+    |                                                                                         ^^^^^^^^^^^^
+143 |     hook.capture(phase=ExperimentPhase.OBSERVING, latency_ms=320.0, error_count=2, request_count=10)
+    |
+
+E501 Line too long (100 > 88)
+   --> examples/chaos_engineering_example.py:143:89
+    |
+141 |     from ai_vibe_coding.chaos_engineering import ExperimentPhase
+142 |     hook.capture(phase=ExperimentPhase.INJECTING, latency_ms=150.0, error_count=0, request_count=10)
+143 |     hook.capture(phase=ExperimentPhase.OBSERVING, latency_ms=320.0, error_count=2, request_count=10)
+    |                                                                                         ^^^^^^^^^^^^
+144 |
+145 |     print(f"  Average latency: {hook.get_average_latency():.1f}ms")
+    |
+
+E501 Line too long (100 > 88)
+  --> examples/mcp_server_example.py:31:89
+   |
+29 |             "properties": {
+30 |                 "city": {"type": "string", "description": "City name"},
+31 |                 "unit": {"type": "string", "description": "Temperature unit", "default": "celsius"},
+   |                                                                                         ^^^^^^^^^^^^
+32 |             },
+33 |             "required": ["city"],
+   |
+
+E501 Line too long (109 > 88)
+  --> examples/mcp_server_example.py:43:89
+   |
+41 |             "properties": {
+42 |                 "query": {"type": "string", "description": "Search query"},
+43 |                 "max_results": {"type": "integer", "description": "Maximum results to return", "default": 5},
+   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+44 |             },
+45 |             "required": ["query"],
+   |
+
+E501 Line too long (89 > 88)
+  --> examples/mcp_server_example.py:68:89
+   |
+66 |     tools,
+67 |     name="ai-vibe-coding-demo",
+68 |     instructions="Demo MCP server with weather, web search, and Python execution tools.",
+   |                                                                                         ^
+69 | )
+   |
+
+E501 Line too long (89 > 88)
+  --> examples/rate_limiting_example.py:52:89
+   |
+50 |     # Provider healthy
+51 |     limiter.update_health(0.9)
+52 |     print("  Health=0.9 →", limiter.state.value, "Rate:", round(limiter.current_rate, 1))
+   |                                                                                         ^
+53 |
+54 |     # Provider degraded
+   |
+
+E501 Line too long (89 > 88)
+  --> examples/rate_limiting_example.py:56:89
+   |
+54 |     # Provider degraded
+55 |     limiter.update_health(0.2)
+56 |     print("  Health=0.2 →", limiter.state.value, "Rate:", round(limiter.current_rate, 1))
+   |                                                                                         ^
+57 |
+58 |     # Provider down
+   |
+
+E501 Line too long (89 > 88)
+  --> examples/rate_limiting_example.py:60:89
+   |
+58 |     # Provider down
+59 |     limiter.update_health(0.0)
+60 |     print("  Health=0.0 →", limiter.state.value, "Rate:", round(limiter.current_rate, 1))
+   |                                                                                         ^
+61 |
+62 |     limiter.reset()
+   |
+
+E501 Line too long (93 > 88)
+  --> examples/rate_limiting_example.py:83:89
+   |
+81 |     for i in range(6):
+82 |         burst = qm.allocate_burst("openai", "project-alpha")
+83 |         print(f"  Burst request {i+1}: {'ALLOWED' if burst else 'DENIED (burst exhausted)'}")
+   |                                                                                         ^^^^^
+84 |
+85 |     # Cost-aware allocation
+   |
+
+F541 [*] f-string without any placeholders
+  --> examples/rate_limiting_example.py:87:11
+   |
+85 |     # Cost-aware allocation
+86 |     alloc = qm.cost_aware_allocation("openai", "project-alpha", 10_000)
+87 |     print(f"\n  Cost-aware allocation:")
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+88 |     print(f"    Requested: 10,000 tokens")
+89 |     print(f"    Allocated: {alloc.allocated_tokens:.0f} tokens")
+   |
+help: Remove extraneous `f` prefix
+   |
+86 |     alloc = qm.cost_aware_allocation("openai", "project-alpha", 10_000)
+   -     print(f"\n  Cost-aware allocation:")
+87 +     print("\n  Cost-aware allocation:")
+88 |     print(f"    Requested: 10,000 tokens")
+   |
+
+F541 [*] f-string without any placeholders
+  --> examples/rate_limiting_example.py:88:11
+   |
+86 |     alloc = qm.cost_aware_allocation("openai", "project-alpha", 10_000)
+87 |     print(f"\n  Cost-aware allocation:")
+88 |     print(f"    Requested: 10,000 tokens")
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+89 |     print(f"    Allocated: {alloc.allocated_tokens:.0f} tokens")
+90 |     print(f"    Estimated cost: ${alloc.estimated_cost:.4f}")
+   |
+help: Remove extraneous `f` prefix
+   |
+87 |     print(f"\n  Cost-aware allocation:")
+   -     print(f"    Requested: 10,000 tokens")
+88 +     print("    Requested: 10,000 tokens")
+89 |     print(f"    Allocated: {alloc.allocated_tokens:.0f} tokens")
+   |
+
+F541 [*] f-string without any placeholders
+  --> examples/rate_limiting_example.py:97:15
+   |
+95 |     usage = qm.get_usage("openai", "project-alpha")
+96 |     if usage:
+97 |         print(f"\n  Usage snapshot:")
+   |               ^^^^^^^^^^^^^^^^^^^^^^
+98 |         print(f"    Tokens today: {usage.tokens_used_today:.0f}")
+99 |         print(f"    Cost today: ${usage.cost_today:.4f}")
+   |
+help: Remove extraneous `f` prefix
+   |
+96 |     if usage:
+   -         print(f"\n  Usage snapshot:")
+97 +         print("\n  Usage snapshot:")
+98 |         print(f"    Tokens today: {usage.tokens_used_today:.0f}")
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> examples/scheduled_scanning_example.py:7:1
+   |
+ 5 |   """
+ 6 |
+ 7 | / from __future__ import annotations
+ 8 | |
+ 9 | | import time
+10 | | from typing import Any
+11 | |
+12 | | from ai_vibe_coding.scheduled_scanning import (
+13 | |     AlertLevel,
+14 | |     CostAnomalyDetector,
+15 | |     DriftDetector,
+16 | |     PromptRegressionTester,
+17 | |     SLAChecker,
+18 | |     ScanResult,
+19 | |     ScanType,
+20 | |     Scheduler,
+21 | | )
+   | |_^
+help: Organize imports
+   |
+16 |     PromptRegressionTester,
+   -     SLAChecker,
+17 |     ScanResult,
+18 |     ScanType,
+19 |     Scheduler,
+20 +     SLAChecker,
+21 | )
+   |
+
+F401 [*] `time` imported but unused
+  --> examples/scheduled_scanning_example.py:9:8
+   |
+ 7 | from __future__ import annotations
+ 8 |
+ 9 | import time
+   |        ^^^^
+10 | from typing import Any
+   |
+help: Remove unused import: `time`
+  |
+8 |
+  - import time
+9 | from typing import Any
+  |
+
+F401 [*] `typing.Any` imported but unused
+  --> examples/scheduled_scanning_example.py:10:20
+   |
+ 9 | import time
+10 | from typing import Any
+   |                    ^^^
+11 |
+12 | from ai_vibe_coding.scheduled_scanning import (
+   |
+help: Remove unused import: `typing.Any`
+   |
+9  | import time
+   - from typing import Any
+10 |
+   |
+
+F541 [*] f-string without any placeholders
+   --> examples/scheduled_scanning_example.py:183:11
+    |
+181 |     detector.record_daily_cost("openai", current_cost)
+182 |     report = detector.check("openai")
+183 |     print(f"\n  Cost anomaly for openai:")
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     print(f"    Baseline: ${report.baseline_daily_cost:.4f}/day")
+185 |     print(f"    Current:  ${report.current_daily_cost:.4f}/day")
+    |
+help: Remove extraneous `f` prefix
+    |
+182 |     report = detector.check("openai")
+    -     print(f"\n  Cost anomaly for openai:")
+183 +     print("\n  Cost anomaly for openai:")
+184 |     print(f"    Baseline: ${report.baseline_daily_cost:.4f}/day")
+    |
+
+F401 [*] `unittest.mock.patch` imported but unused
+  --> tests/test_agent_templates.py:34:33
+   |
+32 | import time
+33 | from dataclasses import FrozenInstanceError
+34 | from unittest.mock import Mock, patch
+   |                                 ^^^^^
+35 |
+36 | import pytest
+   |
+help: Remove unused import: `unittest.mock.patch`
+   |
+33 | from dataclasses import FrozenInstanceError
+   - from unittest.mock import Mock, patch
+34 + from unittest.mock import Mock
+35 |
+   |
+
+F401 [*] `ai_vibe_coding.structured.ToolDef` imported but unused
+  --> tests/test_agent_templates.py:39:39
+   |
+38 | from ai_vibe_coding.llm_wrapper import LLMClient, LLMResponse
+39 | from ai_vibe_coding.structured import ToolDef
+   |                                       ^^^^^^^
+40 |
+41 | # ─── Module-level guard ──────────────────────────────────────────
+   |
+help: Remove unused import: `ai_vibe_coding.structured.ToolDef`
+   |
+38 | from ai_vibe_coding.llm_wrapper import LLMClient, LLMResponse
+   - from ai_vibe_coding.structured import ToolDef
+39 |
+   |
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/test_agent_templates.py:805:9
+    |
+803 |             on_delegation=trace_callback,
+804 |         )
+805 |         result = sup.run("test")
+    |         ^^^^^^
+806 |         assert callable(sup.on_delegation)
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `result` is assigned to but never used
+    --> tests/test_agent_templates.py:1068:9
+     |
+1066 |         ]
+1067 |         retry = AgentRetryPolicy(agent=agent, max_retries=3)
+1068 |         result = retry.run_with_retry(input_data="retry_me")
+     |         ^^^^^^
+1069 |         assert agent.chat.call_count >= 2
+     |
+help: Remove assignment to unused variable `result`
+
+SIM222 Use `True` instead of `... or True`
+    --> tests/test_agent_templates.py:1090:16
+     |
+1088 |         with pytest.raises(RuntimeError):
+1089 |             retry.run_with_retry(input_data="dlq")
+1090 |         assert dlq.publish.called or True  # dlq delivery attempted
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+1091 |
+1092 |     def test_retry_counter_accessible(self):
+     |
+help: Replace with `True`
+
+F841 Local variable `result` is assigned to but never used
+    --> tests/test_agent_templates.py:1100:9
+     |
+1098 |         )
+1099 |         retry = AgentRetryPolicy(agent=agent, max_retries=3)
+1100 |         result = retry.run_with_retry(input_data="count")
+     |         ^^^^^^
+1101 |         assert retry.retry_count >= 0
+     |
+help: Remove assignment to unused variable `result`
+
+E501 Line too long (92 > 88)
+    --> tests/test_agent_templates.py:1201:89
+     |
+1199 | print(
+1200 |     "Agent Templates Tests Summary:\n"
+1201 |     "  P0 Foundation          :  18 tests (4 AgentMessage + 8 MessageBus + 6 SharedState)\n"
+     |                                                                                         ^^^^
+1202 |     "  P1 Core Templates      :  28 tests (14 AgentPipeline + 14 AgentFanOut/FanIn)\n"
+1203 |     "  P2 Advanced Templates  :  22 tests (10 AgentSupervisor + 12 AgentPubSubCoordinator)\n"
+     |
+
+E501 Line too long (93 > 88)
+    --> tests/test_agent_templates.py:1203:89
+     |
+1201 |     "  P0 Foundation          :  18 tests (4 AgentMessage + 8 MessageBus + 6 SharedState)\n"
+1202 |     "  P1 Core Templates      :  28 tests (14 AgentPipeline + 14 AgentFanOut/FanIn)\n"
+1203 |     "  P2 Advanced Templates  :  22 tests (10 AgentSupervisor + 12 AgentPubSubCoordinator)\n"
+     |                                                                                         ^^^^^
+1204 |     "  P3 Error Handling      :  12 tests (4 CircuitBreaker + 4 RetryPolicy + 4 Fallback)\n"
+1205 |     "  Example Scripts        :   2 tests (smoke import)\n"
+     |
+
+E501 Line too long (92 > 88)
+    --> tests/test_agent_templates.py:1204:89
+     |
+1202 |     "  P1 Core Templates      :  28 tests (14 AgentPipeline + 14 AgentFanOut/FanIn)\n"
+1203 |     "  P2 Advanced Templates  :  22 tests (10 AgentSupervisor + 12 AgentPubSubCoordinator)\n"
+1204 |     "  P3 Error Handling      :  12 tests (4 CircuitBreaker + 4 RetryPolicy + 4 Fallback)\n"
+     |                                                                                         ^^^^
+1205 |     "  Example Scripts        :   2 tests (smoke import)\n"
+1206 |     "  ─────────────────────────────────\n"
+     |
+
+E501 Line too long (95 > 88)
+  --> tests/test_benchmark_runner.py:46:89
+   |
+45 |     def test_benchmark_task_defaults(self):
+46 |         """Optional fields (evaluator, dataset_path, metadata) should have correct defaults."""
+   |                                                                                         ^^^^^^^
+47 |         task = BenchmarkTask(
+48 |             id="test-1",
+   |
+
+E501 Line too long (90 > 88)
+   --> tests/test_chaos_engineering.py:140:89
+    |
+138 |         scenario = ChaosScenario(
+139 |             name="rate-test", target_provider="openai",
+140 |             fault_profile=FaultProfile(fault_type=FaultType.RATE_LIMIT, duration_ms=2000),
+    |                                                                                         ^^
+141 |         )
+142 |         fi.register_scenario(scenario)
+    |
+
+E501 Line too long (93 > 88)
+   --> tests/test_chaos_engineering.py:242:89
+    |
+240 |     def test_prepare_validates_scenario(self) -> None:
+241 |         er = ExperimentRunner()
+242 |         scenario = ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0)
+    |                                                                                         ^^^^^
+243 |         er.prepare(scenario)
+244 |         assert er.phase == ExperimentPhase.PREPARING
+    |
+
+E501 Line too long (96 > 88)
+   --> tests/test_chaos_engineering.py:260:89
+    |
+258 |         er = ExperimentRunner()
+259 |         with pytest.raises(ValueError, match="duration"):
+260 |             er.prepare(ChaosScenario(name="test", target_provider="openai", duration_seconds=0))
+    |                                                                                         ^^^^^^^^
+261 |
+262 |     def test_inject_changes_phase_to_injecting(self) -> None:
+    |
+
+E501 Line too long (94 > 88)
+   --> tests/test_chaos_engineering.py:264:89
+    |
+262 |     def test_inject_changes_phase_to_injecting(self) -> None:
+263 |         er = ExperimentRunner()
+264 |         er.prepare(ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0))
+    |                                                                                         ^^^^^^
+265 |         er.inject()
+266 |         assert er.phase == ExperimentPhase.INJECTING
+    |
+
+E501 Line too long (93 > 88)
+   --> tests/test_chaos_engineering.py:275:89
+    |
+273 |     def test_observe_returns_snapshots(self) -> None:
+274 |         er = ExperimentRunner()
+275 |         scenario = ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0)
+    |                                                                                         ^^^^^
+276 |         er.prepare(scenario)
+277 |         er.inject()
+    |
+
+E501 Line too long (93 > 88)
+   --> tests/test_chaos_engineering.py:284:89
+    |
+282 |     def test_clean_returns_result(self) -> None:
+283 |         er = ExperimentRunner()
+284 |         scenario = ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0)
+    |                                                                                         ^^^^^
+285 |         er.prepare(scenario)
+286 |         er.inject()
+    |
+
+E501 Line too long (98 > 88)
+   --> tests/test_chaos_engineering.py:295:89
+    |
+293 |     def test_run_completes_full_lifecycle(self) -> None:
+294 |         er = ExperimentRunner()
+295 |         scenario = ChaosScenario(name="lifecycle", target_provider="openai", duration_seconds=1.0)
+    |                                                                                         ^^^^^^^^^^
+296 |         result = er.run(scenario)
+297 |         assert result.phase == ExperimentPhase.COMPLETED
+    |
+
+E501 Line too long (98 > 88)
+   --> tests/test_chaos_engineering.py:440:89
+    |
+438 |         er = ExperimentRunner()
+439 |         assert er.is_running() is False
+440 |         scenario = ChaosScenario(name="flag-test", target_provider="openai", duration_seconds=5.0)
+    |                                                                                         ^^^^^^^^^^
+441 |         er.prepare(scenario)
+442 |         assert er.is_running() is True
+    |
+
+E501 Line too long (96 > 88)
+   --> tests/test_chaos_engineering.py:456:89
+    |
+455 |         er.on_phase_change(cb)
+456 |         scenario = ChaosScenario(name="cb-test", target_provider="openai", duration_seconds=1.0)
+    |                                                                                         ^^^^^^^^
+457 |         er.run(scenario)
+458 |         assert len(phases) >= 1
+    |
+
+F841 Local variable `fields` is assigned to but never used
+   --> tests/test_metric_collector.py:107:9
+    |
+105 |         import inspect
+106 |
+107 |         fields = dict(inspect.getmembers(TaskMetrics, lambda m: not callable(m)))
+    |         ^^^^^^
+108 |         dataclass_fields = {f.name for f in TaskMetrics.__dataclass_fields__.values()}
+    |
+help: Remove assignment to unused variable `fields`
+
+E501 Line too long (96 > 88)
+   --> tests/test_playground.py:193:89
+    |
+192 |     def test_provider_examples_in_all_providers(self):
+193 |         """Additional providers (gemini, mistral, cohere, ollama) should be in ALL_PROVIDERS."""
+    |                                                                                         ^^^^^^^^
+194 |         for extra in ["gemini", "mistral", "cohere", "ollama"]:
+195 |             assert extra in ALL_PROVIDERS, f"{extra} missing from ALL_PROVIDERS"
+    |
+
+E501 Line too long (91 > 88)
+   --> tests/test_playground.py:203:89
+    |
+203 | def _mock_result(provider_name: str, error: str | None = None) -> PlaygroundProviderResult:
+    |                                                                                         ^^^
+204 |     """Build a plausible PlaygroundProviderResult for the named provider."""
+205 |     content = f"Response from {provider_name}" if error is None else ""
+    |
+
+E501 Line too long (98 > 88)
+   --> tests/test_playground.py:338:89
+    |
+336 |         assert resp.status_code == 200
+337 |         results = resp.json()["results"]
+338 |         # All 9 providers should have character_count > 0 (mock content is "Response from {name}")
+    |                                                                                         ^^^^^^^^^^
+339 |         for prov_name, result in results.items():
+340 |             assert result["character_count"] > 0, (
+    |
+
+F401 `ai_vibe_coding.rate_limiting.QuotaPeriod` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> tests/test_rate_limiting.py:26:9
+   |
+24 |         QuotaConfig,
+25 |         QuotaManager,
+26 |         QuotaPeriod,
+   |         ^^^^^^^^^^^
+27 |         QuotaUsage,
+28 |         RateLimiterState,
+   |
+help: Remove unused import: `ai_vibe_coding.rate_limiting.QuotaPeriod`
+
+E501 Line too long (91 > 88)
+  --> tests/test_rate_limiting.py:85:89
+   |
+84 |     def test_cost_aware_allocation_dataclass(self) -> None:
+85 |         alloc = CostAwareAllocation(provider="openai", user="test", allocated_tokens=100.0)
+   |                                                                                         ^^^
+86 |         assert alloc.allocated_tokens == 100.0
+   |
+
+E501 Line too long (89 > 88)
+   --> tests/test_rate_limiting.py:166:89
+    |
+164 |         tb.consume(8.0)
+165 |         tb.refill(tokens=3.0)
+166 |         assert tb.available_tokens == pytest.approx(5.0, abs=0.001)  # capped at capacity
+    |                                                                                         ^
+167 |
+168 |     def test_auto_refill_over_time(self) -> None:
+    |
+
+E501 Line too long (89 > 88)
+   --> tests/test_rate_limiting.py:376:89
+    |
+374 |     def test_record_usage_updates_counters(self) -> None:
+375 |         qm = QuotaManager()
+376 |         qm.add_quota(QuotaConfig(provider="openai", user="user1", max_daily_tokens=1000))
+    |                                                                                         ^
+377 |         qm.record_usage("openai", "user1", tokens=100, cost=0.05)
+378 |         usage = qm.get_usage("openai", "user1")
+    |
+
+E501 Line too long (106 > 88)
+   --> tests/test_rate_limiting.py:441:89
+    |
+439 |     def test_multiple_providers_allocated(self) -> None:
+440 |         qm = QuotaManager()
+441 |         qm.add_quota(QuotaConfig(provider="openai", user="u1", max_daily_tokens=500, cost_per_token=0.01))
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+442 |         qm.add_quota(QuotaConfig(provider="anthropic", user="u1", max_daily_tokens=300, cost_per_token=0.015))
+443 |         alloc1 = qm.cost_aware_allocation("openai", "u1", 1000)
+    |
+
+E501 Line too long (110 > 88)
+   --> tests/test_rate_limiting.py:442:89
+    |
+440 |         qm = QuotaManager()
+441 |         qm.add_quota(QuotaConfig(provider="openai", user="u1", max_daily_tokens=500, cost_per_token=0.01))
+442 |         qm.add_quota(QuotaConfig(provider="anthropic", user="u1", max_daily_tokens=300, cost_per_token=0.015))
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+443 |         alloc1 = qm.cost_aware_allocation("openai", "u1", 1000)
+444 |         alloc2 = qm.cost_aware_allocation("anthropic", "u1", 1000)
+    |
+
+E501 Line too long (89 > 88)
+   --> tests/test_resilience.py:212:89
+    |
+210 | @pytest.mark.skipif(not MODULE_EXISTS, reason="resilience not impl")
+211 | class TestCircuitBreaker:
+212 |     """Behavioral contract for CircuitBreaker — NotImplementedError until implemented."""
+    |                                                                                         ^
+213 |
+214 |     def test_init_with_defaults(self):
+    |
+
+E501 Line too long (95 > 88)
+   --> tests/test_resilience.py:221:89
+    |
+219 |     def test_init_with_custom_config(self):
+220 |         """CircuitBreaker accepts custom CircuitBreakerConfig."""
+221 |         cfg = CircuitBreakerConfig(failure_threshold=3, success_threshold=1, open_timeout=10.0)
+    |                                                                                         ^^^^^^^
+222 |         cb = CircuitBreaker(config=cfg)
+223 |         assert cb is not None
+    |
+
+E501 Line too long (100 > 88)
+   --> tests/test_resilience.py:268:89
+    |
+267 |         cb = CircuitBreaker(
+268 |             config=CircuitBreakerConfig(failure_threshold=1, success_threshold=2, open_timeout=5.0),
+    |                                                                                         ^^^^^^^^^^^^
+269 |             time_func=_time,
+270 |         )
+    |
+
+E501 Line too long (97 > 88)
+   --> tests/test_resilience.py:663:89
+    |
+661 |         assert rc.get("openai", "gpt-4", [{"role": "user", "content": "hi"}]) is None
+662 |         # Other provider unaffected
+663 |         assert rc.get("anthropic", "claude-4", [{"role": "user", "content": "hi"}]) == "Bonjour!"
+    |                                                                                         ^^^^^^^^^
+
+E501 Line too long (90 > 88)
+   --> tests/test_resilience.py:701:89
+    |
+700 |         obs.on_event(_handler)
+701 |         obs.emit(ResilienceEvent(type="circuit_open", provider="openai", timestamp=100.0))
+    |                                                                                         ^^
+702 |         assert len(events) == 1
+703 |         assert events[0].type == "circuit_open"
+    |
+
+F401 `ai_vibe_coding.scheduled_scanning.CostAnomalyReport` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> tests/test_scheduled_scanning.py:24:9
+   |
+22 |         ComplianceStatus,
+23 |         CostAnomalyDetector,
+24 |         CostAnomalyReport,
+   |         ^^^^^^^^^^^^^^^^^
+25 |         DriftDetector,
+26 |         DriftReport,
+   |
+help: Remove unused import
+
+F401 `ai_vibe_coding.scheduled_scanning.SLAReport` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> tests/test_scheduled_scanning.py:33:9
+   |
+31 |         Scheduler,
+32 |         SLAChecker,
+33 |         SLAReport,
+   |         ^^^^^^^^^
+34 |     )
+35 |     MODULE_EXISTS = True
+   |
+help: Remove unused import
+
+E501 Line too long (89 > 88)
+   --> tests/test_scheduled_scanning.py:395:89
+    |
+393 |     def test_add_task(self) -> None:
+394 |         sched = Scheduler()
+395 |         sched.add_task("t1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=60.0)
+    |                                                                                         ^
+396 |         task = sched.get_task("t1")
+397 |         assert task is not None
+    |
+
+E501 Line too long (90 > 88)
+   --> tests/test_scheduled_scanning.py:413:89
+    |
+411 |         sched = Scheduler()
+412 |         with pytest.raises(ValueError, match="positive"):
+413 |             sched.add_task("t1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=0)
+    |                                                                                         ^^
+414 |
+415 |     def test_remove_task(self) -> None:
+    |
+
+E501 Line too long (96 > 88)
+   --> tests/test_scheduled_scanning.py:466:89
+    |
+464 |         sched = Scheduler()
+465 |         tiny_interval = 0.001
+466 |         sched.add_task("fail", ScanType.DRIFT, failing_callback, interval_seconds=tiny_interval)
+    |                                                                                         ^^^^^^^^
+467 |         import time as _time
+468 |         _time.sleep(0.01)
+    |
+
+E501 Line too long (89 > 88)
+   --> tests/test_scheduled_scanning.py:502:89
+    |
+500 |                 scan_type=ScanType.DRIFT,
+501 |                 reports=[report],
+502 |                 alert_level=AlertLevel.WARNING if report.is_drifted else AlertLevel.INFO,
+    |                                                                                         ^
+503 |             )
+    |
+
+E501 Line too long (97 > 88)
+   --> tests/test_scheduled_scanning.py:547:89
+    |
+545 |         sched.add_task("sla-check", ScanType.SLA_CHECK, sla_scan)
+546 |         results = sched.run_all()
+547 |         assert all(r.compliance_status == ComplianceStatus.COMPLIANT for r in results[0].reports)
+    |                                                                                         ^^^^^^^^^
+548 |
+549 |     def test_prompt_regression_with_tester(self) -> None:
+    |
+
+E501 Line too long (93 > 88)
+   --> tests/test_scheduled_scanning.py:558:89
+    |
+556 |                 scan_type=ScanType.REGRESSION,
+557 |                 reports=[report],
+558 |                 alert_level=AlertLevel.CRITICAL if report.is_regression else AlertLevel.INFO,
+    |                                                                                         ^^^^^
+559 |             )
+    |
+
+E501 Line too long (106 > 88)
+   --> tests/test_scheduled_scanning.py:585:89
+    |
+583 |     def test_scheduler_preserves_task_metadata(self) -> None:
+584 |         sched = Scheduler()
+585 |         sched.add_task("m1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=300.0, name="my-scan")
+    |                                                                                         ^^^^^^^^^^^^^^^^^^
+586 |         sched.run_all()
+587 |         task = sched.get_task("m1")
+    |
+
+E501 Line too long (97 > 88)
+   --> tests/test_structured.py:215:89
+    |
+213 |             client = LLMClient(provider="openai", api_key="fake")
+214 |             # Mock the CLI approval to return True (approve)
+215 |             with patch.object(CLIApprovalChannel, "__call__", return_value=True) as mock_approve:
+    |                                                                                         ^^^^^^^^^
+216 |                 result = chat_with_tools(
+217 |                     client,
+    |
+
+E501 Line too long (89 > 88)
+   --> tests/test_structured.py:229:89
+    |
+227 |     @pytest.mark.unit
+228 |     def test_chat_with_tools_denies_approval(self):
+229 |         """chat_with_tools() should raise ApprovalDeniedError when approval is denied."""
+    |                                                                                         ^
+230 |         delete_tool = ToolDef(
+231 |             name="delete_user",
+    |
+
+E501 Line too long (89 > 88)
+   --> tests/test_structured.py:233:89
+    |
+231 |             name="delete_user",
+232 |             description="Delete a user",
+233 |             parameters={"type": "object", "properties": {"user_id": {"type": "string"}}},
+    |                                                                                         ^
+234 |         )
+235 |         with patch.object(LLMClient, "chat") as mock_chat:
+    |
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> tests/test_structured.py:246:13
+    |
+244 |               client = LLMClient(provider="openai", api_key="fake")
+245 |               # Mock the CLI approval to return False (deny)
+246 | /             with patch.object(CLIApprovalChannel, "__call__", return_value=False):
+247 | |                 with pytest.raises(ApprovalDeniedError) as exc_info:
+    | |____________________________________________________________________^
+248 |                       chat_with_tools(
+249 |                           client,
+    |
+help: Combine `with` statements
+
+E501 Line too long (90 > 88)
+   --> tests/test_structured.py:268:89
+    |
+266 |         with patch.object(LLMClient, "chat") as mock_chat:
+267 |             mock_chat.return_value = LLMResponse(
+268 |                 content='{"name": "send_email", "arguments": {"to": "test@example.com"}}',
+    |                                                                                         ^^
+269 |                 provider="openai",
+270 |                 model="gpt-4",
+    |
+
+E501 Line too long (93 > 88)
+   --> tests/test_structured.py:291:89
+    |
+289 |             # This should be approved
+290 |             mock_chat.return_value = LLMResponse(
+291 |                 content='{"name": "send_email", "arguments": {"to": "allowed@example.com"}}',
+    |                                                                                         ^^^^^
+292 |                 provider="openai",
+293 |                 model="gpt-4",
+    |
+
+E501 Line too long (94 > 88)
+   --> tests/test_structured.py:309:89
+    |
+307 |     @pytest.mark.unit
+308 |     def test_chat_with_tools_no_approval_for_ungated_tool(self):
+309 |         """chat_with_tools() should not require approval for tools not in require_approval."""
+    |                                                                                         ^^^^^^
+310 |         weather_tool = ToolDef(
+311 |             name="get_weather",
+    |
+
+Found 68 errors.
+[*] 11 fixable with the `--fix` option (5 hidden fixes can be enabled with the `--unsafe-fixes` option).

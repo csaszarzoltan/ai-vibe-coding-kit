@@ -9,9 +9,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from ai_vibe_coding.control_api import router as control_router
+from ai_vibe_coding.cost_api import router as cost_router
 from ai_vibe_coding.playground import create_router
 
 app = FastAPI(
@@ -25,6 +27,12 @@ router = create_router()
 app.include_router(router)
 
 app.include_router(control_router)
+app.include_router(cost_router)
+
+@app.get("/", include_in_schema=False)
+def playground_page() -> FileResponse:
+    """Serve the primary, accessible provider-comparison workspace."""
+    return FileResponse(Path(__file__).resolve().parent / "static" / "index.html")
 app.mount(
     "/static",
     StaticFiles(directory=Path(__file__).resolve().parent / "static"),

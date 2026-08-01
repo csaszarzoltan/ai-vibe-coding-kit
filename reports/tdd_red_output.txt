@@ -1,0 +1,43 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+____________ test_provider_readiness_endpoint_reports_all_providers ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb04ad48bc0>
+
+    def test_provider_readiness_endpoint_reports_all_providers(monkeypatch):
+        monkeypatch.setenv('OPENAI_API_KEY', 'secret')
+        app = FastAPI()
+        app.include_router(create_router())
+        response = TestClient(app).get('/api/playground/providers')
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/test_next_version_ux.py:18: AssertionError
+___________ test_playground_has_accessible_live_regions_and_history ____________
+
+    def test_playground_has_accessible_live_regions_and_history():
+        html = HTML.read_text(encoding='utf-8')
+>       assert 'class="skip-link"' in html
+E       assert 'class="skip-link"' in '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=devic...banner" class="error-banner" hidden></div>\n    </main>\n    <script src="playground.js"></script>\n</body>\n</html>\n'
+
+tests/test_next_version_ux.py:30: AssertionError
+_____________ test_playground_persists_preferences_and_recent_runs _____________
+
+    def test_playground_persists_preferences_and_recent_runs():
+        js = JS.read_text(encoding='utf-8')
+>       assert 'localStorage' in js
+E       assert 'localStorage' in "// ──────────────────────────────────────────────────────────────\n// LLM Playground — comparison frontend (F3 + F4)\...elector');\n  if (observeTarget) {\n    observer.observe(observeTarget, { childList: true, subtree: true });\n  }\n}\n"
+
+tests/test_next_version_ux.py:40: AssertionError
+=============================== warnings summary ===============================
+../../../opt/pyvenv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /opt/pyvenv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_next_version_ux.py::test_provider_readiness_endpoint_reports_all_providers
+FAILED tests/test_next_version_ux.py::test_playground_has_accessible_live_regions_and_history
+FAILED tests/test_next_version_ux.py::test_playground_persists_preferences_and_recent_runs
+3 failed, 1 warning in 0.71s

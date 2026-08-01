@@ -73,6 +73,14 @@ class PlaygroundProviderResult(BaseModel):
         default=None,
         description="Error message if this provider call failed",
     )
+    error_code: str | None = Field(
+        default=None,
+        description="Stable, user-facing error category",
+    )
+    recovery_action: str | None = Field(
+        default=None,
+        description="Safe next action for recovering from the error",
+    )
 
 
 class PlaygroundCompareRequest(BaseModel):
@@ -280,6 +288,47 @@ def _reset_rate_limiter() -> None:
 # ──────────────────────────────────────────────────────────────
 
 
+def _classify_provider_error(error: Exception) -> tuple[str, str]:
+    """Map provider exceptions to stable categories and recovery guidance."""
+    message = str(error).lower()
+    credential_tokens = (
+        "401",
+        "403",
+        "api key",
+        "unauthorized",
+        "authentication",
+    )
+    if any(token in message for token in credential_tokens):
+        return (
+            "credential_error",
+            "Check the provider API key, refresh provider status, and retry.",
+        )
+    if any(token in message for token in ("429", "rate limit", "quota")):
+        return (
+            "quota_error",
+            "Wait for quota recovery or reduce provider usage before retrying.",
+        )
+    if any(token in message for token in ("timeout", "timed out")):
+        return (
+            "timeout_error",
+            "Retry the provider, or use a faster model or shorter prompt.",
+        )
+    network_tokens = ("connection", "network", "dns", "unreachable")
+    if any(token in message for token in network_tokens):
+        return (
+            "network_error",
+            "Check provider connectivity and network settings, then retry.",
+        )
+    if any(token in message for token in ("policy", "blocked", "not allowed")):
+        return (
+            "policy_error",
+            "Review provider and model policy before retrying.",
+        )
+    return (
+        "provider_error",
+        "Retry this provider, then inspect its trace if the error repeats.",
+    )
+
 def _call_provider(
     provider_name: str,
     prompt: str,
@@ -356,11 +405,14 @@ def _call_provider(
         )
 
     except Exception as exc:
+        error_code, recovery_action = _classify_provider_error(exc)
         return PlaygroundProviderResult(
             content="",
             provider=provider_name,
             model=default_model,
             error=str(exc),
+            error_code=error_code,
+            recovery_action=recovery_action,
         )
 
 
@@ -431,6 +483,27 @@ def create_router() -> APIRouter:
             results=results,
             total_latency_ms=round(total_latency_ms, 2),
         )
+
+    @router.get("/api/playground/providers")
+    def provider_readiness() -> dict[str, list[dict[str, Any]]]:
+        """Return safe provider readiness metadata for the playground.
+
+        Credential values are never returned. Hosted providers are considered
+        configured when their documented API-key environment variable exists.
+        Ollama is local and therefore reports configuration independently of a key.
+        """
+        providers = []
+        for name in ALL_PROVIDERS:
+            env_name = "CO_API_KEY" if name == "cohere" else f"{name.upper()}_API_KEY"
+            local = name == "ollama"
+            providers.append({
+                "provider": name,
+                "model": DEFAULT_MODELS[name],
+                "configured": local or bool(os.getenv(env_name)),
+                "local": local,
+                "status": "ready" if local or os.getenv(env_name) else "setup_required",
+            })
+        return {"providers": providers}
 
     @router.get(
         "/health",

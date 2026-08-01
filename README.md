@@ -1350,3 +1350,36 @@ python -m build --no-isolation
 ```
 
 Control-plane tests do not use provider networks or real credentials. Existing optional provider suites still require their documented SDK extras.
+
+## Next-Version Playground UX
+
+The packaged FastAPI application now serves the LLM Playground at `/` and adds workflow improvements for repeated comparisons:
+
+- provider readiness metadata at `GET /api/playground/providers`
+- an optional system prompt
+- device-local provider/system-prompt preferences
+- the three most recent device-local comparisons
+- sorting by latency, cost, or provider
+- skip navigation, live status, busy state, and alert semantics
+- a privacy-preserving `playground:run-completed` browser event that contains only provider count
+
+Run the application:
+
+```bash
+pip install -e ".[dev]"
+uvicorn ai_vibe_coding.app:app --host 0.0.0.0 --port 8000
+```
+
+Then open `http://localhost:8000/`. The browser-local history is intentionally not synchronized to a server and can be cleared through browser storage settings.
+
+See [Product analysis and requirements](docs/product-analysis-and-requirements.md) and [implementation report](docs/implementation-report.md).
+
+### Provider readiness
+
+The provider selector checks `/api/playground/providers` when the page loads. Hosted providers without a configured API key are labeled **Setup required** and disabled, while Ollama is labeled **Local**. Use **Refresh status** after changing environment configuration.
+
+The wheel package includes the playground HTML, JavaScript, and CSS assets. Packaging validation is recorded in `reports/wheel_asset_validation.txt`.
+
+### Provider failure recovery
+
+Provider failures now include a stable category and a suggested recovery action. Credential, quota, timeout, network, policy, and generic provider failures are distinguished. A failed result card offers **Retry provider**, which reruns only that provider and keeps successful results from the current comparison.

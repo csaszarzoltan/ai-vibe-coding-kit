@@ -152,3 +152,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bumped the package and application version to 0.11.0.
+
+### [Unreleased] - 2026-08-01
+
+#### Added
+- Provider-readiness endpoint for the playground without secret disclosure.
+- Optional system-prompt control, device-local preferences, recent comparisons, and result sorting.
+- Accessible skip navigation, live/busy result semantics, and alert feedback.
+- TDD coverage for new UX, readiness, persistence, and telemetry contracts.
+- Product analysis, requirements, and implementation handoff documentation.
+
+#### Changed
+- FastAPI root now serves the primary playground and registers the cost API router.
+
+#### Continued UX hardening
+- Connected provider readiness metadata to the visible provider selector.
+- Disabled providers that require setup while retaining a clear status and refresh action.
+- Added HTML and JavaScript package-data declarations so the installed wheel contains the runnable playground.
+- Added TDD coverage and wheel-content validation for these behaviors.
+
+#### Actionable provider failure recovery
+- Added stable provider error categories and safe recovery guidance.
+- Added an accessible per-provider Retry action that preserves successful comparison results.
+- Added privacy-minimal retry telemetry containing only the provider slug.
+- Added TDD and regression coverage for credential failure categorization and retry UX.
