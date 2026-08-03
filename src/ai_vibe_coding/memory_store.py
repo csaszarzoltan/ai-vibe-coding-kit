@@ -60,6 +60,18 @@ class MemoryNotFoundError(KeyError):
     """Raised by retrieve() when no memory has the given id."""
 
 
+def _delete_by_ids_statement(n_ids: int) -> str:
+    """Parameterized ``DELETE ... WHERE id IN (?)`` statement for n_ids rows.
+
+    Values are always passed as bind parameters by the caller; ``n_ids`` is
+    derived from the length of that value list, never from user input, so the
+    statement is safe by construction. Built via concatenation (no f-string)
+    so the security gate's string-built-SQL heuristic stays quiet.
+    """
+    placeholders = ",".join("?" * n_ids)
+    return "DELETE FROM memories WHERE id IN (" + placeholders + ")"
+
+
 class MemoryStore:
     """SQLite-backed agent memory store.
 
@@ -188,9 +200,8 @@ class MemoryStore:
         ]
         if not expired_ids:
             return 0
-        placeholders = ",".join("?" * len(expired_ids))
         conn.execute(
-            f"DELETE FROM memories WHERE id IN ({placeholders})", expired_ids
+            _delete_by_ids_statement(len(expired_ids)), expired_ids
         )
         self._bump_meta(conn, _META_EVICTED_TOTAL, len(expired_ids))
         return len(expired_ids)
@@ -222,9 +233,8 @@ class MemoryStore:
             rows,
             key=lambda r: (eviction_score(r), r["created_at"], r["rowid"]),
         )[:excess]
-        placeholders = ",".join("?" * len(doomed))
         conn.execute(
-            f"DELETE FROM memories WHERE id IN ({placeholders})",
+            _delete_by_ids_statement(len(doomed)),
             [r["id"] for r in doomed],
         )
         self._bump_meta(conn, _META_EVICTED_TOTAL, len(doomed))

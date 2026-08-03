@@ -298,7 +298,7 @@ def _handle_list_providers() -> None:
     print("  gemini     (requires GEMINI_API_KEY)")
     print("  mistral    (requires MISTRAL_API_KEY)")
     print("  cohere     (requires COHERE_API_KEY)")
-    print("  ollama     (local, no API key required)")
+    print("  ollama     (local, no credentials required)")
 
 
 # =====================================================================
@@ -358,11 +358,14 @@ def _handle_cost_estimate(
         print(f"Error: {e}", file=sys.stderr)
         return
 
-    print(f"Provider:     {provider}")
-    print(f"Model:        {model}")
-    print(f"Input tokens: {input_tokens}")
-    print(f"Output tokens:{output_tokens}")
-    print(f"Total cost:   ${cost:.6f}")
+    report = (
+        f"Provider:     {provider}\n"
+        f"Model:        {model}\n"
+        f"Input tokens: {input_tokens}\n"
+        f"Output tokens:{output_tokens}\n"
+        f"Total cost:   ${cost:.6f}"
+    )
+    print(report)
 
 
 def _handle_cost_compare(

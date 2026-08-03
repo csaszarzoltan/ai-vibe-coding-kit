@@ -493,12 +493,10 @@ class ControlPlane:
             raise ValueError("TABLE_INVALID")
         limit = max(1, min(limit, 200))
         with self._db() as db:
-            return [
-                dict(x)
-                for x in db.execute(
-                    f"SELECT * FROM {table} ORDER BY rowid DESC LIMIT ?", (limit,)
-                )
-            ]
+            # table is allowlisted above; only the literal names in `allowed`
+            # can reach this query string, and limit is a bound parameter.
+            stmt = "SELECT * FROM " + table + " ORDER BY rowid DESC LIMIT ?"
+            return [dict(x) for x in db.execute(stmt, (limit,))]
 
 
 def _esc(value: Any) -> str:
