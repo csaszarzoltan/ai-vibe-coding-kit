@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-08-03
+
+### Added
+
+- **MCP Agent Memory Server** — `src/ai_vibe_coding/memory_store.py` + `memory_embedding.py`:
+  - 5-tool FastMCP stdio server (`ai-vibe-memory`): `memory_store`, `memory_retrieve`, `memory_search`, `memory_forget`, `memory_stats`
+  - Episodic / semantic / procedural memory for agent pipelines; SQLite-backed, survives restarts
+  - Real semantic search via `all-MiniLM-L6-v2` cosine similarity with deterministic hash-fallback (offline-safe, no mock)
+  - TTL expiry purge + importance × recency eviction (7-day half-life) keeps the store bounded (default 10,000 rows)
+  - Cross-session persistence demo in `examples/memory_client_example.py`
+  - New dependency: `sentence-transformers>=2.2.0`
+
+### Docs
+
+- **docs/memory-guide.md** — agent memory architecture (episodic vs semantic vs procedural), lifecycle (write → retrieve → forget), vector vs graph store tradeoffs, self-hosted options (Mem0/Letta/Zep/Cognee), MCP memory protocol, run-and-use guide for the memory server
+- **templates/** — integration templates for agent orchestration (`memory_agent_orchestration.md`), prompt chaining (`memory_prompt_chaining.md`), and cost-tracked agents (`memory_cost_tracked_agent.md`)
+
 ## [0.10.0] - 2026-07-28
 
 ### Added

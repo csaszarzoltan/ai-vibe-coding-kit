@@ -1,8 +1,8 @@
 # AI Vibe Coding Kit
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests: 875](https://img.shields.io/badge/tests-875%20total-brightgreen.svg)]()
-[![Version: 0.10.0](https://img.shields.io/badge/version-0.10.0-blue.svg)]()
+[![Tests: 1023](https://img.shields.io/badge/tests-1023%20total-brightgreen.svg)]()
+[![Version: 0.12.0](https://img.shields.io/badge/version-0.12.0-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CI: Test](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml/badge.svg)](https://github.com/csaszarzoltan/ai-vibe-coding-kit/actions/workflows/test.yml)
 
@@ -71,6 +71,13 @@ Multi-provider LLM API wrapper with cost tracking, structured output, and tool c
 - `CostAnomalyDetector` — flag cost spikes exceeding configurable thresholds
 - `SLAChecker` — latency, error rate, and uptime compliance checks
 - `Scheduler` — interval-based task scheduler for periodic scanning
+
+### MCP Agent Memory (`src/ai_vibe_coding/memory_store.py` + `examples/mcp_memory_server.py`)
+- Episodic, semantic, and procedural memory for agent pipelines — store, retrieve, search, forget, stats
+- Real semantic search via `all-MiniLM-L6-v2` cosine similarity with deterministic hash-fallback (offline-safe)
+- TTL expiry + importance × recency eviction keeps the SQLite store bounded (default 10,000 rows)
+- FastMCP stdio server (`ai-vibe-memory`) with 5 tools; works in Cursor and Claude Desktop
+- 3 integration templates in `templates/` for orchestration, prompt chaining, and cost-tracked agents
 
 ### Examples & Guides (`examples/`)
 - `llm_api_wrapper.py` — legacy standalone wrapper (OpenAI + MiMo)
@@ -957,6 +964,7 @@ real-world use cases, and API documentation.
 - [Model Comparison & Pricing](docs/model-comparison.md)
 - [Benchmark Suite Guide](docs/benchmark-guide.md)
 - [MCP Server Guide](docs/mcp-guide.md)
+- [Agent Memory Guide](docs/memory-guide.md)
 - [Best Practices](docs/best-practices.md)
 - [Cursor Workflow Guide](examples/cursor-workflow.md)
 - [MiMo Integration Guide](examples/mimo-integration.md)
