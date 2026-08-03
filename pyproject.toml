@@ -1,6 +1,6 @@
 [project]
 name = "ai-vibe-coding-kit"
-version = "0.11.0"
+version = "0.12.0"
 description = "Multi-provider LLM API wrapper with cost tracking, structured output, and tool calling"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -15,6 +15,7 @@ dependencies = [
     "mcp>=1.0.0,<2.0.0",
     "fastapi>=0.100.0",
     "uvicorn>=0.24.0",
+    "sentence-transformers>=2.2.0",
 ]
 
 [project.scripts]
