@@ -170,6 +170,71 @@ class RedisBackend(StorageBackend):
                 self._client = redis.Redis.from_url(self.redis_url)
         return self._client
 
+    def _hash_key(self, memory_id: str) -> str:
+        """Return the Redis hash key for a memory."""
+        return self.HASH_PREFIX + memory_id
+
+    def _embedding_mode(self) -> str:
+        """The per-backend embedding mode recorded in meta (or process mode)."""
+        try:
+            client = self._connect()
+        except Exception:  # noqa: BLE001
+            return current_mode()
+        if client is None:
+            return current_mode()
+        mode = client.hget(self.META_HASH, _META_EMBEDDING_MODE)
+        return mode.decode() if mode else current_mode()
+
+    def _pin_embedding_mode(
+        self, client: Any, source: str, dim: int
+    ) -> None:
+        """Record the embedding mode on first embed; reject mismatches."""
+        if client is None:
+            return
+        mode = client.hget(self.META_HASH, _META_EMBEDDING_MODE)
+        dim_val = client.hget(self.META_HASH, _META_EMBEDDING_DIM)
+        if mode is not None and (
+            mode.decode() != source or dim_val.decode() != str(dim)
+        ):
+            raise ValueError(
+                "EMBEDDING_MODE_MISMATCH: backend was created with "
+                f"{mode.decode()}/{dim_val.decode()}, current is {source}/{dim}"
+            )
+        if mode is None:
+            client.hset(self.META_HASH, _META_EMBEDDING_MODE, source)
+            client.hset(self.META_HASH, _META_EMBEDDING_DIM, str(dim))
+
+    def _evict_if_over_budget(self, client: Any) -> None:
+        """Evict lowest eviction-score rows when total > max_rows."""
+        if client is None:
+            return
+        total = client.zcard(self.RECENCY_ZSET)
+        excess = total - self.max_rows
+        if excess <= 0:
+            return
+        now = self.now()
+        scored: list[tuple[str, float]] = []
+        for member in client.zscan_iter(self.RECENCY_ZSET, match="*", count=100):
+            mid = member[0] if isinstance(member[0], str) else member[0].decode()
+            key = self._hash_key(mid)
+            fields = client.hgetall(key)
+            if not fields:
+                continue
+            importance = float(fields[b"importance"])
+            created = datetime.fromisoformat(fields[b"created_at"].decode())
+            age = (now - created).total_seconds()
+            recency = math.exp(-age / 604_800.0)
+            scored.append((mid, importance * recency))
+        scored.sort(key=lambda x: (x[1], x[0]))
+        doomed = [mid for mid, _ in scored[:excess]]
+        if doomed:
+            pipe = client.pipeline(transaction=False)
+            for mid in doomed:
+                pipe.delete(self._hash_key(mid))
+                pipe.zrem(self.RECENCY_ZSET, mid)
+            pipe.execute()
+            self.bump_meta(_META_EVICTED_TOTAL, len(doomed))
+
     def store(
         self,
         content: str,
@@ -177,49 +242,283 @@ class RedisBackend(StorageBackend):
         ttl_seconds: int | None = None,
         importance: float = 0.5,
     ) -> dict:
-        raise NotImplementedError(
-            "RedisBackend.store not implemented yet (RED phase)"
-        )
+        """Store a memory in Redis; returns id, stored, source, created_at."""
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError("content must be a non-empty string")
+        if metadata is None:
+            metadata = {}
+        elif not isinstance(metadata, dict):
+            raise ValueError("metadata must be a dict or None")
+        try:
+            metadata_json = json.dumps(metadata)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"metadata must be JSON-serializable: {exc}") from exc
+        if ttl_seconds is not None and (
+            not isinstance(ttl_seconds, int)
+            or isinstance(ttl_seconds, bool)
+            or ttl_seconds < 1
+        ):
+            raise ValueError("ttl_seconds must be None or an int >= 1")
+        if (
+            not isinstance(importance, (int, float))
+            or isinstance(importance, bool)
+            or not 0.0 <= importance <= 1.0
+        ):
+            raise ValueError("importance must be a float in [0.0, 1.0]")
+
+        try:
+            client = self._connect()
+            self.purge_expired()
+        except Exception:  # noqa: BLE001
+            client = None
+
+        vector, source = embed_text(content)
+        memory_id = uuid.uuid4().hex
+        created = self.now().isoformat()
+
+        if client is None:
+            return {
+                "id": memory_id,
+                "stored": True,
+                "embedding_source": source,
+                "created_at": created,
+            }
+
+        key = self._hash_key(memory_id)
+        pipe = client.pipeline(transaction=False)
+        pipe.hset(key, mapping={
+            "content": content,
+            "metadata": metadata_json,
+            "embedding": serialize_vector(vector),
+            "created_at": created,
+            "last_accessed_at": created,
+            "ttl_seconds": "" if ttl_seconds is None else str(ttl_seconds),
+            "importance": str(float(importance)),
+        })
+        ts = self.now().timestamp()
+        pipe.zadd(self.RECENCY_ZSET, {memory_id: ts})
+        if ttl_seconds is not None:
+            pipe.expire(key, ttl_seconds)
+        pipe.execute()
+
+        self._pin_embedding_mode(client, source, len(vector))
+        self._evict_if_over_budget(client)
+
+        return {
+            "id": memory_id,
+            "stored": True,
+            "embedding_source": source,
+            "created_at": created,
+        }
 
     def retrieve(self, memory_id: str) -> dict:
-        raise NotImplementedError(
-            "RedisBackend.retrieve not implemented yet (RED phase)"
-        )
+        """Return the memory dict; raise MemoryNotFoundError if missing."""
+        try:
+            client = self._connect()
+            self.purge_expired()
+        except Exception:  # noqa: BLE001
+            raise MemoryNotFoundError(memory_id) from None
+
+        key = self._hash_key(memory_id)
+        fields = client.hgetall(key)
+        if not fields:
+            raise MemoryNotFoundError(memory_id)
+
+        accessed = self.now().isoformat()
+        client.hset(key, "last_accessed_at", accessed)
+        ts = self.now().timestamp()
+        client.zadd(self.RECENCY_ZSET, {memory_id: ts})
+
+        ttl_val = fields[b"ttl_seconds"]
+        return {
+            "id": memory_id,
+            "content": fields[b"content"].decode(),
+            "metadata": json.loads(fields[b"metadata"].decode()),
+            "created_at": fields[b"created_at"].decode(),
+            "last_accessed_at": accessed,
+            "ttl_seconds": int(ttl_val) if ttl_val else None,
+            "importance": float(fields[b"importance"]),
+            "embedding_source": self._embedding_mode(),
+        }
 
     def search(
         self, query: str, limit: int = 5, min_score: float = 0.0
     ) -> dict:
-        raise NotImplementedError(
-            "RedisBackend.search not implemented yet (RED phase)"
+        """Semantic search; returns {query, limit, total, results}."""
+        if not isinstance(query, str):
+            raise ValueError("query must be a string")
+        if not isinstance(limit, int) or isinstance(limit, bool):
+            limit = 5
+        limit = max(1, min(limit, 50))
+        if (
+            not isinstance(min_score, (int, float))
+            or isinstance(min_score, bool)
+            or not -1.0 <= min_score <= 1.0
+        ):
+            raise ValueError("min_score must be a float in [-1.0, 1.0]")
+
+        try:
+            client = self._connect()
+            self.purge_expired()
+        except Exception:  # noqa: BLE001
+            client = None
+
+        vector, source = embed_text(query)
+        self._pin_embedding_mode(client, source, len(vector))
+
+        results: list[dict] = []
+        if client is None:
+            return {
+                "query": query,
+                "limit": limit,
+                "total": 0,
+                "results": [],
+            }
+        for member in client.zscan_iter(self.RECENCY_ZSET, match="*", count=100):
+            mid = member[0] if isinstance(member[0], str) else member[0].decode()
+            key = self._hash_key(mid)
+            fields = client.hgetall(key)
+            if not fields:
+                continue
+            emb = deserialize_vector(fields[b"embedding"])
+            score = round(cosine_similarity(vector, emb), 6)
+            if score < min_score:
+                continue
+            ttl_val = fields[b"ttl_seconds"]
+            results.append({
+                "id": mid,
+                "content": fields[b"content"].decode(),
+                "metadata": json.loads(fields[b"metadata"].decode()),
+                "score": score,
+                "importance": float(fields[b"importance"]),
+                "created_at": fields[b"created_at"].decode(),
+                "last_accessed_at": fields[b"last_accessed_at"].decode(),
+                "ttl_seconds": int(ttl_val) if ttl_val else None,
+            })
+        results.sort(
+            key=lambda r: (
+                r["score"],
+                r["importance"],
+                datetime.fromisoformat(r["created_at"]),
+            ),
+            reverse=True,
         )
+        return {
+            "query": query,
+            "limit": limit,
+            "total": len(results),
+            "results": results[:limit],
+        }
 
     def forget(self, memory_id: str) -> dict:
-        raise NotImplementedError(
-            "RedisBackend.forget not implemented yet (RED phase)"
-        )
+        """Idempotently delete a memory; returns {id, forgotten}."""
+        try:
+            client = self._connect()
+        except Exception:  # noqa: BLE001
+            return {"id": memory_id, "forgotten": False}
+        if client is None:
+            return {"id": memory_id, "forgotten": False}
+        key = self._hash_key(memory_id)
+        existed = client.exists(key)
+        client.delete(key)
+        client.zrem(self.RECENCY_ZSET, memory_id)
+        if existed:
+            self.bump_meta(_META_EVICTED_TOTAL, 1)
+        return {"id": memory_id, "forgotten": bool(existed)}
 
     def stats(self) -> dict:
-        raise NotImplementedError(
-            "RedisBackend.stats not implemented yet (RED phase)"
-        )
+        """Return {total, expired, evicted, db_path, max_rows, embedding_mode}."""
+        try:
+            client = self._connect()
+        except Exception:  # noqa: BLE001
+            client = None
+        if client is None:
+            return {
+                "total": 0,
+                "expired": 0,
+                "evicted": 0,
+                "db_path": str(self.redis_url),
+                "max_rows": self.max_rows,
+                "embedding_mode": self._embedding_mode(),
+            }
+        total = 0
+        expired = 0
+        now = self.now()
+        for member in client.zscan_iter(self.RECENCY_ZSET, match="*", count=100):
+            mid = member[0] if isinstance(member[0], str) else member[0].decode()
+            key = self._hash_key(mid)
+            fields = client.hgetall(key)
+            if not fields:
+                continue
+            total += 1
+            ttl_val = fields[b"ttl_seconds"]
+            if ttl_val:
+                ttl_int = int(ttl_val)
+                created = datetime.fromisoformat(fields[b"created_at"].decode())
+                if (now - created).total_seconds() >= ttl_int:
+                    expired += 1
+        evicted = client.hget(self.META_HASH, _META_EVICTED_TOTAL)
+        mode = self._embedding_mode()
+        return {
+            "total": total,
+            "expired": expired,
+            "evicted": int(evicted) if evicted else 0,
+            "db_path": str(self.redis_url),
+            "max_rows": self.max_rows,
+            "embedding_mode": mode,
+        }
 
     def bump_meta(self, key: str, amount: int) -> None:
-        raise NotImplementedError(
-            "RedisBackend.bump_meta not implemented yet (RED phase)"
-        )
+        """Increment a metadata counter atomically via HINCRBY."""
+        try:
+            client = self._connect()
+        except Exception:  # noqa: BLE001
+            return
+        if client is None:
+            return
+        client.hincrby(self.META_HASH, key, amount)
 
     def purge_expired(self) -> int:
-        raise NotImplementedError(
-            "RedisBackend.purge_expired not implemented yet (RED phase)"
-        )
+        """Delete expired-TTL rows; return how many were deleted."""
+        try:
+            client = self._connect()
+        except Exception:  # noqa: BLE001
+            return 0
+        if client is None:
+            return 0
+        now = self.now()
+        expired_ids: list[str] = []
+        for member in client.zscan_iter(self.RECENCY_ZSET, match="*", count=100):
+            mid = member[0] if isinstance(member[0], str) else member[0].decode()
+            key = self._hash_key(mid)
+            fields = client.hgetall(key)
+            if not fields:
+                continue
+            ttl_val = fields[b"ttl_seconds"]
+            if ttl_val:
+                ttl_int = int(ttl_val)
+                created = datetime.fromisoformat(fields[b"created_at"].decode())
+                if (now - created).total_seconds() >= ttl_int:
+                    expired_ids.append(mid)
+        if not expired_ids:
+            return 0
+        pipe = client.pipeline(transaction=False)
+        for mid in expired_ids:
+            pipe.delete(self._hash_key(mid))
+            pipe.zrem(self.RECENCY_ZSET, mid)
+        pipe.execute()
+        self.bump_meta(_META_EVICTED_TOTAL, len(expired_ids))
+        return len(expired_ids)
 
     def evict_if_over_budget(self) -> None:
-        raise NotImplementedError(
-            "RedisBackend.evict_if_over_budget not implemented yet (RED phase)"
-        )
+        """Evict lowest eviction-score rows when total > max_rows."""
+        self._evict_if_over_budget(self._connect())
 
     def close(self) -> None:
-        raise NotImplementedError("RedisBackend.close not implemented yet (RED phase)")
+        """Release the Redis client."""
+        if self._client is not None and self.connection is None:
+            self._client.close()
+            self._client = None
 
 
 def _delete_by_ids_statement(n_ids: int) -> str:
