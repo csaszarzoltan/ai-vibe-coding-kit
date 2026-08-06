@@ -75,12 +75,23 @@ Multi-provider LLM API wrapper with cost tracking, structured output, and tool c
 ### MCP Agent Memory (`src/ai_vibe_coding/memory_store.py` + `examples/mcp_memory_server.py`)
 - Episodic, semantic, and procedural memory for agent pipelines — store, retrieve, search, forget, stats
 - Real semantic search via `all-MiniLM-L6-v2` cosine similarity with deterministic hash-fallback (offline-safe)
-- TTL expiry + importance × recency eviction keeps the SQLite store bounded (default 10,000 rows)
+- TTL expiry + importance × recency eviction keeps the store bounded (default 10,000 rows)
 - FastMCP stdio server (`ai-vibe-memory`) with 5 tools; works in Cursor and Claude Desktop
 - 3 integration templates in `templates/` for orchestration, prompt chaining, and cost-tracked agents
 
+### Pluggable Storage Backend / Redis Backend (`src/ai_vibe_coding/memory_store.py`)
+- `StorageBackend` ABC with two implementations: `SQLiteBackend` (default) and `RedisBackend`
+- `RedisBackend` stores memories in Redis hashes (`aivck:memory:{id}`) with a recency sorted set and metadata hash
+- Install the Redis extra: `pip install aivck[redis]` (requires `redis>=5.0.0`)
+- Configure via env var or CLI: `AI_VIBE_MEMORY_REDIS_URL=redis://localhost:6379/0` or `--redis-url redis://localhost:6379/0`
+- Same API (`store`, `retrieve`, `search`, `forget`, `stats`) — swap backends without changing application code
+- TTL expiry works via Redis native key expiry; importance × recency eviction via sorted-set scan
+
 ### Examples & Guides (`examples/`)
 - `llm_api_wrapper.py` — legacy standalone wrapper (OpenAI + MiMo)
+- `memory_client_example.py` — SQLite memory client cross-session demo
+- `redis_memory_client_example.py` — Redis memory client cross-process demo
+- `mcp_memory_server.py` — FastMCP stdio memory server (SQLite or Redis)
 - `cursor-workflow.md` — vibe coding workflow with Cursor IDE
 - `mimo-integration.md` — using Xiaomi MiMo for cost-effective AI coding
 
@@ -264,6 +275,43 @@ ollama = OllamaProvider()  # defaults to http://localhost:11434, model=gemma3
 response = ollama.chat([{"role": "user", "content": "Hello from local LLM"}])
 print(f"Cost: ${response.cost_usd}")  # Always 0.0 — local inference
 # Models: gemma3 (default), llama3, mistral, phi4, qwen2.5
+```
+
+### Redis Memory Backend
+
+The agent memory store supports pluggable backends. Use Redis for shared, multi-process memory with native TTL expiry.
+
+```bash
+# Install the Redis extra
+pip install aivck[redis]
+```
+
+```python
+from ai_vibe_coding.memory_store import MemoryStore
+
+# SQLite (default)
+store = MemoryStore(db_path="~/.ai_vibe_coding/memory.db")
+
+# Redis backend
+store = MemoryStore(redis_url="redis://localhost:6379/0")
+
+# Same API regardless of backend
+store.store("Agent learned a new pattern", metadata={"topic": "patterns"}, importance=0.8)
+results = store.search("agent patterns", limit=3)
+print(results)
+```
+
+Or via environment variable for the MCP server:
+
+```bash
+export AI_VIBE_MEMORY_REDIS_URL=redis://localhost:6379/0
+python examples/mcp_memory_server.py
+```
+
+Or via CLI flag:
+
+```bash
+python examples/mcp_memory_server.py --redis-url redis://localhost:6379/0
 ```
 
 ## Getting Started with MCP in 5 Minutes
