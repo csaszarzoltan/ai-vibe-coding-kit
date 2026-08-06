@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-08-06
+
+### Added
+
+- **Pluggable Storage Backend / Redis Backend** (`src/ai_vibe_coding/memory_store.py`):
+  - `StorageBackend` ABC with two implementations: `SQLiteBackend` (default) and `RedisBackend`
+  - `RedisBackend` stores memories in Redis hashes (`aivck:memory:{id}`) with a recency sorted set and metadata hash
+  - Install the Redis extra: `pip install aivck[redis]` (requires `redis>=5.0.0`)
+  - Configure via env var or CLI: `AI_VIBE_MEMORY_REDIS_URL=redis://localhost:6379/0` or `--redis-url redis://localhost:6379/0`
+  - Same API (`store`, `retrieve`, `search`, `forget`, `stats`) — swap backends without changing application code
+  - TTL expiry works via Redis native key expiry; importance × recency eviction via sorted-set scan
+
+### Tests
+
+- 8 Redis-specific unit tests + 16 parametrized backend-agnostic tests (SQLite + Redis) in `tests/test_storage_backend_redis.py`
+- MCP Redis stdio integration tests in `tests/test_mcp_memory_server.py`
+- 1152 tests pass on both backends (junitxml-verified)
+
+### Docs
+
+- README.md: "Pluggable Storage Backend / Redis Backend" section + "Redis Memory Backend" quick-start
+- `examples/redis_memory_client_example.py` — Redis memory client cross-process demo
+- `FEATURES-DONE.md` — machine-readable feature tracker for the Redis backend
+
 ## [0.12.0] - 2026-08-03
 
 ### Added
