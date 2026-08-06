@@ -19,6 +19,15 @@ Usage:
 
 Config precedence: CLI flag > env var > default
 (``~/.ai_vibe_coding/memory.db``, 10_000 rows).
+
+Redis backend (optional):
+    # Run against a Redis URL instead of SQLite:
+    python examples/mcp_memory_server.py --redis-url redis://localhost:6379/0
+
+    # Or via environment variable (CLI flag wins):
+    #   AI_VIBE_MEMORY_REDIS_URL=redis://localhost:6379/0
+
+Redis precedence: CLI flag > AI_VIBE_MEMORY_REDIS_URL > SQLite.
 """
 
 from __future__ import annotations
@@ -37,6 +46,7 @@ from ai_vibe_coding.memory_store import (
 )
 
 SERVER_NAME = "ai-vibe-memory"
+REDIS_URL_ENV = "AI_VIBE_MEMORY_REDIS_URL"
 # mcp 1.x FastMCP defaults serverInfo.version to the SDK version; the spec
 # (§7.4) pins the app version to 0.12.0, so set it on the low-level server.
 mcp = FastMCP(SERVER_NAME)
@@ -44,17 +54,28 @@ mcp._mcp_server.version = "0.12.0"  # noqa: SLF001 - SDK has no public setter
 
 _DB_PATH = Path(os.environ.get("AI_VIBE_MEMORY_DB", DEFAULT_DB_PATH)).expanduser()
 _MAX_ROWS = int(os.environ.get("AI_VIBE_MEMORY_MAX_ROWS", DEFAULT_MAX_ROWS))
+_REDIS_URL: str | None = os.environ.get(REDIS_URL_ENV)
 _store: MemoryStore | None = None  # lazy singleton; built on first tool call
 _store_lock = threading.Lock()
 
 
 def _get_store() -> MemoryStore:
-    """Build the lazy MemoryStore singleton from module config."""
+    """Build the lazy MemoryStore singleton from module config.
+
+    Redis precedence: CLI flag (module _REDIS_URL) > AI_VIBE_MEMORY_REDIS_URL
+    env var > SQLite. The CLI flag is applied by ``main()`` before the first
+    tool call, so the env value is the import-time default.
+    """
     global _store
     if _store is None:
         with _store_lock:
             if _store is None:
-                _store = MemoryStore(db_path=_DB_PATH, max_rows=_MAX_ROWS)
+                if _REDIS_URL:
+                    _store = MemoryStore(
+                        redis_url=_REDIS_URL, max_rows=_MAX_ROWS
+                    )
+                else:
+                    _store = MemoryStore(db_path=_DB_PATH, max_rows=_MAX_ROWS)
     return _store
 
 
@@ -138,7 +159,13 @@ def memory_stats() -> dict:
     return _get_store().stats()
 
 
-if __name__ == "__main__":
+def build_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser (importable so tests can assert the wiring).
+
+    Precedence is encoded in the parser itself: ``--redis-url`` defaults to
+    the ``AI_VIBE_MEMORY_REDIS_URL`` env var, and an explicit CLI flag
+    overrides it. Neither set -> None -> SQLite backend.
+    """
     parser = argparse.ArgumentParser(
         description="Run the MCP agent memory server over stdio."
     )
@@ -153,7 +180,27 @@ if __name__ == "__main__":
         default=_MAX_ROWS,
         help=f"Row budget before importance eviction (default: {_MAX_ROWS})",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--redis-url",
+        default=os.environ.get(REDIS_URL_ENV),
+        help=(
+            "Redis URL (redis://host:port/db). Overrides AI_VIBE_MEMORY_REDIS_URL; "
+            "omitting both keeps the SQLite backend."
+        ),
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Parse CLI args, apply module config (CLI > env > SQLite), run stdio."""
+    global _DB_PATH, _MAX_ROWS, _REDIS_URL
+    args = build_parser().parse_args(argv)
     _DB_PATH = Path(args.db).expanduser()
     _MAX_ROWS = args.max_rows
+    # Parser default already resolved CLI flag > env var; None keeps SQLite.
+    _REDIS_URL = args.redis_url
     mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()

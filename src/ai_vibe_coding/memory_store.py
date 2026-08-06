@@ -13,6 +13,7 @@ import json
 import math
 import sqlite3
 import uuid
+from abc import ABC, abstractmethod
 from collections.abc import Callable
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -60,6 +61,167 @@ class MemoryNotFoundError(KeyError):
     """Raised by retrieve() when no memory has the given id."""
 
 
+class StorageBackend(ABC):
+    """Abstract storage backend contract for MemoryStore (spec §6).
+
+    A backend owns the durable storage of memories (hash/table per memory,
+    plus metadata counters). MemoryStore delegates to a backend when one is
+    passed via ``backend=`` or ``redis_url=``; without one it uses the
+    built-in SQLite implementation.
+
+    Contract methods mirror MemoryStore's public API plus the internal
+    hooks MemoryStore relies on: metadata counter bumps, TTL purge and
+    importance-eviction.
+    """
+
+    @abstractmethod
+    def store(
+        self,
+        content: str,
+        metadata: dict | None = None,
+        ttl_seconds: int | None = None,
+        importance: float = 0.5,
+    ) -> dict:
+        """Store a memory; returns {id, stored, embedding_source, created_at}."""
+
+    @abstractmethod
+    def retrieve(self, memory_id: str) -> dict:
+        """Return the memory dict; raise MemoryNotFoundError if missing."""
+
+    @abstractmethod
+    def search(
+        self, query: str, limit: int = 5, min_score: float = 0.0
+    ) -> dict:
+        """Semantic search; returns {query, limit, total, results}."""
+
+    @abstractmethod
+    def forget(self, memory_id: str) -> dict:
+        """Idempotently delete a memory; returns {id, forgotten}."""
+
+    @abstractmethod
+    def stats(self) -> dict:
+        """Return {total, expired, evicted, db_path, max_rows, embedding_mode}."""
+
+    @abstractmethod
+    def bump_meta(self, key: str, amount: int) -> None:
+        """Increment a metadata counter (e.g. evicted_total)."""
+
+    @abstractmethod
+    def purge_expired(self) -> int:
+        """Delete expired-TTL rows; return how many were deleted."""
+
+    @abstractmethod
+    def evict_if_over_budget(self) -> None:
+        """Evict lowest eviction-score rows when total > max_rows."""
+
+    @abstractmethod
+    def close(self) -> None:
+        """Release backend resources."""
+
+
+class RedisBackend(StorageBackend):
+    """Redis-backed StorageBackend (stub — RED phase, spec §6.9).
+
+    Not implemented yet. The constructor accepts a Redis URL or an existing
+    connection object (e.g. a ``fakeredis.FakeRedis`` in CI); every storage
+    operation raises ``NotImplementedError`` until the developer implements
+    the hash + sorted-set mapping per tests/test_storage_backend_redis.py.
+
+    Intended Redis layout (locked by the pre-dev tests):
+      - ``aivck:memory:{id}``        — Redis hash with the memory fields
+      - ``aivck:recency``            — sorted set: member=id, score=last_access
+      - ``aivck:meta``               — hash with embedding mode + evicted_total
+    """
+
+    HASH_PREFIX = "aivck:memory:"
+    RECENCY_ZSET = "aivck:recency"
+    META_HASH = "aivck:meta"
+
+    def __init__(
+        self,
+        redis_url: str | None = None,
+        connection: Any | None = None,
+        max_rows: int = DEFAULT_MAX_ROWS,
+        now: Callable[[], datetime] | None = None,
+    ) -> None:
+        """Configure the backend; exactly one of redis_url/connection needed.
+
+        No connection is opened here — the client is built lazily on first
+        use, so constructing a RedisBackend never touches the network.
+        """
+        if redis_url is None and connection is None:
+            raise ValueError("redis_url or connection is required")
+        if redis_url is not None and connection is not None:
+            raise ValueError("pass either redis_url or connection, not both")
+        self.redis_url = redis_url
+        self.connection = connection
+        self.max_rows = max_rows
+        self.now = now or (lambda: datetime.now(UTC))
+        self._client: Any | None = None
+
+    def _connect(self) -> Any:
+        """Return the Redis client (lazy; built from the URL or connection)."""
+        if self._client is None:
+            if self.connection is not None:
+                self._client = self.connection
+            else:
+                import redis  # optional extra aivck[redis]
+
+                self._client = redis.Redis.from_url(self.redis_url)
+        return self._client
+
+    def store(
+        self,
+        content: str,
+        metadata: dict | None = None,
+        ttl_seconds: int | None = None,
+        importance: float = 0.5,
+    ) -> dict:
+        raise NotImplementedError(
+            "RedisBackend.store not implemented yet (RED phase)"
+        )
+
+    def retrieve(self, memory_id: str) -> dict:
+        raise NotImplementedError(
+            "RedisBackend.retrieve not implemented yet (RED phase)"
+        )
+
+    def search(
+        self, query: str, limit: int = 5, min_score: float = 0.0
+    ) -> dict:
+        raise NotImplementedError(
+            "RedisBackend.search not implemented yet (RED phase)"
+        )
+
+    def forget(self, memory_id: str) -> dict:
+        raise NotImplementedError(
+            "RedisBackend.forget not implemented yet (RED phase)"
+        )
+
+    def stats(self) -> dict:
+        raise NotImplementedError(
+            "RedisBackend.stats not implemented yet (RED phase)"
+        )
+
+    def bump_meta(self, key: str, amount: int) -> None:
+        raise NotImplementedError(
+            "RedisBackend.bump_meta not implemented yet (RED phase)"
+        )
+
+    def purge_expired(self) -> int:
+        raise NotImplementedError(
+            "RedisBackend.purge_expired not implemented yet (RED phase)"
+        )
+
+    def evict_if_over_budget(self) -> None:
+        raise NotImplementedError(
+            "RedisBackend.evict_if_over_budget not implemented yet (RED phase)"
+        )
+
+    def close(self) -> None:
+        raise NotImplementedError("RedisBackend.close not implemented yet (RED phase)")
+
+
 def _delete_by_ids_statement(n_ids: int) -> str:
     """Parameterized ``DELETE ... WHERE id IN (?)`` statement for n_ids rows.
 
@@ -86,17 +248,39 @@ class MemoryStore:
         db_path: str | Path = DEFAULT_DB_PATH,
         max_rows: int = DEFAULT_MAX_ROWS,
         now: Callable[[], datetime] | None = None,
+        backend: StorageBackend | None = None,
+        redis_url: str | None = None,
     ) -> None:
-        """Configure the store; WAL is set on file DBs at init."""
+        """Configure the store; WAL is set on file DBs at init.
+
+        By default the store is SQLite-backed (db_path). Pass ``backend=``
+        with a StorageBackend instance or ``redis_url=`` to select another
+        backend; both at once is ambiguous and raises ValueError.
+        """
         if max_rows < 1:
             raise ValueError(f"max_rows must be >= 1, got {max_rows}")
-        self._memory = str(db_path) == ":memory:"
-        self.db_path: str | Path = (
-            ":memory:" if self._memory else Path(db_path).expanduser()
-        )
         self.max_rows = max_rows
         self.now = now or (lambda: datetime.now(UTC))
-        self._mem_conn: sqlite3.Connection | None = None
+        if backend is not None and redis_url is not None:
+            raise ValueError("pass either backend= or redis_url=, not both")
+        if backend is not None:
+            self.backend = backend
+            self.db_path: str | Path = str(db_path)
+            self._memory = False
+            self._mem_conn: sqlite3.Connection | None = None
+            return
+        if redis_url is not None:
+            self.backend = RedisBackend(
+                redis_url=redis_url, max_rows=max_rows, now=self.now
+            )
+            self.db_path = redis_url
+            self._memory = False
+            self._mem_conn = None
+            return
+        self.backend = None
+        self._memory = str(db_path) == ":memory:"
+        self.db_path = ":memory:" if self._memory else Path(db_path).expanduser()
+        self._mem_conn = None
         if not self._memory:
             Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
             conn = sqlite3.connect(str(self.db_path))
@@ -133,6 +317,9 @@ class MemoryStore:
 
     def close(self) -> None:
         """Release the persistent :memory: connection; no-op for file DBs."""
+        if self.backend is not None:
+            self.backend.close()
+            return
         if self._mem_conn is not None:
             self._mem_conn.close()
             self._mem_conn = None
@@ -249,6 +436,13 @@ class MemoryStore:
         importance: float = 0.5,
     ) -> dict:
         """Store a memory; returns {id, stored, embedding_source, created_at}."""
+        if self.backend is not None:
+            return self.backend.store(
+                content,
+                metadata=metadata,
+                ttl_seconds=ttl_seconds,
+                importance=importance,
+            )
         if not isinstance(content, str) or not content.strip():
             raise ValueError("content must be a non-empty string")
         if metadata is None:
@@ -310,6 +504,8 @@ class MemoryStore:
         Expired rows are purged on read, so an expired id raises
         MemoryNotFoundError. Touches last_accessed_at = now().
         """
+        if self.backend is not None:
+            return self.backend.retrieve(memory_id)
         with self._session() as conn:
             self._purge_expired(conn)
             row = conn.execute(
@@ -344,6 +540,8 @@ class MemoryStore:
         sorted by score DESC, importance DESC, created_at DESC. Expired rows
         are purged first; no importance eviction runs here.
         """
+        if self.backend is not None:
+            return self.backend.search(query, limit=limit, min_score=min_score)
         if not isinstance(query, str):
             raise ValueError("query must be a string")
         if not isinstance(limit, int) or isinstance(limit, bool):
@@ -401,12 +599,16 @@ class MemoryStore:
 
     def forget(self, memory_id: str) -> dict:
         """Idempotently delete a memory; returns {id, forgotten} (never raises)."""
+        if self.backend is not None:
+            return self.backend.forget(memory_id)
         with self._session() as conn:
             cur = conn.execute("DELETE FROM memories WHERE id = ?", (memory_id,))
         return {"id": memory_id, "forgotten": cur.rowcount > 0}
 
     def stats(self) -> dict:
         """Return {total, expired, evicted, db_path, max_rows, embedding_mode}."""
+        if self.backend is not None:
+            return self.backend.stats()
         now = self.now()
         with self._session() as conn:
             rows = conn.execute(

@@ -32,6 +32,10 @@ dev = [
     "mistralai>=1.0.0",
     "cohere>=5.0.0",
     "google-genai>=1.0.0",
+    "fakeredis>=2.23.0",
+]
+redis = [
+    "redis>=5.0.0",
 ]
 
 [build-system]
