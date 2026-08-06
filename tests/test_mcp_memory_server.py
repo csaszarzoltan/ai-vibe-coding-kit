@@ -632,7 +632,7 @@ class TestMCPHandshakeBehavior:
             assert init.serverInfo.name == "ai-vibe-memory"
             # Spec §7.4 pins the app version; the server must advertise it
             # (FastMCP(..., version="0.12.0")) rather than the SDK version.
-            assert init.serverInfo.version == "0.12.0"
+            assert init.serverInfo.version == "0.13.0"
             assert init.capabilities.tools is not None
 
     @pytest.mark.asyncio
