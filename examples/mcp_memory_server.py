@@ -159,6 +159,33 @@ def memory_stats() -> dict:
     return _get_store().stats()
 
 
+@mcp.tool()
+def memory_compact(
+    mode: str = "dry-run",
+    age_days: float | None = None,
+    importance_threshold: float | None = None,
+    merge_threshold: float | None = None,
+) -> dict:
+    """Run the memory compaction job (spec §4.3, US-001).
+
+    Args:
+        mode: "dry-run" (default, returns plan only) or "apply" (mutates).
+        age_days: Override default compaction age threshold.
+        importance_threshold: Override default importance threshold.
+        merge_threshold: Override default merge similarity threshold.
+
+    Returns:
+        A dict with run_id, mode, distilled/archived/merged/skipped counts,
+        cluster_count, merge_count, dry_run flag.
+    """
+    return _get_store().compact(
+        dry_run=(mode != "apply"),
+        age_days=age_days,
+        importance_threshold=importance_threshold,
+        merge_threshold=merge_threshold,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the CLI parser (importable so tests can assert the wiring).
 

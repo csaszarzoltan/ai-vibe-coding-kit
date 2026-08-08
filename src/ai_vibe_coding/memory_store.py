@@ -56,6 +56,30 @@ CREATE TABLE IF NOT EXISTS meta (
 );
 """
 
+# Schema additions for v0.14.0 compaction & knowledge distillation (spec §4.1).
+# Applied once per connection alongside _SCHEMA via a guarded migration.
+_COMPACT_SCHEMA = """
+CREATE TABLE IF NOT EXISTS compaction_log (
+    run_id      TEXT PRIMARY KEY,
+    mode        TEXT NOT NULL,
+    started_at  TEXT NOT NULL,
+    distilled   INTEGER NOT NULL DEFAULT 0,
+    archived    INTEGER NOT NULL DEFAULT 0,
+    merged      INTEGER NOT NULL DEFAULT 0,
+    summary     TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS decay_log (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    memory_id   TEXT NOT NULL,
+    happened_at TEXT NOT NULL,
+    old_score   REAL NOT NULL,
+    new_score   REAL NOT NULL
+);
+"""
+
+# Column names added to the memories table for compaction support (spec §4.1).
+_COMPACT_COLUMNS = ("status", "archived_at", "last_decayed_at")
+
 
 class MemoryNotFoundError(KeyError):
     """Raised by retrieve() when no memory has the given id."""
@@ -117,6 +141,56 @@ class StorageBackend(ABC):
     @abstractmethod
     def close(self) -> None:
         """Release backend resources."""
+
+    # -- compaction / distillation ABC (v0.14.0, spec §4.2) -----------------
+
+    @abstractmethod
+    def archive(self, memory_id: str, *, archived_at: str) -> dict:
+        """Mark a memory 'archived' (never delete). Returns {id, status}."""
+
+    @abstractmethod
+    def list_memories(self, include_archived: bool = False) -> list[dict]:
+        """Return all memory rows for the compaction engine to plan over."""
+
+    @abstractmethod
+    def batch_update_status(
+        self, ids: list[str], status: str, *, archived_at: str | None = None
+    ) -> int:
+        """Atomic status update; returns rows affected (idempotent)."""
+
+    @abstractmethod
+    def write_distilled(
+        self, content: str, sources: list[str], importance: float
+    ) -> dict:
+        """Persist a distilled entry with status='distilled'."""
+
+    @abstractmethod
+    def record_compaction_run(
+        self, run_id: str, *, mode: str, distilled: int,
+        archived: int, merged: int, summary: str
+    ) -> None:
+        """Append a compaction_log row (no-op if run_id exists)."""
+
+    @abstractmethod
+    def list_compaction_log(self, limit: int = 20) -> list[dict]:
+        """Return recent compaction runs (newest first)."""
+
+    @abstractmethod
+    def record_decay(
+        self, memory_id: str, *, old_score: float,
+        new_score: float, happened_at: str
+    ) -> None:
+        """Append a decay_log row."""
+
+    @abstractmethod
+    def list_decay_log(self, limit: int = 50) -> list[dict]:
+        """Return recent decay events (newest first)."""
+
+    @abstractmethod
+    def set_importance(
+        self, memory_id: str, importance: float, *, last_decayed_at: str
+    ) -> dict:
+        """Update importance + last_decayed_at atomically; return the row."""
 
 
 class RedisBackend(StorageBackend):
@@ -520,6 +594,74 @@ class RedisBackend(StorageBackend):
             self._client.close()
             self._client = None
 
+    # -- compaction / distillation stubs (v0.14.0 RED phase, spec §4.2) -----
+
+    def archive(self, memory_id: str, *, archived_at: str) -> dict:
+        """Mark a memory 'archived' (never delete). Returns {id, status}."""
+        raise NotImplementedError(
+            "RedisBackend.archive not implemented yet (RED phase)"
+        )
+
+    def list_memories(self, include_archived: bool = False) -> list[dict]:
+        """Return all memory rows for the compaction engine to plan over."""
+        raise NotImplementedError(
+            "RedisBackend.list_memories not implemented yet (RED phase)"
+        )
+
+    def batch_update_status(
+        self, ids: list[str], status: str, *, archived_at: str | None = None
+    ) -> int:
+        """Atomic status update; returns rows affected (idempotent)."""
+        raise NotImplementedError(
+            "RedisBackend.batch_update_status not implemented yet (RED phase)"
+        )
+
+    def write_distilled(
+        self, content: str, sources: list[str], importance: float
+    ) -> dict:
+        """Persist a distilled entry with status='distilled'."""
+        raise NotImplementedError(
+            "RedisBackend.write_distilled not implemented yet (RED phase)"
+        )
+
+    def record_compaction_run(
+        self, run_id: str, *, mode: str, distilled: int,
+        archived: int, merged: int, summary: str
+    ) -> None:
+        """Append a compaction_log row (no-op if run_id exists)."""
+        raise NotImplementedError(
+            "RedisBackend.record_compaction_run not implemented yet (RED phase)"
+        )
+
+    def list_compaction_log(self, limit: int = 20) -> list[dict]:
+        """Return recent compaction runs (newest first)."""
+        raise NotImplementedError(
+            "RedisBackend.list_compaction_log not implemented yet (RED phase)"
+        )
+
+    def record_decay(
+        self, memory_id: str, *, old_score: float,
+        new_score: float, happened_at: str
+    ) -> None:
+        """Append a decay_log row."""
+        raise NotImplementedError(
+            "RedisBackend.record_decay not implemented yet (RED phase)"
+        )
+
+    def list_decay_log(self, limit: int = 50) -> list[dict]:
+        """Return recent decay events (newest first)."""
+        raise NotImplementedError(
+            "RedisBackend.list_decay_log not implemented yet (RED phase)"
+        )
+
+    def set_importance(
+        self, memory_id: str, importance: float, *, last_decayed_at: str
+    ) -> dict:
+        """Update importance + last_decayed_at atomically; return the row."""
+        raise NotImplementedError(
+            "RedisBackend.set_importance not implemented yet (RED phase)"
+        )
+
 
 def _delete_by_ids_statement(n_ids: int) -> str:
     """Parameterized ``DELETE ... WHERE id IN (?)`` statement for n_ids rows.
@@ -597,11 +739,41 @@ class MemoryStore:
                 self._mem_conn = sqlite3.connect(":memory:")
                 self._mem_conn.row_factory = sqlite3.Row
                 self._mem_conn.executescript(_SCHEMA)
+                self._apply_compact_migration(self._mem_conn)
             return self._mem_conn
         conn = sqlite3.connect(str(self.db_path))
         conn.row_factory = sqlite3.Row
         conn.executescript(_SCHEMA)
+        self._apply_compact_migration(conn)
         return conn
+
+    @staticmethod
+    def _apply_compact_migration(conn: sqlite3.Connection) -> None:
+        """Guarded v0.14.0 migration: compaction_log/decay_log tables and
+        status/archived_at/last_decayed_at columns on memories.
+
+        Each statement is idempotent (CREATE TABLE IF NOT EXISTS; column
+        added only when the pragma shows it is absent) so repeated calls
+        and existing databases are safe.
+        """
+        conn.executescript(_COMPACT_SCHEMA)
+        existing = {row[1] for row in conn.execute("PRAGMA table_info(memories)").fetchall()}
+        for col in _COMPACT_COLUMNS:
+            if col not in existing:
+                if col == "status":
+                    conn.execute(
+                        "ALTER TABLE memories ADD COLUMN status "
+                        "TEXT NOT NULL DEFAULT 'active'"
+                    )
+                elif col == "archived_at":
+                    conn.execute(
+                        "ALTER TABLE memories ADD COLUMN archived_at TEXT"
+                    )
+                elif col == "last_decayed_at":
+                    conn.execute(
+                        "ALTER TABLE memories ADD COLUMN last_decayed_at TEXT"
+                    )
+        conn.commit()
 
     @contextmanager
     def _session(self) -> Any:
@@ -936,3 +1108,38 @@ class MemoryStore:
             "max_rows": self.max_rows,
             "embedding_mode": mode["value"] if mode else current_mode(),
         }
+
+    # -- compaction / distillation stubs (v0.14.0 RED phase, spec §4.3) -----
+
+    def compact(
+        self, *, dry_run: bool = True,
+        age_days: float | None = None,
+        importance_threshold: float | None = None,
+        merge_threshold: float | None = None,
+    ) -> dict:
+        """Run the compaction job (spec §4.3).
+
+        dry_run=True returns a PLAN dict; dry_run=False applies distill,
+        merge and archive.  Idempotent: re-running skips already-archived
+        rows.  Returns {run_id, mode, distilled, archived, merged, skipped,
+        cluster_count, merge_count, dry_run}.
+        """
+        raise NotImplementedError("MemoryStore.compact not implemented yet")
+
+    def impact_decay(
+        self, *, decay_days: float | None = None, dry_run: bool = False
+    ) -> dict:
+        """Reduce importance of rarely-accessed old memories (spec §4.3).
+
+        Returns {decayed, eligible_for_compaction, min_importance, dry_run}.
+        """
+        raise NotImplementedError("MemoryStore.impact_decay not implemented yet")
+
+    def memory_stats(self) -> dict:
+        """Extended stats including compaction/decay counters (spec §4.3).
+
+        Extends the existing stats() dict with distilled_count,
+        archived_count, merged_count, decayed_count, last_compaction,
+        compact_runs and decay_events.
+        """
+        raise NotImplementedError("MemoryStore.memory_stats not implemented yet")

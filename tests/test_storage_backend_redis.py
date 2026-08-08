@@ -60,6 +60,7 @@ MCP_TOOL_NAMES = [
     "memory_search",
     "memory_forget",
     "memory_stats",
+    "memory_compact",
 ]
 _EMBEDDING_SOURCES = ("sentence-transformers", "hash-fallback")
 REDIS_URL_ENV = "AI_VIBE_MEMORY_REDIS_URL"
