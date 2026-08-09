@@ -447,6 +447,9 @@ class RedisBackend(StorageBackend):
                 "total": 0,
                 "results": [],
             }
+        # TODO: filter out archived members once Redis compaction is
+        # implemented — currently all recency-zset members are iterated
+        # without status filtering (same defect as SQLite path, fixed there).
         for member in client.zscan_iter(self.RECENCY_ZSET, match="*", count=100):
             mid = member[0] if isinstance(member[0], str) else member[0].decode()
             key = self._hash_key(mid)
@@ -1033,7 +1036,8 @@ class MemoryStore:
             self._pin_embedding_mode(conn, source, len(vector))
             rows = conn.execute(
                 "SELECT id, content, metadata, embedding, created_at, "
-                "last_accessed_at, ttl_seconds, importance FROM memories"
+                "last_accessed_at, ttl_seconds, importance FROM memories "
+                "WHERE status IS NULL OR status != 'archived'"
             ).fetchall()
 
         results: list[dict] = []

@@ -50,7 +50,7 @@ REDIS_URL_ENV = "AI_VIBE_MEMORY_REDIS_URL"
 # mcp 1.x FastMCP defaults serverInfo.version to the SDK version; the spec
 # (§7.4) pins the app version to 0.12.0, so set it on the low-level server.
 mcp = FastMCP(SERVER_NAME)
-mcp._mcp_server.version = "0.13.0"  # noqa: SLF001 - SDK has no public setter
+mcp._mcp_server.version = "0.14.0"  # noqa: SLF001 - SDK has no public setter
 
 _DB_PATH = Path(os.environ.get("AI_VIBE_MEMORY_DB", DEFAULT_DB_PATH)).expanduser()
 _MAX_ROWS = int(os.environ.get("AI_VIBE_MEMORY_MAX_ROWS", DEFAULT_MAX_ROWS))

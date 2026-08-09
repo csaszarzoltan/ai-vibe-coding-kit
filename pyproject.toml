@@ -1,6 +1,6 @@
 [project]
 name = "ai-vibe-coding-kit"
-version = "0.13.0"
+version = "0.14.0"
 description = "Multi-provider LLM API wrapper with cost tracking, structured output, and tool calling"
 requires-python = ">=3.11"
 license = { text = "MIT" }

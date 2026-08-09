@@ -497,15 +497,24 @@ class TestCompactApplyBehavior:
         assert result.get("archived", 0) >= 2
 
     def test_archived_not_in_search(self, store: MemoryStore):
-        store.store("secret archive me", importance=0.05)
-        store.now = lambda: datetime(2026, 1, 31, tzinfo=UTC)
-        store.compact(dry_run=False, age_days=30, importance_threshold=0.3)
-        results = store.search("secret archive me")
-        ids = [r["id"] for r in results.get("results", [])]
-        # Archived originals should not appear in search results.
-        # The implementation may create a distilled replacement; we verify
-        # the search did not blow up and returned a valid result structure.
-        assert isinstance(ids, list)
+        """Archived rows must be excluded from search() but remain in retrieve()."""
+        result = store.store("top-secret archived memory", importance=0.9)
+        mem_id = result["id"]
+        # Manually archive the row via SQL (simulates compaction).
+        with store._session() as conn:
+            conn.execute(
+                "UPDATE memories SET status = 'archived' WHERE id = ?",
+                (mem_id,),
+            )
+        # search() must NOT return the archived content.
+        search = store.search("top-secret archived memory")
+        hits = [r["content"] for r in search.get("results", [])]
+        assert "top-secret archived memory" not in hits, (
+            "archived memory leaked into search results"
+        )
+        # retrieve() must still find it (only search is filtered).
+        fetched = store.retrieve(mem_id)
+        assert fetched["content"] == "top-secret archived memory"
 
 
 class TestIdempotencyBehavior:
