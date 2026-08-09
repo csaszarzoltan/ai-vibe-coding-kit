@@ -87,11 +87,21 @@ Multi-provider LLM API wrapper with cost tracking, structured output, and tool c
 - Same API (`store`, `retrieve`, `search`, `forget`, `stats`) — swap backends without changing application code
 - TTL expiry works via Redis native key expiry; importance × recency eviction via sorted-set scan
 
+### Memory Compaction & Knowledge Distillation (`src/ai_vibe_coding/memory_compaction.py` + `src/ai_vibe_coding/memory_store.py`)
+- `MemoryStore.compact(dry_run=True / False)` — distill stale low-importance clusters (age > 30d, importance < 0.3 by default) into deterministic summaries, mark originals `archived` (never deleted), merge near-duplicates (cosine ≥ 0.82, keep newest)
+- `MemoryStore.impact_decay` — importance half-life decay (`decay_days`=7, `halflife`=2.0, floor 0.1) with a `decay_log`; decayed rows become compaction-eligible
+- `MemoryStore.memory_stats` — extended counters: `distilled_count`, `archived_count`, `merged_count`, `decayed_count`, compaction log, decay events
+- Idempotent re-runs (US-004): already-archived rows are skipped, no double-archiving, `compaction_log` keyed on `run_id`
+- CLI: `ai-vibe-bench memory compact|decay|stats` (dry-run by default, `--apply` to mutate); MCP tool: `memory_compact(mode, age_days, importance_threshold, merge_threshold)`
+- No LLM required — deterministic template summarizer, fully reproducible
+- RedisBackend compaction methods are declared but still `NotImplementedError` stubs (SQLite is implemented)
+
 ### Examples & Guides (`examples/`)
 - `llm_api_wrapper.py` — legacy standalone wrapper (OpenAI + MiMo)
 - `memory_client_example.py` — SQLite memory client cross-session demo
 - `redis_memory_client_example.py` — Redis memory client cross-process demo
 - `mcp_memory_server.py` — FastMCP stdio memory server (SQLite or Redis)
+- `compaction_client_example.py` — memory compaction + decay + stats walkthrough (deterministic clock)
 - `cursor-workflow.md` — vibe coding workflow with Cursor IDE
 - `mimo-integration.md` — using Xiaomi MiMo for cost-effective AI coding
 
@@ -313,6 +323,21 @@ Or via CLI flag:
 ```bash
 python examples/mcp_memory_server.py --redis-url redis://localhost:6379/0
 ```
+
+### Memory Compaction (quick start)
+
+```bash
+# Plan first (dry-run by default — no mutations), then apply
+ai-vibe-bench memory compact --db ~/.ai_vibe_coding/memory.db
+ai-vibe-bench memory compact --apply --db ~/.ai_vibe_coding/memory.db
+
+# Decay stale importance and inspect extended stats
+ai-vibe-bench memory decay --apply --db ~/.ai_vibe_coding/memory.db
+ai-vibe-bench memory stats --db ~/.ai_vibe_coding/memory.db
+```
+
+See [docs/memory-guide.md](docs/memory-guide.md#memory-compaction--knowledge-distillation)
+for the full guide, defaults, and the MCP `memory_compact` tool.
 
 ## Getting Started with MCP in 5 Minutes
 

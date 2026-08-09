@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-08-08
+
+### Added
+
+- **Memory Compaction & Knowledge Distillation** — agent memory no longer
+  grows unbounded: stale low-importance clusters are distilled into summaries,
+  near-duplicates are merged, and importance decays over time.
+  - New engine module `src/ai_vibe_coding/memory_compaction.py` — six
+    deterministic, dependency-free pure functions (`summarize`,
+    `select_clusters`, `select_merges`, `compute_decay`, `build_decay_plan`,
+    `build_plan`) with locked defaults: `compaction_age_days=30`,
+    `compaction_importance_threshold=0.3`, `merge_threshold=0.82` (cosine),
+    `decay_days=7`, `decay_halflife=2.0` periods, `min_importance=0.1`.
+  - `MemoryStore.compact(dry_run=True | False)` — dry-run returns a plan
+    (clusters, merges, candidate ids) without mutating; apply distills each
+    stale low-importance cluster into one `distilled` entry (deterministic
+    template summary with provenance header + `metadata.source_ids`),
+    archives the originals (never deleted), merges near-duplicate memories
+    (newest kept, older archived, `metadata.merged_from`), and writes a
+    `compaction_log` row keyed on `run_id`. Idempotent: re-runs skip
+    already-archived rows (`skipped` count), no double-archiving.
+  - `MemoryStore.impact_decay(dry_run=...)` — half-life importance decay
+    (`new = max(min_importance, importance * 0.5 ** (periods / halflife))`),
+    each applied decay recorded in `decay_log` (`memory_id, happened_at,
+    old_score, new_score`); decayed rows become compaction-eligible.
+  - `MemoryStore.memory_stats()` — extends `stats()` with
+    `distilled_count`, `archived_count`, `merged_count`, `decayed_count`,
+    `last_compaction`, `compact_runs`, `decay_events`.
+  - CLI: new `ai-vibe-bench memory` subcommand (`compact`, `decay`,
+    `stats`) — dry-run by default, `--apply` to mutate; `--age-days`,
+    `--importance-threshold`, `--merge-threshold`, `--decay-days`, `--db`
+    overrides.
+  - MCP: `memory_compact` tool on `examples/mcp_memory_server.py`
+    (`mode="dry-run" | "apply"` + the three threshold overrides); the
+    server now exposes six tools.
+  - `StorageBackend` ABC gained 9 compaction methods; `RedisBackend`
+    declares them but they are `NotImplementedError` stubs — compaction on
+    the Redis backend is not yet implemented (SQLite only for now).
+
+### Tests
+
+- 58 tests in `tests/test_memory_compaction.py` — interface tests (defaults,
+  signatures, response shapes) + behavioral tests: distill/archive
+  (US-001), merge (US-002), decay + decay_log (US-003), idempotent re-run
+  (US-004), compaction log, extended stats, archived excluded from search.
+- Full suite: 1210 passed, 0 failed, 0 skipped (34 modules; tester gate
+  t_9f97f39b). Ruff clean on `src/`.
+
+### Docs
+
+- README.md: "Memory Compaction & Knowledge Distillation" feature section +
+  "Memory Compaction (quick start)" snippet + examples list entry.
+- `docs/memory-guide.md`: new "Memory Compaction & Knowledge Distillation"
+  guide (mechanics, locked defaults table, CLI + MCP + programmatic API,
+  backend status), MCP tool table now lists six tools.
+- `examples/compaction_client_example.py`: runnable walkthrough (dry-run →
+  apply → idempotent re-run → decay → stats) with a deterministic clock.
+- `FEATURES-DONE.md`: machine-readable entry for the compaction feature.
+
 ## [0.13.0] - 2026-08-06
 
 ### Added
