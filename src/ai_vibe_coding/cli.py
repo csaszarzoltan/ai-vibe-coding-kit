@@ -137,7 +137,7 @@ def main() -> None:
         help="Comma-separated list of providers to include",
     )
 
-    # cost pricing
+    # --- cost pricing
     prc_parser = cost_subparsers.add_parser(
         "pricing", help="Show pricing data for providers and models"
     )
@@ -152,6 +152,76 @@ def main() -> None:
         help="Model name to filter by",
     )
 
+    # --- memory subcommand (v0.14.0 compaction & distillation)
+    memory_parser = subparsers.add_parser(
+        "memory", help="Agent memory compaction, decay and stats"
+    )
+    memory_subparsers = memory_parser.add_subparsers(dest="memory_command")
+
+    # memory compact
+    compact_parser = memory_subparsers.add_parser(
+        "compact", help="Run the memory compaction job (distill + merge + archive)"
+    )
+    compact_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Apply compaction; default is --dry-run (plan only)",
+    )
+    compact_parser.add_argument(
+        "--age-days",
+        type=float,
+        default=None,
+        help="Override default compaction age threshold (days)",
+    )
+    compact_parser.add_argument(
+        "--importance-threshold",
+        type=float,
+        default=None,
+        help="Override default importance threshold",
+    )
+    compact_parser.add_argument(
+        "--merge-threshold",
+        type=float,
+        default=None,
+        help="Override default merge similarity threshold",
+    )
+    compact_parser.add_argument(
+        "--db",
+        default=None,
+        help="SQLite database path (default  ~/.ai_vibe_coding/memory.db)",
+    )
+
+    # memory decay
+    decay_parser = memory_subparsers.add_parser(
+        "decay", help="Reduce importance of stale memories over time"
+    )
+    decay_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Apply decay; default is --dry-run (plan only)",
+    )
+    decay_parser.add_argument(
+        "--decay-days",
+        type=float,
+        default=None,
+        help="Days per decay period (default 7)",
+    )
+    decay_parser.add_argument(
+        "--db",
+        default=None,
+        help="SQLite database path (default  ~/.ai_vibe_coding/memory.db)",
+    )
+
+    # memory stats
+    stats_parser = memory_subparsers.add_parser(
+        "stats", help="Show extended memory statistics (incl. compaction/decay)"
+    )
+    stats_parser.add_argument(
+        "--db",
+        default=None,
+        help="SQLite database path (default  ~/.ai_vibe_coding/memory.db)",
+    )
+
     args = parser.parse_args()
 
     if args.command == "run":
@@ -162,6 +232,8 @@ def main() -> None:
         _handle_list_providers()
     elif args.command == "cost":
         _handle_cost(args)
+    elif args.command == "memory":
+        _handle_memory(args)
     else:
         parser.print_help()
 
@@ -299,6 +371,85 @@ def _handle_list_providers() -> None:
     print("  mistral    (requires MISTRAL_API_KEY)")
     print("  cohere     (requires COHERE_API_KEY)")
     print("  ollama     (local, no credentials required)")
+
+
+# =====================================================================
+# Memory subcommand handlers (v0.14.0 compaction & distillation)
+# =====================================================================
+
+
+def _open_memory_store(db_arg: str | None):
+    """Build a MemoryStore from an optional --db override.
+
+    Args:
+        db_arg: A whitespace-separated string of one path (or None for the
+            default DB). argparse passes a plain str here since the CLI
+            defines ``--db`` singular.
+
+    Returns:
+        A configured MemoryStore instance.
+    """
+    from ai_vibe_coding.memory_store import MemoryStore
+
+    if db_arg:
+        return MemoryStore(db_path=db_arg)
+    return MemoryStore()
+
+
+def _handle_memory(args: argparse.Namespace) -> None:
+    """Handle the 'memory' subcommand (compact / decay / stats).
+
+    Args:
+        args: Parsed command-line arguments.
+    """
+    command = args.memory_command
+    if command == "compact":
+        _handle_memory_compact(args)
+    elif command == "decay":
+        _handle_memory_decay(args)
+    elif command == "stats":
+        _handle_memory_stats(args)
+    else:
+        print("Usage: ai-vibe-bench memory <compact|decay|stats> [...]")
+        print()
+        print("Subcommands:")
+        print("  compact [--apply] [--age-days N] [--importance-threshold X] "
+              "[--merge-threshold X] [--db PATH]")
+        print("  decay   [--apply] [--decay-days N] [--db PATH]")
+        print("  stats   [--db PATH]")
+
+
+def _handle_memory_compact(args: argparse.Namespace) -> None:
+    """Handle 'memory compact' — dry-run by default, --apply to mutate."""
+    import json as _json
+
+    store = _open_memory_store(getattr(args, "db", None))
+    result = store.compact(
+        dry_run=not args.apply,
+        age_days=args.age_days,
+        importance_threshold=args.importance_threshold,
+        merge_threshold=args.merge_threshold,
+    )
+    print(_json.dumps(result, indent=2, default=str))
+
+
+def _handle_memory_decay(args: argparse.Namespace) -> None:
+    """Handle 'memory decay' — dry-run by default, --apply to mutate."""
+    import json as _json
+
+    store = _open_memory_store(getattr(args, "db", None))
+    result = store.impact_decay(
+        decay_days=args.decay_days, dry_run=not args.apply
+    )
+    print(_json.dumps(result, indent=2, default=str))
+
+
+def _handle_memory_stats(args: argparse.Namespace) -> None:
+    """Handle 'memory stats' — print extended stats (incl. compaction)."""
+    import json as _json
+
+    store = _open_memory_store(getattr(args, "db", None))
+    print(_json.dumps(store.memory_stats(), indent=2, default=str))
 
 
 # =====================================================================
