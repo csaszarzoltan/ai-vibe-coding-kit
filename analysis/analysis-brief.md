@@ -1,600 +1,417 @@
-# Analysis Brief: MCP Server Integration Templates & Quickstart Examples
+# Analysis Brief: Memory Compaction & Knowledge Distillation — Auto-Summarization, Merging & Importance Decay
 
-**Date:** 2026-07-24
-**Author:** Analyst profile (task t_4a693e43)
-**Status:** Complete
-**Repo:** `ai-vibe-coding-kit` at `/home/zoltan/ai-vibe-coding-kit`
+**Date:** 2026-08-08
+**Author:** Analyst profile (kanban task `t_4fee08cb`)
+**Status:** Complete — contract for pre-tester RED suite (`t_479c12c3`)
+**Repo:** `ai-vibe-coding-kit` at `/home/zoltan/ai-vibe-coding-kit` (branch `main`)
+**Current version:** v0.13.0 (Redis backend released 2026-08-06)
+**Target version:** v0.14.0
+**Parent feature task:** `t_f257b10d`
+
+---
+
+## 0. Research-brief substitution note
+
+`analysis/research-brief.md` does **not** exist in the repo (verified: only
+`analysis-brief.md` and `memory-architecture.md` are present under `analysis/`).
+The feature task body (`t_f257b10d`) is fully self-contained (acceptance
+criteria, user stories, tech context, competitor references), so I substituted
+with **direct repo inspection** of the live code at branch `main` (HEAD
+`e47d19e`) plus **targeted web research** on the named competitors (Mem0 decay,
+Zep summarization, Microsoft Agent Memory compaction, Hindsight
+consolidation-lever framework). This substitution is noted here as required by
+the task. See §9 Source Links for the research anchors.
 
 ---
 
 ## 1. Current State Assessment
 
-### 1.1 Existing MCP Infrastructure (What We Already Have)
+### 1.1 The memory subsystem today (what compacts/decays already)
 
-The `ai-vibe-coding-kit` repo already ships a functional MCP server integration. Key assets:
+Inspected live on branch `main` (HEAD `e47d19e`, v0.13.0).
 
-| Asset | Location | Capabilities |
-|-------|----------|-------------|
-| `MCPServer` class | `src/ai_vibe_coding/mcp_server.py` | Wraps FastMCP with LLMClient + ToolDef integration. Supports stdio and HTTP/SSE transport. |
-| `MCPServerConfig` | `src/ai_vibe_coding/mcp_server.py` | Dataclass: name, instructions, transport, host, port |
-| `CostTracker` (MCP-specific) | `src/ai_vibe_coding/mcp_server.py` | Thread-safe per-tool cost tracking with `get_summary()`, `reset()` |
-| `LLMClient.to_mcp_server()` | `src/ai_vibe_coding/mcp_server.py` | Convenience monkey-patch on LLMClient — creates MCPServer from client + ToolDef list |
-| Example server | `examples/mcp_server_example.py` | Demo server with weather, web_search, run_python tools |
-| Test suite | `tests/test_mcp_server.py` | 276 lines, 57 test cases covering CostTracker, MCPServerConfig, _make_typed_tool_fn, MCPServer creation, MCP tool integration |
-| `mcp` dependency | `pyproject.toml` | `mcp>=1.0.0` already listed with FastAPI, uvicorn |
-| `ToolDef` system | `src/ai_vibe_coding/structured.py` | Complete tool definition system with parameters JSON Schema, `chat_with_tools()` executor |
+| Asset | File | Role |
+|-------|------|------|
+| `StorageBackend` ABC | `src/ai_vibe_coding/memory_store.py` (938 LoC) | Abstract contract: `store/retrieve/search/forget/stats`, plus internal hooks `bump_meta`, `purge_expired`, `evict_if_over_budget`, `close` |
+| `RedisBackend` | same file | Hash (`aivck:memory:{id}`) + recency zset (`aivck:recency`) + meta hash (`aivck:meta`) mapping; fully implemented |
+| `MemoryStore` | same file | SQLite-backed (`memories` + `meta` tables, WAL on file DBs, fresh conn per op); the public façade that delegates to a backend when `backend=`/`redis_url=` is passed |
+| `MemoryNotFoundError` | same file | `KeyError` subclass for missing-id retrieval |
+| `memory_embedding.py` | `src/ai_vibe_coding/memory_embedding.py` (134 LoC) | `embed_text`, `cosine_similarity`, `serialize_vector`/`deserialize_vector`, `current_mode`; all-MiniLM-L6-v2 (384-dim) + deterministic sha256 hash-fallback (256-dim), both L2-normalized |
+| MCP memory server | `examples/mcp_memory_server.py` | FastMCP server `ai-vibe-memory`, stdio transport, 5 tools (`memory_store`, `memory_retrieve`, `memory_search`, `memory_forget`, `memory_stats`), CLI flags `--db`/`--max-rows`/`--redis-url`, env `AI_VIBE_MEMORY_DB/MAX_ROWS/REDIS_URL` |
+| CLI entry | `src/ai_vibe_coding/cli.py` | `ai-vibe-bench` console script (benchmark + cost subcommands) — NOT the memory CLI |
+| Existing tests | `tests/test_mcp_memory_server.py` (696 LoC), `tests/test_storage_backend_redis.py` | 1152 passing on both backends (per FEATURES-DONE). `FakeClock` seam (`now=` injectable), `backend_store` parametrized fixture, interface-vs-behavioral split |
 
-### 1.2 Gap Analysis (What's Missing for Quickstart)
+**Current memory lifecycle** (all already implemented):
+- `store()` → embeds content, persists, pins per-DB embedding mode/dim.
+- `retrieve()` / `search()` → touch `last_accessed_at`; `search` ranks by real cosine similarity.
+- TTL purge → expired rows deleted on read/write (`purge_expired`).
+- **Hard eviction** → when `total > max_rows`, delete lowest `eviction_score = importance * recency_boost` where `recency_boost = e^(-age/604_800)` (7-day half-life). This is the only shrink path and it **deletes wholesale** — no distillation.
+- `stats()` → `{total, expired, evicted, db_path, max_rows, embedding_mode}`.
 
-| Capability | Status | Notes |
-|------------|--------|-------|
-| **Real tool implementations** (filesystem, web, code exec) | ❌ Missing | Example tools are stubs — no actual filesystem/network operations |
-| **Self-contained standalone MCP server** | ⚠️ Partial | Existing server requires `LLMClient` + ToolDef; need a version that works as a standalone MCP server without LLM routing |
-| **Cursor MCP config template** (`.cursor/mcp.json`) | ❌ Missing | No per-project MCP configuration for Cursor IDE |
-| **Claude Desktop config template** (`claude_desktop_config.json`) | ❌ Missing | No copy-pasteable config for Claude Desktop users |
-| **README "Getting Started with MCP"** | ❌ Missing | README has LLM wrapper, benchmarks, CI/CD — no MCP section |
-| **docs/mcp-guide.md** | ❌ Missing | No dedicated MCP documentation page |
-| **Tests for standalone tools** | ❌ Missing | Tools in example are untested; no test for filesystem/web/code_exec implementations |
-| **Tool-level error handling** | ❌ Missing | No graceful errors for missing files, network failures, invalid code |
-| **Streamable HTTP transport** | ⚠️ Partial | `transport="sse"` exists but not `streamable-http` |
-| **Multi-server composition example** | ❌ Missing | No example showing how to compose multiple MCP servers |
+### 1.2 The gap (what's missing)
 
-### 1.3 Key Risks
+The store grows monotonically under `max_rows` and **only shrinks by hard
+deletion**. There is:
+- ❌ No compaction job (CLI or MCP `memory_compact`), no `--dry-run`/`--apply`.
+- ❌ No summarization/distillation of stale low-importance clusters; no `archived` status with provenance.
+- ❌ No duplicate/overlap **merge** via cosine similarity.
+- ❌ No **importance decay** over time (only the passive half-life used inside eviction); no `decay_log`.
+- ❌ No compaction/decay stats in `memory_stats` (distilled/archived/merged/decayed counts + compaction log).
+- ❌ No backend-parity compaction path on the `StorageBackend` ABC (both SQLite and Redis).
+
+### 1.3 Gap analysis table
+
+| Capability | Status | Priority | Notes |
+|-----------|--------|----------|-------|
+| Store/retrieve/search/forget/stats | ✅ Exists | — | SQLite + Redis via `StorageBackend` ABC |
+| Importance × recency hard eviction | ✅ Exists | — | Only shrink path; deletes wholesale. Decay foundation |
+| Real cosine embedding + fallback | ✅ Exists | — | `memory_embedding.py`; reuse for merge scoring |
+| TTL purge / clock seam (`now=`) | ✅ Exists | — | Reuse the same `FakeClock` pattern for age-based compaction |
+| **Compaction job** (CLI + MCP `memory_compact`, `--dry-run`/`--apply`) | ❌ Missing | **P0** | US-001 |
+| **Auto-summarization** of stale low-importance clusters → distilled entry, originals `archived` | ❌ Missing | **P0** | US-001 |
+| **Duplicate/overlap merging** (cosine ≥ `merge_threshold` → one merged, older archived) | ❌ Missing | **P1** | US-002 |
+| **Importance decay** (`decay_days`/curve, rarely-accessed reduce, `decay_log`) | ❌ Missing | **P1** | US-003 |
+| **Idempotent partial-failure recovery** | ❌ Missing | **P2** | US-004 |
+| **Stats** (distilled/archived/merged/decayed + compaction log in `memory_stats`) | ❌ Missing | **P1** | Acceptance #6 |
+| **Backend parity** (SQLite + Redis) | ❌ Missing | **P0** | Acceptance #7; ABC is the seam |
+
+### 1.4 Key risks
 
 | Risk | Context | Mitigation |
 |------|---------|------------|
-| **`mcp` SDK version churn** | SDK at v1.x, v2 in development with breaking changes | Pin `mcp>=1.27,<2` per official recommendation until stable v2 |
-| **Security: code execution** | `run_python` tool executes arbitrary code | Use sandboxed subprocess with resource limits/timeout |
-| **Security: filesystem paths** | Filesystem tools must not escape project root | Validate paths against allowed base directory |
-| **API key exposure in config files** | JSON configs may contain env var references | Use `${env:VAR_NAME}` syntax in templates; document .gitignore |
-| **Cross-platform path separators** | Windows vs Unix | Document with `${workspaceFolder}` variable and platform notes |
+| Backend parity drift | Compaction must run on both SQLite and Redis; easy to implement for one only | Put policy in shared pure code; add new `StorageBackend` ABC methods; reuse `TestBackendAgnosticBehavior` param fixture |
+| LLM-free deterministic requirement | "no other server does **offline deterministic** merge + decay"; tests ban mocking merge/summarize | Summarize/merge must be **deterministic pure functions** (concatenation + template, embedding-similarity merge), not an LLM call; summarizer needs no runtime deps |
+| Data loss / destructive re-run | Re-running after partial failure must not double-archive or delete | `archived` is a **status flag**, never delete; skip already-archived rows; unit-of-work per cluster/merge |
+| Provenance | Originals must survive summarization | Mark `archived`, keep row; search filters archived out but retrieval-by-id still resolves them |
+| Schema migration | Adding `status`, `archived_at`, `last_decayed_at`, `compaction_log` table | `CREATE TABLE IF NOT EXISTS` + `ALTER TABLE ... ADD COLUMN` guarded by PRAGMA introspection to stay idempotent across existing DBs |
+| `search` semantics change | Archived rows must be excluded from `search` results (US-001) but not from `retrieve` | Add `WHERE status != 'archived'` to search; only `retrieve` grants access to archived |
 
 ---
 
 ## 2. Clustered Options
 
-### Option A: Extend Existing MCPServer with Real Tools + Config Templates (RECOMMENDED)
+### Option A (RECOMMENDED): Deterministic, backend-agnostic compaction engine layered on the existing `StorageBackend` ABC
 
-Build on the existing `mcp_server.py` library module. Add three real tool implementations (filesystem, web search, code execution) as a standalone example server that can be copied and tweaked. Create `.cursor/mcp.json` and `claude_desktop_config.json` templates that point to it.
+New pure engine module (`memory_compaction.py`) holds all policy (selection,
+summarization, merge scoring, decay math) as **deterministic, dependency-free
+functions**. The `StorageBackend` ABC gains new abstract methods (`archive`,
+`merge`, `decay_run`, `distill`, `compaction_log`/`decay_log` reads) implemented
+by both SQLite and Redis. `MemoryStore` exposes `compact(dry_run/apply)` +
+`impact_decay()` + extended `stats()`. Thin CLI + MCP tools wrap them.
 
-**Trade-offs:**
-+ Reuses existing `MCPServer`, `CostTracker`, `ToolDef` infrastructure
-+ Consistent architecture — no parallel tool system
-+ `LLMClient.to_mcp_server()` works for programmatic users
-+ Templates can be generated/documented from same source
-- Existing tools route through `chat_with_tools()` (LLM-based execution) — standalone tools should execute directly
-- Example server currently tied to LLM provider; standalone server should work without an LLM key
++ Single policy source, testable without backend
++ Satisfies "LLM-free deterministic" + "no mocks for merge/summarize" + backend parity
++ Reuses existing `embed_text`/`cosine_similarity`, `FakeClock` tests, `backend_store` fixture
+− Adds abstract methods to `StorageBackend` (both backends must implement; Redis already implements the ABC)
 
-### Option B: New Standalone FastMCP Server (Separate File)
+### Option B: SQLite-only compaction, Redis deferred
 
-Create a completely new example at `examples/standalone_mcp_server.py` that uses raw `@mcp.tool()` decorators (not the MCPServer wrapper class). This is the "standard" MCP pattern that most tutorials show.
+Implement compaction only on the SQLite `MemoryStore` path; leave Redis a
+follow-up.
 
-**Trade-offs:**
-+ Most idiomatic FastMCP pattern — no LLM routing layer
-+ Works without any API key — pure tool execution
-+ Cleaner, shorter code (10-15 lines per tool)
-+ Easier to understand for MCP newcomers
-- Duplicates functionality that already exists in `mcp_server.py`
-- Two diverging MCP server implementations to maintain
-- Loses the cost tracking, provider routing, and LLM-mediation features
++ Less work now
+− **Fails acceptance #7 (backend parity)** — unacceptable for this feature
 
-### Option C: Hybrid — Standalone Example + Updated Library
+### Option C: LLM-driven summarizer (call an LLM to distill)
 
-Build a standalone FastMCP demo server using raw `@mcp.tool()` decorators (Option B approach) as the quickstart example. Simultaneously update `mcp_server.py` to support both "LLM-routed" and "direct execution" modes.
+Use an LLM call to write the distilled entry.
 
-**Trade-offs:**
-+ Best learning curve: newcomers use the simple standalone server
-+ Library keeps LLM-mediation for advanced users
-+ Direct execution mode fills the gap in existing MCPServer
-- Higher implementation effort
-- Risk of feature drift between the two patterns
++ "Higher-quality" summaries
+− Requires API keys, network, and is non-deterministic; **violates the entire
+  self-hosted/offline and no-mock requirement**; breaks tests and parity.
+  Rejected outright.
 
-**Decision:** Option C — Hybrid. The quickstart example should be a clean, self-contained FastMCP server using `@mcp.tool()` decorators (no LLM routing). This is what users expect from MCP documentation and tutorials. The existing `mcp_server.py` library class remains for users who want LLM-mediation + cost tracking on top of their tools. The two serve different audiences: standalone server is for "I want MCP tools now", the library class is for "I want AI vibe coding with cost tracking".
+**Decision: Option A**, scoped as P0 (distill) → P1 (merge, decay, stats) → P2
+(idempotent recovery hardening). The summarizer is a **deterministic template
+summarizer** (concatenate + dedupe + header), documented as non-LLM per the
+feature's differentiation claim.
 
 ---
 
 ## 3. Chosen Tech Stack
 
-| Layer | Choice | Rationale |
-|-------|--------|-----------|
-| **MCP framework** | `mcp>=1.27,<2` / FastMCP (included in `mcp` package) | Already a dependency; FastMCP decorators are the standard Python API for MCP |
-| **MCP config format** | JSON (`.cursor/mcp.json`, `claude_desktop_config.json`) | Standard across Cursor, Claude Desktop, Windsurf, Codex |
-| **Filesystem operations** | `pathlib` + `os` (stdlib) | Zero dependencies; path validation via `Path.resolve()` |
-| **Web search** | `httpx` (existing dep) or `requests` (stdlib alternative) | `httpx` already listed; DuckDuckGo Lite HTML scraping (no API key) |
-| **Code execution** | `subprocess` + `tempfile` (stdlib) | Sandboxed in temp dir with `timeout` and resource limits |
-| **Standalone server** | Separate `examples/standalone_mcp_server.py` | Clean FastMCP decorators, no LLM dependency |
-| **Config templates** | Static JSON files in repo root | Copy-pasteable; documented with inline comments |
-| **Testing** | Existing pytest pattern | Interface tests + behavioral tests; mock filesystem/web/code calls |
+| Component | Choice | Rationale |
+|-----------|--------|-----------|
+| Compaction engine | `src/ai_vibe_coding/memory_compaction.py` (NEW, pure) | Deterministic policy functions; zero new runtime deps; unit-testable with no backend |
+| Similarity scoring | Reuse `memory_embedding.cosine_similarity` + `embed_text` | Already shipped; real cosine, no mock |
+| Summarizer | Deterministic template summarizer in `memory_compaction.py` | LLM-free; concatenates sources, strips near-duplicate lines, wraps in metadata header; deterministic by construction |
+| Storage seam | Extend `StorageBackend` ABC + add `archived`/`last_decayed_at` columns + `compaction_log` + `decay_log` tables (SQLite) and equivalent keys (Redis) | Backend parity via the existing ABC; both backends implement the same new methods |
+| Clock / age | Reuse injectable `now=` seam | Age-based selection (`compaction_age_days`) testable without `sleep()` |
+| Config | Module-level constants + env overrides + CLI/MCP kwargs: `compaction_age_days`, `compaction_importance_threshold`, `merge_threshold`, `decay_days`, `max_rows` unchanged | Layered config matching repo precedence (CLI > env > default) |
+| Decay curve | `importance *= 0.5^(decay_periods_elapsed / decay_halflife)`, floored at a `min_importance` | Matches existing half-life math; Ebbinghaus-style; deterministic |
+| CLI | `examples/mcp_memory_server.py` gains `memory_compact` + `memory_decay` tools; a `--dry-run`/`--apply` mode exposed via tool arg | Follows existing `@mcp.tool()` pattern in the same file |
+| Tests | `tests/test_memory_compaction.py` (+ optionally `test_<subsection>`) | Pre-tester RED suite |
 
-**What we do NOT add as new dependencies:**
-- No new Python packages beyond what's already in `pyproject.toml`
-- No external search APIs requiring keys (DuckDuckGo works unauthenticated)
-- No sandbox library for code execution (stdlib subprocess is sufficient with limits)
-- No separate MCP server hosting framework (FastMCP handles transports)
+**No new runtime dependencies.** Everything is stdlib + already-shipped
+`sentence-transformers`/fallback.
 
 ---
 
-## 4. Architecture Overview
+## 4. Data model & contract (locked for the pre-tester)
 
+### 4.1 Memory status model
+
+Each memory gains a `status` field with one of:
+- `active` (default; the only state returned by `search`)
+- `archived` (originals preserved after distill/merge; NOT deleted; excluded from `search`, resolvable via `retrieve`)
+- `distilled` (a generated distilled entry — active in search)
+
+New SQLite columns on `memories`: `status TEXT NOT NULL DEFAULT 'active'`,
+`archived_at TEXT`, `last_decayed_at TEXT`. New tables:
 ```
-ai-vibe-coding-kit/
-├── .cursor/
-│   └── mcp.json                    # NEW: Cursor MCP config template (P0)
-├── claude_desktop_config.json      # NEW: Claude Desktop config template (P0)
-├── examples/
-│   ├── mcp_server_example.py       # EXISTING: LLM-routed MCP server example (updated)
-│   └── standalone_mcp_server.py    # NEW: Self-contained FastMCP tools demo (P0)
-├── src/ai_vibe_coding/
-│   └── mcp_server.py               # EXISTING: library class (minor updates)
-├── tests/
-│   ├── test_mcp_server.py          # EXISTING: 276 lines, 57 tests
-│   └── test_mcp_tools.py           # NEW: tests for standalone tools (P0)
-├── docs/
-│   └── mcp-guide.md                # NEW: MCP reference documentation (P1)
-└── README.md                       # EXISTING: add "Getting Started with MCP" section (P0)
-
-```
-
-### Component Relationships
-
-```
-User (Cursor / Claude Desktop)
-  │
-  ├── reads .cursor/mcp.json or claude_desktop_config.json
-  │
-  ▼
-MCP client connects to server via stdio
-  │
-  ▼
-standalone_mcp_server.py (FastMCP @mcp.tool decorators)
-  │
-  ├── @mcp.tool() read_file(path)     →  filesystem (pathlib)
-  ├── @mcp.tool() write_file(path, content) → filesystem (pathlib)
-  ├── @mcp.tool() list_directory(path)  → filesystem (pathlib)
-  ├── @mcp.tool() search_web(query)    → web (httpx → DuckDuckGo)
-  ├── @mcp.tool() execute_python(code) → subprocess sandbox
-  └── @mcp.tool() get_weather(city)    → demo
+CREATE TABLE IF NOT EXISTS compaction_log (
+    run_id      TEXT PRIMARY KEY,
+    mode        TEXT NOT NULL,             -- 'dry-run' | 'apply'
+    started_at  TEXT NOT NULL,
+    distilled   INTEGER NOT NULL DEFAULT 0,
+    archived    INTEGER NOT NULL DEFAULT 0,
+    merged      INTEGER NOT NULL DEFAULT 0,
+    summary     TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS decay_log (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    memory_id   TEXT NOT NULL,
+    happened_at TEXT NOT NULL,
+    old_score   REAL NOT NULL,
+    new_score   REAL NOT NULL
+);
 ```
 
----
-
-## 5. Module Specifications
-
-### 5.1 `examples/standalone_mcp_server.py` — Standalone FastMCP Demo (P0)
-
-**Purpose:** A self-contained, copy-pasteable MCP server using raw `@mcp.tool()` decorators. Runs without any API keys. Introduces MCP concepts to newcomers. Used as the target for `.cursor/mcp.json` and `claude_desktop_config.json` config templates.
-
-**Server name:** `ai-vibe-coding-mcp`
-
-**Tools:**
+### 4.2 StorageBackend ABC — new abstract methods
 
 ```python
-@mcp.tool()
-def read_file(path: str) -> str:
-    """Read the contents of a file. Path is relative to the project root.
-    
-    Args:
-        path: Relative or absolute path to the file to read
-    Returns:
-        File contents as a string
-    Raises:
-        ValueError: If path escapes the allowed base directory
-        FileNotFoundError: If file does not exist
-    """
-
-
-@mcp.tool()
-def write_file(path: str, content: str) -> str:
-    """Write content to a file. Creates parent directories if needed.
-    
-    Args:
-        path: Relative path from project root
-        content: Text content to write
-    Returns:
-        Confirmation message with absolute path
-    Raises:
-        ValueError: If path escapes the allowed base directory
-    """
-
-
-@mcp.tool()
-def list_directory(path: str = ".") -> str:
-    """List files and directories in the specified path.
-    
-    Args:
-        path: Directory path (default: current directory)
-    Returns:
-        Formatted directory listing with file sizes and types
-    Raises:
-        ValueError: If path escapes the allowed base directory
-        FileNotFoundError: If directory does not exist
-    """
-
-
-@mcp.tool()
-def search_web(query: str, max_results: int = 5) -> str:
-    """Search the web for information using DuckDuckGo.
-    
-    Args:
-        query: Search query string
-        max_results: Maximum number of results (1-10, default: 5)
-    Returns:
-        Formatted search results with titles, URLs, and snippets
-    """
-
-
-@mcp.tool()
-def execute_python(code: str, timeout_seconds: int = 10) -> str:
-    """Execute Python code in a sandboxed environment and return output.
-    
-    Security: Runs in a temporary directory with 10-second timeout.
-    Stdout and stderr are captured. No network access.
-    
-    Args:
-        code: Python code to execute
-        timeout_seconds: Max execution time (1-30, default: 10)
-    Returns:
-        Combined stdout and stderr output
-    Raises:
-        TimeoutError: If execution exceeds timeout
-    """
-
-
-@mcp.tool()
-def get_weather(city: str, unit: str = "celsius") -> str:
-    """Get the current weather for a city (demo tool using simulated data).
-    
-    Args:
-        city: City name
-        unit: Temperature unit (celsius or fahrenheit)
-    Returns:
-        Simulated weather report for the given city
-    """
+def archive(self, memory_id: str, *, archived_at: str) -> dict:
+    """Mark a memory 'archived' (never delete). Returns {id, status}."""
+def list_memories(self, include_archived: bool = False) -> list[dict]:
+    """Return all memory rows (content, embedding, created_at, last_accessed_at,
+       importance, status) for the compaction engine to plan over."""
+def batch_update_status(self, ids: list[str], status: str, *, archived_at: str | None = None) -> int:
+    """Atomic status update for a set of ids; returns rows affected (idempotent:
+       re-running with already-archived ids returns 0 new changes)."""
+def write_distilled(self, content: str, sources: list[str], importance: float) -> dict:
+    """Persist a distilled entry with status='distilled' and provenance metadata
+       (source_ids). Returns the new memory dict."""
+def record_compaction_run(self, run_id: str, *, mode: str, distilled: int, archived: int, merged: int, summary: str) -> None:
+    """Append a compaction_log row (no-op duplicate if run_id exists)."""
+def list_compaction_log(self, limit: int = 20) -> list[dict]:
+    """Return recent compaction runs (newest first)."""
+def record_decay(self, memory_id: str, *, old_score: float, new_score: float, happened_at: str) -> None:
+    """Append a decay_log row."""
+def list_decay_log(self, limit: int = 50) -> list[dict]:
+    """Return recent decay events (newest first)."""
+def set_importance(self, memory_id: str, importance: float, *, last_decayed_at: str) -> dict:
+    """Update importance + last_decayed_at atomically; return the row."""
 ```
+All methods are backend-agnostic contracts; `MemoryStore` delegates to the
+bound backend exactly as today, and the SQLite implementation lives in
+`MemoryStore`; the Redis implementation in `RedisBackend`.
 
-**Transport:** `stdio` (default) and `streamable-http`
-
-**Dependencies:** `mcp>=1.27,<2`, `httpx` (for web search), stdlib
-
-**Error behavior:**
-- Path traversal attempts → `ValueError` with clear message
-- File not found → `FileNotFoundError` (surfaced by MCP)
-- Code execution timeout → `TimeoutError` after timeout_seconds
-- Web search failure → fallback message with HTTP status info
-
-### 5.2 `.cursor/mcp.json` — Cursor Config Template (P0)
-
-**Purpose:** Per-project MCP configuration file for Cursor IDE. Points to the standalone MCP server. Uses `${workspaceFolder}` and `${env:VAR}` variable resolution.
-
-**Location:** `.cursor/mcp.json` in repo root
-
-```json
-{
-  "mcpServers": {
-    "ai-vibe-coding": {
-      "command": "python",
-      "args": [
-        "${workspaceFolder}/examples/standalone_mcp_server.py"
-      ],
-      "env": {
-        "ALLOWED_BASE_DIR": "${workspaceFolder}",
-        "PYTHONUNBUFFERED": "1"
-      }
-    }
-  }
-}
-```
-
-**Documentation in file:** Comment explaining:
-- How to enable (file is already in repo, Cursor picks it up automatically)
-- How to add API keys for web search if needed
-- How to switch to `uv run` or `pip install -e .` based execution
-
-### 5.3 `claude_desktop_config.json` — Claude Desktop Config Template (P0)
-
-**Purpose:** Copy-pasteable configuration for Claude Desktop MCP integration.
-
-```json
-{
-  "mcpServers": {
-    "ai-vibe-coding": {
-      "command": "python",
-      "args": [
-        "/ABSOLUTE/PATH/TO/ai-vibe-coding-kit/examples/standalone_mcp_server.py"
-      ],
-      "env": {
-        "ALLOWED_BASE_DIR": "/ABSOLUTE/PATH/TO/ai-vibe-coding-kit",
-        "PYTHONUNBUFFERED": "1"
-      }
-    }
-  }
-}
-```
-
-**Documentation in file:** Comment explaining:
-- Config file location per OS (macOS: `~/Library/Application Support/Claude/`, Windows: `%APPDATA%\Claude\`)
-- Must replace `/ABSOLUTE/PATH/TO/` with actual cloned path
-- How to verify it works (Claude Desktop shows tools in chat)
-- Re-launch Claude Desktop after adding config
-
-### 5.4 README Section — "Getting Started with MCP in 5 Minutes" (P0)
-
-**Purpose:** Quickstart guide for MCP integration, placed in the main README after the existing "Quick Start" section.
-
-**Structure:**
-1. **What is MCP?** — One-paragraph explanation tying MCP to the kit's existing tool calling
-2. **Prerequisites** — `pip install -e ".[dev]"` already done
-3. **Start the MCP server** — `python examples/standalone_mcp_server.py` (stdio mode)
-4. **Test with MCP Inspector** — `pip install mcp` + `mcp dev examples/standalone_mcp_server.py`
-5. **Connect Cursor IDE** — Copy `.cursor/mcp.json` steps, restart Cursor, see tools in @-mentions
-6. **Connect Claude Desktop** — Copy `claude_desktop_config.json` steps, restart, see tools
-7. **Available tools** — Table with read_file, write_file, list_directory, search_web, execute_python, get_weather
-8. **Security notes** — Path sandboxing, code execution timeout, web search limitations
-9. **Next steps** — Link to `docs/mcp-guide.md` when built
-
-### 5.5 `src/ai_vibe_coding/mcp_server.py` — Library Updates (P1)
-
-**Purpose:** Minor updates to the existing library class:
-
-1. Add `direct_execution=True` mode to MCPServer — when enabled, tool handlers execute directly instead of routing through `chat_with_tools()`
-2. Add `streamable-http` transport option alongside existing `stdio` and `sse`
-3. Export `MCPServer` creation helpers that work without an LLM client
-
-**Note:** These are P1 enhancements. The P0 quickstart uses the standalone server, not the library class.
-
----
-
-## 6. Prioritized Task List
-
-### P0 — Core templates & examples (must ship)
-
-| # | Artifact | What | Acceptance Criteria | Notes |
-|---|----------|------|-------------------|-------|
-| **P0.1** | `examples/standalone_mcp_server.py` | Standalone FastMCP server with 6 tools | Imports cleanly. `mcp.run(transport="stdio")` starts without error. All 6 `@mcp.tool()` functions are callable. Path sandboxing works. | New file |
-| **P0.2** | `tests/test_mcp_tools.py` | Tests for standalone tools | Each tool tested: (1) interface test — function exists and is async; (2) functional test — real call returns expected type; (3) error test — invalid input raises properly | New file |
-| **P0.3** | `.cursor/mcp.json` | Cursor MCP config template | Valid JSON. References `standalone_mcp_server.py`. Uses `${workspaceFolder}`. Works when copied to `.cursor/mcp.json`. | New file |
-| **P0.4** | `claude_desktop_config.json` | Claude Desktop config template | Valid JSON. References `standalone_mcp_server.py`. Has clear placeholders for absolute path. Contains explanatory comments. | New file |
-| **P0.5** | README "Getting Started with MCP in 5 Minutes" | README section | Copy-pasteable commands work end-to-end. Links to both config files. Covers all 6 tools. Security notes included. | Edit README.md |
-
-### P1 — Documentation & polish
-
-| # | Artifact | What | Acceptance Criteria | Notes |
-|---|----------|------|-------------------|-------|
-| **P1.1** | `docs/mcp-guide.md` | MCP reference docs | Explains MCP concepts, tool reference, config file locations per OS, troubleshooting, security best practices | New file |
-| **P1.2** | `examples/mcp_server_example.py` update | Update existing example | Align tool names with standalone server. Add filesystem tools. Document LLM-routed vs direct mode. | Edit existing |
-| **P1.3** | `mcp_server.py` library updates | Add direct_execution mode + streamable-http | `MCPServer(direct_execution=True)` creates tools that run without LLM. `mcp.run(transport="streamable-http")` works. Backward compatible. | Edit existing |
-
-### P2 — Extended capabilities (future)
-
-| # | Artifact | What | Priority Notes |
-|---|----------|------|----------------|
-| **P2.1** | `.github/workflows/mcp-integration-test.yml` | CI test that starts MCP server and calls each tool | Verify the server stays running across releases |
-| **P2.2** | Multi-server composition example | Show Cursor config with multiple MCP servers | Advanced use case |
-| **P2.3** | MCP + LLMClient bridge example | Show how to use MCP tools with LLMClient chat_with_tools | Power user feature |
-| **P2.4** | Dockerfile for MCP server standalone | Containerized MCP server for remote deployments | Cloud/codespace use |
-
----
-
-## 7. Acceptance Criteria Per Task
-
-### Acceptance Criteria for P0.1 (standalone_mcp_server.py)
-
-1. **Module runs standalone** — `python examples/standalone_mcp_server.py` starts a stdio MCP server with no errors
-2. **Imports cleanly** — `from examples.standalone_mcp_server import mcp` raises no ImportError
-3. **`read_file(path)`** — Returns file contents as string. Traversing above base dir raises `ValueError`. Missing file raises `FileNotFoundError`.
-4. **`write_file(path, content)`** — Creates file with content. Creates parent dirs automatically. Traversing above base dir raises `ValueError`.
-5. **`list_directory(path)`** — Returns formatted listing. Default path is `.`. Traversing above base dir raises `ValueError`.
-6. **`search_web(query, max_results)`** — Returns non-empty string with results. Handles network errors gracefully.
-7. **`execute_python(code, timeout_seconds)`** — Returns execution output. 10-second default timeout. `print()` output captured. Syntax errors returned as error message. Network access blocked in subprocess.
-8. **`get_weather(city, unit)`** — Returns a simulated weather report string. Both celsius and fahrenheit units accepted.
-9. **No API keys required** — All tools work with zero configuration.
-10. **`ALLOWED_BASE_DIR` env var** — Controls path sandboxing. Defaults to current working directory.
-11. **ruff clean** — `ruff check examples/standalone_mcp_server.py` passes.
-
-### Acceptance Criteria for P0.2 (test_mcp_tools.py)
-
-1. **Interface tests pass immediately** — Each tool function exists, is async/awaitable, has docstring with Args.
-2. **Functional tests pass** — `read_file` returns content, `write_file` creates files, `list_directory` returns listing, `search_web` returns results, `execute_python` runs code, `get_weather` returns weather.
-3. **Error tests pass** — Path traversal raises ValueError, missing file raises FileNotFoundError, code syntax error returns error message.
-4. **MCP protocol test** — FastMCP server starts, `list_tools()` returns 6 tools with correct names.
-5. **ruff clean** — `ruff check tests/test_mcp_tools.py` passes.
-
-### Acceptance Criteria for P0.3 (cursor/mcp.json)
-
-1. **Valid JSON** — Parses with `json.load()`.
-2. **Contains `mcpServers` key** — With `ai-vibe-coding` server entry.
-3. **`command` is `python`** — Uses Python interpreter available in PATH.
-4. **`args` references `standalone_mcp_server.py`** — Uses `${workspaceFolder}` variable.
-5. **`env` contains `ALLOWED_BASE_DIR`** — Set to `${workspaceFolder}`.
-6. **No hardcoded secrets** — No API keys in the JSON file.
-7. **README section mentions this file** — Users know where to find it.
-
-### Acceptance Criteria for P0.4 (claude_desktop_config.json)
-
-1. **Valid JSON** — Parses with `json.load()`.
-2. **Contains `mcpServers` key** — With `ai-vibe-coding` server entry.
-3. **`command` is `python`** — Uses Python interpreter.
-4. **`args` references `standalone_mcp_server.py`** — With `/ABSOLUTE/PATH/TO/` placeholder.
-5. **`env` contains `ALLOWED_BASE_DIR`** — With `/ABSOLUTE/PATH/TO/` placeholder.
-6. **Contains inline comments** — OS-specific config locations, path replacement instructions.
-7. **No hardcoded secrets** — No API keys in the JSON file.
-
-### Acceptance Criteria for P0.5 (README "Getting Started with MCP")
-
-1. **Section exists in README.md** — After "Quick Start" section, before "Installation" or at bottom.
-2. **Contains CLI commands** — Copy-pasteable bash commands to start the server.
-3. **Contains MCP Inspector instructions** — How to verify the server works.
-4. **Contains Cursor config instructions** — Steps to enable `.cursor/mcp.json`.
-5. **Contains Claude Desktop instructions** — Steps to add `claude_desktop_config.json`.
-6. **Contains tool reference table** — All 6 tools with descriptions.
-7. **Contains security notes** — Path sandboxing, code execution limits.
-8. **Links to config files** — Relative links to `.cursor/mcp.json` and `claude_desktop_config.json`.
-
----
-
-## 8. Interface Contracts for Pre-Testing
-
-For the pre-tester (child tasks), the following interface contracts define what must be tested:
-
-### `test_mcp_tools.py` — Interface tests that must PASS immediately
-
-These test that the standalone server module structure exists:
-
-1. `test_mcp_module_imports` — `import examples.standalone_mcp_server` succeeds
-2. `test_read_file_tool_exists` — `standalone_mcp_server.read_file` is callable
-3. `test_write_file_tool_exists` — `standalone_mcp_server.write_file` is callable
-4. `test_list_directory_tool_exists` — `standalone_mcp_server.list_directory` is callable
-5. `test_search_web_tool_exists` — `standalone_mcp_server.search_web` is callable
-6. `test_execute_python_tool_exists` — `standalone_mcp_server.execute_python` is callable
-7. `test_get_weather_tool_exists` — `standalone_mcp_server.get_weather` is callable
-8. `test_all_tools_have_docstrings` — Each tool function has a non-empty docstring
-9. `test_mcp_instance_exists` — `standalone_mcp_server.mcp` is a FastMCP instance
-10. `test_config_files_exist` — `.cursor/mcp.json` and `claude_desktop_config.json` exist and are valid JSON
-
-### `test_mcp_tools.py` — Behavioral tests that must FAIL initially (stubs expected)
-
-These test that the tools actually perform their functions:
-
-1. `test_read_file_returns_content` — Reads a known file, returns its content
-2. `test_read_file_traversal_blocked` — Path with `..` escapes raises ValueError
-3. `test_write_file_creates_file` — Writes content, file exists with correct content
-4. `test_write_file_creates_parent_dirs` — Writes to nested path, dirs created
-5. `test_write_file_traversal_blocked` — Path with `..` escapes raises ValueError
-6. `test_list_directory_default` — Returns listing for current directory
-7. `test_list_directory_invalid_path` — Non-existent path raises FileNotFoundError
-8. `test_search_web_returns_results` — Returns non-empty string with search terms
-9. `test_execute_python_simple` — `print("hello")` returns "hello" in output
-10. `test_execute_python_syntax_error` — Invalid Python returns error message
-11. `test_execute_python_timeout` — Infinite loop raises TimeoutError or is terminated
-12. `test_get_weather_returns_report` — Returns string with city name
-13. `test_get_weather_unit_handling` — Both celsius and fahrenheit accepted
-14. `test_mcp_server_list_tools` — FastMCP instance lists 6 tool names
-15. `test_mcp_server_tool_names` — Tool names match expected: read_file, write_file, list_directory, search_web, execute_python, get_weather
-
-### Config file tests (in `test_mcp_tools.py` or separate):
-
-1. `test_cursor_mcp_json_valid` — `.cursor/mcp.json` parses as valid JSON
-2. `test_cursor_mcp_json_structure` — Contains `mcpServers.ai-vibe-coding` with `command`, `args`, `env`
-3. `test_cursor_mcp_json_no_secrets` — No API keys hardcoded
-4. `test_claude_desktop_config_valid` — `claude_desktop_config.json` parses as valid JSON
-5. `test_claude_desktop_config_structure` — Contains `mcpServers.ai-vibe-coding` with `command`, `args`, `env`
-6. `test_claude_desktop_config_placeholder_path` — Args contain `/ABSOLUTE/PATH/TO/` placeholder
-
----
-
-## 9. Stub File Requirements
-
-For behavioral tests to fail with meaningful errors, the following stub implementations must exist in `examples/standalone_mcp_server.py`:
+### 4.3 `MemoryStore` public API additions
 
 ```python
-from mcp.server.fastmcp import FastMCP
+def compact(self, *, dry_run: bool = True,
+            age_days: float | None = None,
+            importance_threshold: float | None = None,
+            merge_threshold: float | None = None) -> dict:
+    """Run the compaction job. dry_run=True (default) returns a PLAN dict
+       (candidate_distill_clusters, candidate_merges, estimated counts) and
+       mutates nothing. dry_run=False applies: distills stale clusters,
+       archives originals, merges duplicates, records a compaction_log entry.
+       Idempotent: already-archived rows are skipped; a partial failure leaves
+       the state consistent so a re-run finishes without double-archiving.
+       Returns {run_id, mode, distilled, archived, merged, skipped,
+                cluster_count, merge_count, dry_run}."""
 
-mcp = FastMCP("ai-vibe-coding-mcp")
+def impact_decay(self, *, decay_days: float | None = None,
+                 dry_run: bool = False) -> dict:
+    """Reduce importance of rarely-accessed old memories per the decay curve,
+       record decay_log events, mark eligible ones for compaction.
+       Returns {decayed, eligible_for_compaction, min_importance, dry_run}."""
 
-@mcp.tool()
-def read_file(path: str) -> str:
-    raise NotImplementedError
-
-@mcp.tool()
-def write_file(path: str, content: str) -> str:
-    raise NotImplementedError
-
-@mcp.tool()
-def list_directory(path: str = ".") -> str:
-    raise NotImplementedError
-
-@mcp.tool()
-def search_web(query: str, max_results: int = 5) -> str:
-    raise NotImplementedError
-
-@mcp.tool()
-def execute_python(code: str, timeout_seconds: int = 10) -> str:
-    raise NotImplementedError
-
-@mcp.tool()
-def get_weather(city: str, unit: str = "celsius") -> str:
-    raise NotImplementedError
-
-if __name__ == "__main__":
-    mcp.run(transport="stdio")
+def memory_stats(self) -> dict:
+    """Extended stats: existing keys + distilled_count, archived_count,
+       merged_count, decayed_count, last_compaction, compact_runs (from
+       compaction_log), decay_events (from decay_log)."""
 ```
 
-### Config file stub requirements:
+### 4.4 Compaction policy (deterministic)
 
-**`.cursor/mcp.json`:**
-```json
-{
-  "mcpServers": {
-    "ai-vibe-coding": {
-      "command": "python",
-      "args": ["${workspaceFolder}/examples/standalone_mcp_server.py"],
-      "env": {
-        "ALLOWED_BASE_DIR": "${workspaceFolder}",
-        "PYTHONUNBUFFERED": "1"
-      }
-    }
-  }
-}
+1. **Select stale candidate clusters** — memories with `status == 'active'`,
+   age since `created_at` > `compaction_age_days` (default e.g. 30), and
+   `importance < compaction_importance_threshold` (default e.g. 0.3).
+2. **Cluster** by embedding similarity (cosine ≥ `merge_threshold`, default
+   e.g. 0.82, computed over stored embeddings via `cosine_similarity`).
+3. **Distill** each cluster: `distilled_content = summarize(sources)` where
+   `summarize` is the deterministic template summarizer (concatenate non-duplicate
+   lines, wrap in a header naming source ids + date range).
+4. **Archive** each original (`status='archived'`, `archived_at` set). Write the
+   distilled entry with `status='distilled'`, provenance `source_ids` in metadata.
+5. **Merge** clusters of active duplicates with cosine ≥ `merge_threshold`:
+   keep the newest/highest-importance as merged entry, archive the rest, combine
+   content into merged content, record provenance.
+6. Record one `compaction_log` row describing the run.
+
+### 4.5 Decay curve (deterministic)
+
+`decay_periods = floor((now - last_decayed_at or created_at) / decay_days)`
+`new_importance = max(min_importance, importance * 0.5
+                      ** (decay_periods / decay_halflife))`
+with `decay_halflife` (default 2.0) and `min_importance` (default 0.1). Every
+actual reduction appends a `decay_log` row (`{memory_id, old, new, happened_at}`).
+A decayed memory may become compaction-eligible (ties US-003 → US-001).
+
+---
+
+## 5. Prioritized Task List (P0/P1/P2) — task specs
+
+Each spec includes: file/module, expected behavior, interface, dependencies,
+acceptance criteria. These are the contracts the pre-tester RED suite (`t_479c12c3`)
+must encode in `tests/test_memory_compaction.py` (+ split behavioral classes).
+
+### P0-A — Compaction engine (distill + archive), US-001
+- **Module:** `src/ai_vibe_coding/memory_compaction.py` (NEW); extend `memory_store.py` (`MemoryStore.compact`, `StorageBackend` new methods).
+- **Behavior:** `compact(dry_run=True)` returns a non-mutating plan; `compact(dry_run=False)` distills stale low-importance clusters into one distilled entry and marks originals `archived` (never deletes). Archived excluded from `search`, still `retrieve`-able. Idempotent.
+- **Interface:** §4.3 `compact`; §4.2 ABC methods (`archive`, `list_memories`, `batch_update_status`, `write_distilled`, `record_compaction_run`, `list_compaction_log`).
+- **Dependencies:** `memory_embedding` (`embed_text`, `cosine_similarity`, `serialize_vector`); `MemoryStore`; clock seam.
+- **Acceptance:**
+  1. Seeded >N stale low-importance active memories → `compact(dry_run=True)` plan lists them/counts them, `dry_run=True` makes **zero** mutations (store unchanged).
+  2. `compact(dry_run=False)` creates 1 distilled entry (status `distilled`) and marks originals `archived` (rows still exist, `status=='archived'`).
+  3. `search` excludes archived rows; `retrieve(<archived-id>)` still returns it.
+  4. Re-running `compact` on the same store yields `skipped >= previously-archived`, no double-archiving, no new distilled duplicates.
+
+### P0-B — MCP + CLI `memory_compact` surface, US-001
+- **Module:** extend `examples/mcp_memory_server.py` (add `memory_compact` + `memory_stats` tool) — this is both the MCP surface and the `aivck memory` CLI the task's GUI flow references.
+- **Behavior:** `memory_compact(mode="dry-run"|"apply", ...)` returns the plan/result dict (JSON-serializable). `memory_stats` returns extended stats. Non-mutating for `mode="dry-run"`.
+- **Interface:** `@mcp.tool()` `memory_compact(*, mode: str = "dry-run", age_days: float|None=None, importance_threshold: float|None=None, merge_threshold: float|None=None) -> dict`; `memory_stats` already exists but now returns the extended dict.
+- **Dependencies:** P0-A engine; `_get_store()` singleton.
+- **Acceptance:**
+  1. `build_parser()`/server advertises `memory_compact` (toolname present).
+  2. Calling `memory_compact(mode="dry-run")` returns a plan; no store change.
+  3. Calling `memory_compact(mode="apply")` returns counts and mutates per P0-A.
+  4. `memory_stats` includes `distilled_count/archived_count/merged_count/decayed_count` + `compact_runs`/`decay_events`.
+
+### P1-A — Duplicate/overlap merge, US-002
+- **Module:** extend `memory_compaction.py` (`merge` policy) + `MemoryStore.compact`.
+- **Behavior:** active memories with cosine ≥ `merge_threshold` (reusing real embeddings) are merged → one merged entry (newest kept), older originals archived, content combined, provenance metadata.
+- **Interface:** pure `select_merges(memories, threshold) -> list[(newest_id, [older_ids])]`; `MemoryStore.compact` applies them.
+- **Dependencies:** P0-A; `cosine_similarity`.
+- **Acceptance:**
+  1. Two near-duplicate active memories (cosine ≥ threshold) → merged into one, older archived, merged content includes both.
+  2. Below-threshold memories are untouched.
+  3. No merge of archived/distilled entries.
+
+### P1-B — Importance decay, US-003
+- **Module:** extend `memory_compaction.py` (`decay_scores`, `build_decay_plan`) + `MemoryStore.impact_decay`.
+- **Behavior:** rarely-accessed old memories have importance reduced per the decay curve (half-life model), `decay_log` records each event, decayed rows may become compaction-eligible; `min_importance` floor.
+- **Interface:** `impact_decay(*, decay_days=None, dry_run=False)` per §4.3; ABC `set_importance`, `record_decay`, `list_decay_log`; pure `compute_decay(row, now, decay_days, halflife, min_importance) -> float`.
+- **Dependencies:** clock seam; schema columns `last_decayed_at`.
+- **Acceptance:**
+  1. Old rarely-accessed memory importance decreases; recently-accessed/mostly idle unchanged or negligible.
+  2. Each reduction writes a `decay_log` row with old/new scores + timestamp.
+  3. Importance is never below `min_importance`.
+  4. A decayed memory below `compaction_importance_threshold` is compaction-eligible (feeds US-001).
+
+### P1-C — Extended stats, acceptance #6
+- **Module:** extend `MemoryStore.stats` / `memory_stats` / both backends' `stats`.
+- **Behavior:** `memory_stats` exposes `distilled_count, archived_count, merged_count, decayed_count` and the compaction log / decay events.
+- **Interface:** §4.3 `memory_stats`.
+- **Dependencies:** P0-A counters + `compaction_log`/`decay_log`.
+- **Acceptance:** after an apply + decay run, all counts are correct and non-decreasing logged.
+- (Fold into P0-B's `memory_stats` acceptance; listed separately to keep the counter/backend work explicit.)
+
+### P1-D — Backend parity (SQLite + Redis)
+- **Module:** `RedisBackend` implements every new abstract method (mirror of SQLite logic using `aivck:memory:{id}` hashes, `aivck:meta` counters, `aivck:compaction_log` list, `aivck:decay_log` list).
+- **Behavior:** all compaction/decay/stats operations behave identically on SQLite and Redis.
+- **Interface:** §4.2 ABC methods on `RedisBackend`.
+- **Dependencies:** P0-A; existing `TestBackendAgnosticBehavior` fixture pattern.
+- **Acceptance:** the parametrized backend-agnostic suite runs the same compaction/decay assertions against both backends.
+
+### P2-A — Idempotent partial-failure recovery, US-004
+- **Module:** harden `MemoryStore.compact` (unit-of-work per cluster; `batch_update_status` idempotent; `record_compaction_run` dedupes by `run_id`).
+- **Behavior:** a simulated failure mid-run (e.g. injectable flaky backend hook) leaves no double-archive; the re-run skips completed work and finishes.
+- **Interface:** same `compact`; optional `now`/failure-injection seams for tests.
+- **Dependencies:** P0-A, P1-A.
+- **Acceptance:**
+  1. Force failure after archiving cluster 1 of 2 → re-run compacts only cluster 2, cluster 1 not re-archived, no data loss.
+  2. `compaction_log.run_id` collision is a no-op (no duplicate log entry).
+
+---
+
+## 6. Module dependency graph
+
 ```
-
-**`claude_desktop_config.json`:**
-```json
-{
-  "mcpServers": {
-    "ai-vibe-coding": {
-      "command": "python",
-      "args": ["/ABSOLUTE/PATH/TO/ai-vibe-coding-kit/examples/standalone_mcp_server.py"],
-      "env": {
-        "ALLOWED_BASE_DIR": "/ABSOLUTE/PATH/TO/ai-vibe-coding-kit",
-        "PYTHONUNBUFFERED": "1"
-      }
-    }
-  }
-}
+examples/mcp_memory_server.py           (P0-B tools: memory_compact, memory_stats, ...)
+        │  @mcp.tool() → _get_store()
+        ▼
+MemoryStore (memory_store.py)           (P0-A: compact / impact_decay / memory_stats)
+        │  delegating: backend?.compact-hooks / sqlite direct
+        ├──► StorageBackend ABC  ◄──  RedisBackend (P1-D)
+        │        (archive, list_memories, batch_update_status, write_distilled,
+        │         record_compaction_run, list_compaction_log,
+        │         set_importance, record_decay, list_decay_log)
+        ▼
+memory_compaction.py  (P0-A/P1-A/P1-B pure policy: summarize, select_clusters,
+                       select_merges, compute_decay, build plans)
+        │  uses
+        ▼
+memory_embedding.py  (embed_text, cosine_similarity, serialize_vector)
 ```
 
 ---
 
-## 10. Dependencies Graph
+## 7. Pre-tester module-mapping note (comment target `t_479c12c3`)
 
-```
-t_4a693e43 (analyst — this task)
-  └── t_XXXXXX (pre-tester): writes tests based on this analysis brief
-       └── t_XXXXXX (developer): implements P0 items to pass pre-tests
-            ├── t_XXXXXX (tech-lead): code review
-            └── t_XXXXXX (tester): full validation
-```
-
-Implementation order:
-
-```
-standalone_mcp_server.py ← test_mcp_tools.py  ← .cursor/mcp.json
-   (no deps)                 (tests the MCP       (points to server)
-                              server tools)
-                                    │
-                          claude_desktop_config.json ← README "Getting Started" section
-                           (points to server)          (references all above)
-```
-
-All P0 items can be implemented in parallel since the standalone server is independent of existing library code. The config files only need the server file path to exist.
+The auto-decomposer template names modules `src/hermes/...`; the repo uses
+`src/ai_vibe_coding/`. I will comment the corrected mapping on `t_479c12c3`:
+- New file to spec: `src/ai_vibe_coding/memory_compaction.py` (pure engine).
+- Extend: `src/ai_vibe_coding/memory_store.py` (`StorageBackend` ABC, `RedisBackend`, `MemoryStore`).
+- Extend: `examples/mcp_memory_server.py` (new tools).
+- Test file: `tests/test_memory_compaction.py` (interface-tests-pass / behavioral-fail pattern; `FakeClock`; `backend_store` param fixture for parity).
+- Do NOT write inverse stub-guard tests asserting `pytest.raises(NotImplementedError)` on feature methods.
+- Stub file (scratch, uncommitted): `memory_compaction.py` raising `NotImplementedError` for the developer to replace.
 
 ---
 
-## 11. Decision Log
+## 8. Risk register
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| **Standalone vs library server** | Both (Option C) | Standalone for quickstart newcomers; library for power users who want LLM-mediation + cost tracking |
-| **Tool execution pattern** | Raw `@mcp.tool()` decorators | Standard FastMCP pattern; not LLM-routed — works without API keys |
-| **Web search backend** | DuckDuckGo Lite HTML | Zero API keys, no registration, `httpx` already a dependency |
-| **Code execution sandbox** | `subprocess` + `tempfile` | Stdlib-only; timeout enforced; network blocked via subprocess env |
-| **Config file format** | JSON with `mcpServers` key | Standard across Cursor, Claude Desktop, Windsurf, Codex |
-| **Cursor config location** | `.cursor/mcp.json` (per-project) | Auto-detected by Cursor; team shares via git |
-| **Path sandboxing** | `ALLOWED_BASE_DIR` env var check in every file tool | Prevents path traversal; matches IDE workspace concept |
-| **Transport default** | `stdio` | Simplest; works with all MCP clients; `transport="streamable-http"` documented as alternative |
-| **MCP SDK version** | `mcp>=1.27,<2` | SDK v2 is in development; official recommendation to pin before stable |
-| **README section placement** | After "Quick Start", before "Installation" | Natural progression: install → try basics → try MCP |
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| Backend parity drift | Med | High | Policy pure + ABC methods; backend-agnostic param suite |
+| Destructive re-run / double-archive | Med | High | `archived` flag (never delete), idempotent `batch_update_status`, run_id dedupe (P2-A) |
+| Schema migration on existing DBs | Med | Med | `CREATE TABLE IF NOT EXISTS` + guarded `ADD COLUMN` |
+| Search returns archived | Med | Med | `WHERE status != 'archived'` in search; retrieve still resolves |
+| Deterministic summarizer quality | Low | Low | Template summarizer documented as non-LLM; deterministic by construction |
+| Existing 1152 tests regress | Low | Med | Extension only; `ALTER`/`CREATE IF NOT EXISTS`; run full suite in .venv |
 
 ---
 
-*End of analysis brief. Ready for pre-tester consumption.*
+## 9. Source links (research-brief substitution)
+
+- Hindsight, *The Consolidation Problem in Agent Memory* — "four-lever framework: importance, merge, decay, eviction" (maps to US-001..004). https://hindsight.vectorize.io/blog/2026/05/21/agent-memory-consolidation
+- Mem0, *Introducing Memory Decay* — recency-weighted ranking; idle memories move lower. https://mem0.ai/blog/introducing-memory-decay-in-mem0
+- Mem0 / MemoryBank (via arxiv survey) — Ebbinghaus decay curve; "significance and recency, not capacity alone, govern survival". https://arxiv.org/html/2607.08032v1
+- Microsoft Agent Framework, *Compaction* — "selectively removing, collapsing, or summarizing older portions ... summarization". https://learn.microsoft.com/en-us/agent-framework/agents/conversations/compaction
+- Zep — temporal knowledge-graph summarization; graph carries decay/clustering/archival. https://blog.getzep.com/ ... /ZEP__USING_KNOWLEDGE_GRAPHS...pdf ; https://www.getzep.com/
+- Repo ground truth: `analysis/memory-architecture.md` (v0.12.0 memory spec §1–§7), `src/ai_vibe_coding/memory_store.py`, `memory_embedding.py`, `examples/mcp_memory_server.py`, `tests/test_mcp_memory_server.py`, `tests/test_storage_backend_redis.py`.
+
+---
+
+## 10. Verification commands (for downstream workers)
+
+```bash
+cd /home/zoltan/ai-vibe-coding-kit
+./.venv/bin/python -m pytest tests/test_memory_compaction.py -v          # new RED suite
+./.venv/bin/python -m pytest -q                                          # full suite, no regressions
+./.venv/bin/python -m ruff check src tests examples                      # lint
+bash /home/zoltan/.hermes/scripts/tdd-gate-v3.sh /home/zoltan/ai-vibe-coding-kit
+```
+
+---
+
+## 11. Assumptions / constraints
+
+- Summarization is **deterministic and LLM-free** (feature's differentiator; no mocks).
+- `archived` memory is **never deleted** (provenance); `forget()` may still hard-remove it explicitly.
+- All new code keeps stdlib + already-shipped deps; **no new runtime dependency** beyond what exists.
+- Bump `version = "0.14.0"` at release; README/CHANGELOG/FEATURES-DONE updated by later chain stages (not this analyst task).
+- The repo tree already has an unrelated uncommitted edit (`docs/api-reference.md`); this brief does not modify or commit it.
