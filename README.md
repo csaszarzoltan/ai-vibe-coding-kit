@@ -1495,3 +1495,11 @@ Preferred-provider and decision-note state is scoped to the current comparison. 
 ### Prompt-length guardrails
 
 Prompts are limited to 20,000 characters in both the browser and the Pydantic API contract. The prompt field shows current length and remaining capacity, announces changes politely to assistive technology, and exposes accessible validation state. The Compare action remains unavailable for invalid input, and direct oversized API requests receive normal request-validation errors.
+
+## Dokumentáció
+
+- [Engineering Standards](docs/engineering-standards.md) — kötelező olvasmány kódírás előtt
+- [Döntések / tanulságok](docs/decisions/) — javított hibák és anti-minták
+- [Specifikációk](docs/specs/) — feature-ök kanonikus követelményei
+
+- [Módszertan](docs/METHODOLOGY.md) — a lab fejlesztési módszertana (kötelező olvasmány)
