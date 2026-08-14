@@ -23,7 +23,6 @@ try:
         CostAwareAllocation,
         QuotaConfig,
         QuotaManager,
-        QuotaPeriod,
         QuotaUsage,
         RateLimiterState,
         RateLimitExceeded,
@@ -82,7 +81,9 @@ class TestInterfaceSmoke:
         assert usage.tokens_used_today == 0.0
 
     def test_cost_aware_allocation_dataclass(self) -> None:
-        alloc = CostAwareAllocation(provider="openai", user="test", allocated_tokens=100.0)
+        alloc = CostAwareAllocation(
+            provider="openai", user="test", allocated_tokens=100.0
+        )
         assert alloc.allocated_tokens == 100.0
 
     def test_rate_limiter_state_enum(self) -> None:
@@ -163,7 +164,9 @@ class TestTokenBucket:
         tb = TokenBucket(capacity=10.0, refill_rate=1.0)
         tb.consume(8.0)
         tb.refill(tokens=3.0)
-        assert tb.available_tokens == pytest.approx(5.0, abs=0.001)  # capped at capacity
+        assert tb.available_tokens == pytest.approx(
+            5.0, abs=0.001
+        )  # capped at capacity
 
     def test_auto_refill_over_time(self) -> None:
         """Bucket refills based on elapsed time."""
@@ -373,7 +376,9 @@ class TestQuotaManager:
 
     def test_record_usage_updates_counters(self) -> None:
         qm = QuotaManager()
-        qm.add_quota(QuotaConfig(provider="openai", user="user1", max_daily_tokens=1000))
+        qm.add_quota(
+            QuotaConfig(provider="openai", user="user1", max_daily_tokens=1000)
+        )
         qm.record_usage("openai", "user1", tokens=100, cost=0.05)
         usage = qm.get_usage("openai", "user1")
         assert usage is not None
@@ -438,8 +443,18 @@ class TestCostAwareDistribution:
 
     def test_multiple_providers_allocated(self) -> None:
         qm = QuotaManager()
-        qm.add_quota(QuotaConfig(provider="openai", user="u1", max_daily_tokens=500, cost_per_token=0.01))
-        qm.add_quota(QuotaConfig(provider="anthropic", user="u1", max_daily_tokens=300, cost_per_token=0.015))
+        qm.add_quota(
+            QuotaConfig(
+                provider="openai", user="u1", max_daily_tokens=500,
+                cost_per_token=0.01,
+            )
+        )
+        qm.add_quota(
+            QuotaConfig(
+                provider="anthropic", user="u1", max_daily_tokens=300,
+                cost_per_token=0.015,
+            )
+        )
         alloc1 = qm.cost_aware_allocation("openai", "u1", 1000)
         alloc2 = qm.cost_aware_allocation("anthropic", "u1", 1000)
         assert alloc1.allocated_tokens <= 500

@@ -102,9 +102,6 @@ class TestTaskMetricsInterface:
 
     def test_task_metrics_fields(self):
         """TaskMetrics should have all specified fields."""
-        import inspect
-
-        fields = dict(inspect.getmembers(TaskMetrics, lambda m: not callable(m)))
         dataclass_fields = {f.name for f in TaskMetrics.__dataclass_fields__.values()}
 
         required = {

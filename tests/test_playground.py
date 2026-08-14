@@ -190,7 +190,8 @@ class TestPlaygroundInterfaceSmoke:
             )
 
     def test_provider_examples_in_all_providers(self):
-        """Additional providers (gemini, mistral, cohere, ollama) should be in ALL_PROVIDERS."""
+        """Additional providers (gemini, mistral, cohere, ollama) should be
+        in ALL_PROVIDERS."""
         for extra in ["gemini", "mistral", "cohere", "ollama"]:
             assert extra in ALL_PROVIDERS, f"{extra} missing from ALL_PROVIDERS"
 
@@ -200,7 +201,9 @@ class TestPlaygroundInterfaceSmoke:
 # ──────────────────────────────────────────────────────────────
 
 
-def _mock_result(provider_name: str, error: str | None = None) -> PlaygroundProviderResult:
+def _mock_result(
+    provider_name: str, error: str | None = None
+) -> PlaygroundProviderResult:
     """Build a plausible PlaygroundProviderResult for the named provider."""
     content = f"Response from {provider_name}" if error is None else ""
     return PlaygroundProviderResult(
@@ -335,7 +338,8 @@ class TestPlaygroundCompare:
             )
         assert resp.status_code == 200
         results = resp.json()["results"]
-        # All 9 providers should have character_count > 0 (mock content is "Response from {name}")
+        # All 9 providers should have character_count > 0
+        # (mock content is "Response from {name}")
         for prov_name, result in results.items():
             assert result["character_count"] > 0, (
                 f"{prov_name}: character_count is 0"

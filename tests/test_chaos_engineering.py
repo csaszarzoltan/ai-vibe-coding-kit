@@ -137,7 +137,9 @@ class TestFaultInjector:
         fi = FaultInjector()
         scenario = ChaosScenario(
             name="rate-test", target_provider="openai",
-            fault_profile=FaultProfile(fault_type=FaultType.RATE_LIMIT, duration_ms=2000),
+            fault_profile=FaultProfile(
+                fault_type=FaultType.RATE_LIMIT, duration_ms=2000
+            ),
         )
         fi.register_scenario(scenario)
         result = fi.inject_fault("openai")
@@ -239,7 +241,9 @@ class TestExperimentRunner:
 
     def test_prepare_validates_scenario(self) -> None:
         er = ExperimentRunner()
-        scenario = ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0)
+        scenario = ChaosScenario(
+            name="test", target_provider="openai", duration_seconds=5.0
+        )
         er.prepare(scenario)
         assert er.phase == ExperimentPhase.PREPARING
         assert er.current_scenario is not None
@@ -257,11 +261,19 @@ class TestExperimentRunner:
     def test_prepare_raises_on_zero_duration(self) -> None:
         er = ExperimentRunner()
         with pytest.raises(ValueError, match="duration"):
-            er.prepare(ChaosScenario(name="test", target_provider="openai", duration_seconds=0))
+            er.prepare(
+                ChaosScenario(
+                    name="test", target_provider="openai", duration_seconds=0
+                )
+            )
 
     def test_inject_changes_phase_to_injecting(self) -> None:
         er = ExperimentRunner()
-        er.prepare(ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0))
+        er.prepare(
+            ChaosScenario(
+                name="test", target_provider="openai", duration_seconds=5.0
+            )
+        )
         er.inject()
         assert er.phase == ExperimentPhase.INJECTING
 
@@ -272,7 +284,9 @@ class TestExperimentRunner:
 
     def test_observe_returns_snapshots(self) -> None:
         er = ExperimentRunner()
-        scenario = ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0)
+        scenario = ChaosScenario(
+            name="test", target_provider="openai", duration_seconds=5.0
+        )
         er.prepare(scenario)
         er.inject()
         snapshots = er.observe()
@@ -281,7 +295,9 @@ class TestExperimentRunner:
 
     def test_clean_returns_result(self) -> None:
         er = ExperimentRunner()
-        scenario = ChaosScenario(name="test", target_provider="openai", duration_seconds=5.0)
+        scenario = ChaosScenario(
+            name="test", target_provider="openai", duration_seconds=5.0
+        )
         er.prepare(scenario)
         er.inject()
         er.observe()
@@ -292,7 +308,9 @@ class TestExperimentRunner:
 
     def test_run_completes_full_lifecycle(self) -> None:
         er = ExperimentRunner()
-        scenario = ChaosScenario(name="lifecycle", target_provider="openai", duration_seconds=1.0)
+        scenario = ChaosScenario(
+            name="lifecycle", target_provider="openai", duration_seconds=1.0
+        )
         result = er.run(scenario)
         assert result.phase == ExperimentPhase.COMPLETED
         assert result.scenario_name == "lifecycle"
@@ -437,7 +455,9 @@ class TestIntegration:
     def test_runner_is_running_flag(self) -> None:
         er = ExperimentRunner()
         assert er.is_running() is False
-        scenario = ChaosScenario(name="flag-test", target_provider="openai", duration_seconds=5.0)
+        scenario = ChaosScenario(
+            name="flag-test", target_provider="openai", duration_seconds=5.0
+        )
         er.prepare(scenario)
         assert er.is_running() is True
         er.inject()
@@ -453,7 +473,9 @@ class TestIntegration:
             phases.append(f"{old.value}->{new.value}")
 
         er.on_phase_change(cb)
-        scenario = ChaosScenario(name="cb-test", target_provider="openai", duration_seconds=1.0)
+        scenario = ChaosScenario(
+            name="cb-test", target_provider="openai", duration_seconds=1.0
+        )
         er.run(scenario)
         assert len(phases) >= 1
 

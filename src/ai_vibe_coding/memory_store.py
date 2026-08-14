@@ -1140,21 +1140,15 @@ class MemoryStore:
             )
 
         from ai_vibe_coding.memory_compaction import (
-            select_clusters,
-            select_merges,
-            summarize,
-        )
-
-        run_id = uuid.uuid4().hex
-        now_dt = self.now()
-        now_iso = now_dt.isoformat()
-
-        # Defaults from the engine module
-        from ai_vibe_coding.memory_compaction import (
             DEFAULT_COMPACTION_AGE_DAYS,
             DEFAULT_COMPACTION_IMPORTANCE_THRESHOLD,
             DEFAULT_MERGE_THRESHOLD,
+            select_clusters,
+            select_merges,
         )
+
+        run_id = uuid.uuid4().hex
+        now_iso = self.now().isoformat()
 
         _age = age_days if age_days is not None else DEFAULT_COMPACTION_AGE_DAYS
         _imp = (
@@ -1168,6 +1162,25 @@ class MemoryStore:
             else DEFAULT_MERGE_THRESHOLD
         )
 
+        memories = self._load_memories_for_compaction(now_iso)
+        clusters = select_clusters(
+            memories,
+            now=now_iso,
+            age_days=_age,
+            importance_threshold=_imp,
+            merge_threshold=_merge,
+        )
+        merges = select_merges(memories, threshold=_merge)
+
+        if dry_run:
+            return self._compact_dry_run(clusters, merges, run_id)
+
+        return self._compact_apply(
+            memories, clusters, merges, run_id, now_iso, _age, _imp
+        )
+
+    def _load_memories_for_compaction(self, now_iso: str) -> list[dict]:
+        """Purge expired rows and load all memories as dicts."""
         with self._session() as conn:
             self._purge_expired(conn)
             rows = conn.execute(
@@ -1175,7 +1188,7 @@ class MemoryStore:
                 "status, embedding FROM memories"
             ).fetchall()
 
-        memories = [
+        return [
             {
                 "id": r["id"],
                 "content": r["content"],
@@ -1187,224 +1200,98 @@ class MemoryStore:
             }
             for r in rows
         ]
-        clusters = select_clusters(
-            memories,
-            now=now_iso,
-            age_days=_age,
-            importance_threshold=_imp,
-            merge_threshold=_merge,
-        )
 
-        # 2) Select merge candidates (near-duplicates)
-        merges = select_merges(memories, threshold=_merge)
+    def _compact_dry_run(
+        self, clusters: list[list[dict]], merges: list[tuple[str, list[str]]],
+        run_id: str,
+    ) -> dict:
+        """Build the dry-run plan dict (no DB mutations)."""
+        all_ids: list[str] = []
+        for cluster in clusters:
+            for m in cluster:
+                all_ids.append(m["id"])
+        for keeper_id, older_ids in merges:
+            if keeper_id not in all_ids:
+                all_ids.append(keeper_id)
+            for oid in older_ids:
+                if oid not in all_ids:
+                    all_ids.append(oid)
 
-        if dry_run:
-            all_ids: list[str] = []
-            for cluster in clusters:
-                for m in cluster:
-                    all_ids.append(m["id"])
-            for keeper_id, older_ids in merges:
-                if keeper_id not in all_ids:
-                    all_ids.append(keeper_id)
-                for oid in older_ids:
-                    if oid not in all_ids:
-                        all_ids.append(oid)
+        return {
+            "run_id": run_id,
+            "mode": "dry-run",
+            "dry_run": True,
+            "candidate_distill_clusters": clusters,
+            "candidate_merges": merges,
+            "cluster_count": len(clusters),
+            "merge_count": len(merges),
+            "candidate_memory_ids": all_ids,
+            "distilled": 0,
+            "archived": 0,
+            "merged": 0,
+            "skipped": 0,
+        }
 
-            return {
-                "run_id": run_id,
-                "mode": "dry-run",
-                "dry_run": True,
-                "candidate_distill_clusters": clusters,
-                "candidate_merges": merges,
-                "cluster_count": len(clusters),
-                "merge_count": len(merges),
-                "candidate_memory_ids": all_ids,
-                "distilled": 0,
-                "archived": 0,
-                "merged": 0,
-                "skipped": 0,
-            }
+    def _compact_skipped_stale(
+        self, memories: list[dict], now_iso: str, age: float, importance: float
+    ) -> int:
+        """Count already-archived stale/low-importance rows (idempotency)."""
+        from ai_vibe_coding.memory_compaction import _age_days
 
-        # -- apply mode ---------------------------------------------------
+        skipped = 0
+        for m in memories:
+            if m.get("status") != "archived":
+                continue
+            if m["importance"] >= importance:
+                continue
+            if _age_days(m["created_at"], now_iso) < age:
+                continue
+            skipped += 1
+        return skipped
+
+    def _compact_apply(
+        self,
+        memories: list[dict],
+        clusters: list[list[dict]],
+        merges: list[tuple[str, list[str]]],
+        run_id: str,
+        now_iso: str,
+        age: float,
+        importance: float,
+    ) -> dict:
+        """Apply distill + merge + archive inside one transaction."""
         distilled_count = 0
         archived_count = 0
         merged_count = 0
-        skipped_count = 0
+        skipped_count = self._compact_skipped_stale(
+            memories, now_iso, age, importance
+        )
 
         # Build a set of already-archived ids for idempotency
         already_archived = {
             m["id"] for m in memories if m.get("status") == "archived"
         }
 
-        # Count skipped: archived rows that still satisfy the stale +
-        # low-importance criteria would have been re-compacted, so they are
-        # reported as "skipped" (idempotency — US-004).  Archived rows are
-        # excluded from cluster selection, so this must be computed here.
-        from ai_vibe_coding.memory_compaction import _age_days
-
-        for m in memories:
-            if m.get("status") != "archived":
-                continue
-            if m["importance"] >= _imp:
-                continue
-            if _age_days(m["created_at"], now_iso) < _age:
-                continue
-            skipped_count += 1
-
         with self._session() as conn:
             now_iso_now = self.now().isoformat()
 
-            # 3) Distill clusters → one distilled entry per cluster
-            for cluster in clusters:
-                # Filter out already-archived from this cluster
-                active_in_cluster = [
-                    m for m in cluster if m["id"] not in already_archived
-                ]
-                if not active_in_cluster:
-                    skipped_count += len(cluster)
-                    continue
+            d, a, s = self._compact_distill(
+                conn, clusters, already_archived, now_iso_now
+            )
+            distilled_count += d
+            archived_count += a
+            skipped_count += s
 
-                # Build summary
-                sources = [m["content"] for m in active_in_cluster]
-                source_ids = [m["id"] for m in active_in_cluster]
-                created_dates = [
-                    m["created_at"] for m in active_in_cluster
-                ]
-                created_range = (
-                    min(created_dates),
-                    max(created_dates),
-                ) if created_dates else None
+            a2, m2, s2 = self._compact_merge(
+                conn, memories, merges, already_archived, now_iso_now
+            )
+            archived_count += a2
+            merged_count += m2
+            skipped_count += s2
 
-                distilled_content = summarize(
-                    sources, source_ids=source_ids, created_range=created_range
-                )
-
-                # Average importance of the cluster for the distilled entry
-                avg_importance = sum(
-                    m["importance"] for m in active_in_cluster
-                ) / len(active_in_cluster)
-
-                # Write distilled entry
-                vector_d, source_d = embed_text(distilled_content)
-                distilled_id = uuid.uuid4().hex
-                created_d = self.now().isoformat()
-                self._pin_embedding_mode(conn, source_d, len(vector_d))
-
-                metadata_d = json.dumps({
-                    "source_ids": source_ids,
-                    "type": "distilled",
-                })
-
-                conn.execute(
-                    "INSERT INTO memories "
-                    "(id, content, metadata, embedding, created_at, "
-                    " last_accessed_at, importance, status) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'distilled')",
-                    (
-                        distilled_id,
-                        distilled_content,
-                        metadata_d,
-                        serialize_vector(vector_d),
-                        created_d,
-                        created_d,
-                        float(avg_importance),
-                    ),
-                )
-                distilled_count += 1
-
-                # Archive originals
-                original_ids = [m["id"] for m in active_in_cluster]
-                for oid in original_ids:
-                    conn.execute(
-                        "UPDATE memories SET status = 'archived', "
-                        "archived_at = ? WHERE id = ?",
-                        (now_iso_now, oid),
-                    )
-                    archived_count += 1
-
-            # 4) Merge near-duplicates (keep newest, archive rest)
-            for keeper_id, older_ids in merges:
-                # Skip if keeper or any older is already archived
-                if keeper_id in already_archived:
-                    skipped_count += len(older_ids)
-                    continue
-                skip_this = False
-                for oid in older_ids:
-                    if oid in already_archived:
-                        skip_this = True
-                        break
-                if skip_this:
-                    skipped_count += len(older_ids)
-                    continue
-
-                # Retrieve keeper content
-                keeper_row = None
-                for m in memories:
-                    if m["id"] == keeper_id:
-                        keeper_row = m
-                        break
-                if keeper_row is None:
-                    continue
-
-                # Build merged content: keeper content + archived content
-                archived_contents = []
-                for m in memories:
-                    if m["id"] in older_ids:
-                        archived_contents.append(m["content"])
-
-                merged_content = (
-                    keeper_row["content"]
-                    + "\n---\n"
-                    + "\n".join(archived_contents)
-                )
-
-                # Write merged entry (update keeper in place)
-                vector_m, source_m = embed_text(merged_content)
-                self._pin_embedding_mode(conn, source_m, len(vector_m))
-
-                metadata_m = json.dumps({
-                    "merged_from": older_ids,
-                    "type": "merged",
-                })
-
-                conn.execute(
-                    "UPDATE memories SET content = ?, metadata = ?, "
-                    "embedding = ?, status = 'active' WHERE id = ?",
-                    (
-                        merged_content,
-                        metadata_m,
-                        serialize_vector(vector_m),
-                        keeper_id,
-                    ),
-                )
-
-                # Archive older duplicates
-                for oid in older_ids:
-                    conn.execute(
-                        "UPDATE memories SET status = 'archived', "
-                        "archived_at = ? WHERE id = ?",
-                        (now_iso_now, oid),
-                    )
-                    archived_count += 1
-                merged_count += 1
-
-            # 5) Record compaction_log entry
-            summary_parts: list[str] = []
-            if distilled_count:
-                summary_parts.append(f"{distilled_count} distilled")
-            if archived_count:
-                summary_parts.append(f"{archived_count} archived")
-            if merged_count:
-                summary_parts.append(f"{merged_count} merged")
-            summary = ", ".join(summary_parts) or "no changes"
-
-            # Idempotent: INSERT OR IGNORE by run_id
-            conn.execute(
-                "INSERT OR IGNORE INTO compaction_log "
-                "(run_id, mode, started_at, distilled, archived, merged, summary) "
-                "VALUES (?, 'apply', ?, ?, ?, ?, ?)",
-                (run_id, now_iso_now, distilled_count, archived_count,
-                 merged_count, summary),
+            self._record_compaction_log(
+                conn, run_id, now_iso_now, distilled_count,
+                archived_count, merged_count,
             )
 
         return {
@@ -1418,6 +1305,176 @@ class MemoryStore:
             "cluster_count": len(clusters),
             "merge_count": len(merges),
         }
+
+    def _compact_distill(
+        self,
+        conn: sqlite3.Connection,
+        clusters: list[list[dict]],
+        already_archived: set[str],
+        now_iso_now: str,
+    ) -> tuple[int, int, int]:
+        """Distill each cluster into one entry; archive originals."""
+        from ai_vibe_coding.memory_compaction import summarize
+
+        distilled = 0
+        archived = 0
+        skipped = 0
+
+        for cluster in clusters:
+            # Filter out already-archived from this cluster
+            active_in_cluster = [
+                m for m in cluster if m["id"] not in already_archived
+            ]
+            if not active_in_cluster:
+                skipped += len(cluster)
+                continue
+
+            sources = [m["content"] for m in active_in_cluster]
+            source_ids = [m["id"] for m in active_in_cluster]
+            created_dates = [
+                m["created_at"] for m in active_in_cluster
+            ]
+            created_range = (
+                min(created_dates),
+                max(created_dates),
+            ) if created_dates else None
+
+            distilled_content = summarize(
+                sources, source_ids=source_ids, created_range=created_range
+            )
+
+            avg_importance = sum(
+                m["importance"] for m in active_in_cluster
+            ) / len(active_in_cluster)
+
+            vector_d, source_d = embed_text(distilled_content)
+            distilled_id = uuid.uuid4().hex
+            created_d = self.now().isoformat()
+            self._pin_embedding_mode(conn, source_d, len(vector_d))
+
+            metadata_d = json.dumps({
+                "source_ids": source_ids,
+                "type": "distilled",
+            })
+
+            conn.execute(
+                "INSERT INTO memories "
+                "(id, content, metadata, embedding, created_at, "
+                " last_accessed_at, importance, status) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'distilled')",
+                (
+                    distilled_id,
+                    distilled_content,
+                    metadata_d,
+                    serialize_vector(vector_d),
+                    created_d,
+                    created_d,
+                    float(avg_importance),
+                ),
+            )
+            distilled += 1
+
+            original_ids = [m["id"] for m in active_in_cluster]
+            for oid in original_ids:
+                conn.execute(
+                    "UPDATE memories SET status = 'archived', "
+                    "archived_at = ? WHERE id = ?",
+                    (now_iso_now, oid),
+                )
+                archived += 1
+
+        return distilled, archived, skipped
+
+    def _compact_merge(
+        self,
+        conn: sqlite3.Connection,
+        memories: list[dict],
+        merges: list[tuple[str, list[str]]],
+        already_archived: set[str],
+        now_iso_now: str,
+    ) -> tuple[int, int, int]:
+        """Merge near-duplicate groups; keep newest, archive the rest."""
+        by_id = {m["id"]: m for m in memories}
+        archived = 0
+        merged = 0
+        skipped = 0
+
+        for keeper_id, older_ids in merges:
+            if keeper_id in already_archived:
+                skipped += len(older_ids)
+                continue
+            if any(oid in already_archived for oid in older_ids):
+                skipped += len(older_ids)
+                continue
+
+            keeper_row = by_id.get(keeper_id)
+            if keeper_row is None:
+                continue
+
+            archived_contents = [
+                m["content"] for m in memories if m["id"] in older_ids
+            ]
+            merged_content = (
+                keeper_row["content"]
+                + "\n---\n"
+                + "\n".join(archived_contents)
+            )
+
+            vector_m, source_m = embed_text(merged_content)
+            self._pin_embedding_mode(conn, source_m, len(vector_m))
+
+            metadata_m = json.dumps({
+                "merged_from": older_ids,
+                "type": "merged",
+            })
+
+            conn.execute(
+                "UPDATE memories SET content = ?, metadata = ?, "
+                "embedding = ?, status = 'active' WHERE id = ?",
+                (
+                    merged_content,
+                    metadata_m,
+                    serialize_vector(vector_m),
+                    keeper_id,
+                ),
+            )
+
+            for oid in older_ids:
+                conn.execute(
+                    "UPDATE memories SET status = 'archived', "
+                    "archived_at = ? WHERE id = ?",
+                    (now_iso_now, oid),
+                )
+                archived += 1
+            merged += 1
+
+        return archived, merged, skipped
+
+    def _record_compaction_log(
+        self,
+        conn: sqlite3.Connection,
+        run_id: str,
+        started_at: str,
+        distilled: int,
+        archived: int,
+        merged: int,
+    ) -> None:
+        """Idempotent compaction_log entry (INSERT OR IGNORE by run_id)."""
+        summary_parts: list[str] = []
+        if distilled:
+            summary_parts.append(f"{distilled} distilled")
+        if archived:
+            summary_parts.append(f"{archived} archived")
+        if merged:
+            summary_parts.append(f"{merged} merged")
+        summary = ", ".join(summary_parts) or "no changes"
+
+        conn.execute(
+            "INSERT OR IGNORE INTO compaction_log "
+            "(run_id, mode, started_at, distilled, archived, merged, summary) "
+            "VALUES (?, 'apply', ?, ?, ?, ?, ?)",
+            (run_id, started_at, distilled, archived, merged, summary),
+        )
 
     def impact_decay(
         self, *, decay_days: float | None = None, dry_run: bool = False

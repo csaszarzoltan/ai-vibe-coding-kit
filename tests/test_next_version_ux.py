@@ -229,7 +229,8 @@ def test_recent_run_accessibility_exposes_timestamp_and_provider_count():
 
 def test_prompt_length_is_bounded_by_api_contract():
     from pydantic import ValidationError
-    from ai_vibe_coding.playground import PlaygroundCompareRequest, MAX_PROMPT_LENGTH
+
+    from ai_vibe_coding.playground import MAX_PROMPT_LENGTH, PlaygroundCompareRequest
 
     assert MAX_PROMPT_LENGTH == 20000
     PlaygroundCompareRequest(prompt='x' * MAX_PROMPT_LENGTH)

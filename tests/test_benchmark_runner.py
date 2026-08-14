@@ -43,7 +43,8 @@ class TestBenchmarkTaskInterface:
         assert task.expected_answer == "42"
 
     def test_benchmark_task_defaults(self):
-        """Optional fields (evaluator, dataset_path, metadata) should have correct defaults."""
+        """Optional fields (evaluator, dataset_path, metadata) should have
+        correct defaults."""
         task = BenchmarkTask(
             id="test-1",
             name="Test Task",

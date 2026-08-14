@@ -21,7 +21,6 @@ try:
         AlertLevel,
         ComplianceStatus,
         CostAnomalyDetector,
-        CostAnomalyReport,
         DriftDetector,
         DriftReport,
         PromptRegressionReport,
@@ -30,7 +29,6 @@ try:
         ScanType,
         Scheduler,
         SLAChecker,
-        SLAReport,
     )
     MODULE_EXISTS = True
 except ImportError:
@@ -392,7 +390,9 @@ class TestScheduler:
 
     def test_add_task(self) -> None:
         sched = Scheduler()
-        sched.add_task("t1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=60.0)
+        sched.add_task(
+            "t1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=60.0
+        )
         task = sched.get_task("t1")
         assert task is not None
         assert task["scan_type"] == "drift"
@@ -410,7 +410,9 @@ class TestScheduler:
     def test_add_task_raises_on_non_positive_interval(self) -> None:
         sched = Scheduler()
         with pytest.raises(ValueError, match="positive"):
-            sched.add_task("t1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=0)
+            sched.add_task(
+                "t1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=0
+            )
 
     def test_remove_task(self) -> None:
         sched = Scheduler()
@@ -463,7 +465,10 @@ class TestScheduler:
 
         sched = Scheduler()
         tiny_interval = 0.001
-        sched.add_task("fail", ScanType.DRIFT, failing_callback, interval_seconds=tiny_interval)
+        sched.add_task(
+            "fail", ScanType.DRIFT, failing_callback,
+            interval_seconds=tiny_interval,
+        )
         import time as _time
         _time.sleep(0.01)
         results = sched.run_due()
@@ -499,7 +504,9 @@ class TestIntegration:
             return ScanResult(
                 scan_type=ScanType.DRIFT,
                 reports=[report],
-                alert_level=AlertLevel.WARNING if report.is_drifted else AlertLevel.INFO,
+                alert_level=(
+                    AlertLevel.WARNING if report.is_drifted else AlertLevel.INFO
+                ),
             )
 
         sched = Scheduler()
@@ -544,7 +551,10 @@ class TestIntegration:
         sched = Scheduler()
         sched.add_task("sla-check", ScanType.SLA_CHECK, sla_scan)
         results = sched.run_all()
-        assert all(r.compliance_status == ComplianceStatus.COMPLIANT for r in results[0].reports)
+        assert all(
+            r.compliance_status == ComplianceStatus.COMPLIANT
+            for r in results[0].reports
+        )
 
     def test_prompt_regression_with_tester(self) -> None:
         prt = PromptRegressionTester(default_threshold=0.1)
@@ -555,7 +565,11 @@ class TestIntegration:
             return ScanResult(
                 scan_type=ScanType.REGRESSION,
                 reports=[report],
-                alert_level=AlertLevel.CRITICAL if report.is_regression else AlertLevel.INFO,
+                alert_level=(
+                    AlertLevel.CRITICAL
+                    if report.is_regression
+                    else AlertLevel.INFO
+                ),
             )
 
         sched = Scheduler()
@@ -582,7 +596,10 @@ class TestIntegration:
 
     def test_scheduler_preserves_task_metadata(self) -> None:
         sched = Scheduler()
-        sched.add_task("m1", ScanType.DRIFT, lambda: ScanResult(), interval_seconds=300.0, name="my-scan")
+        sched.add_task(
+            "m1", ScanType.DRIFT, lambda: ScanResult(),
+            interval_seconds=300.0, name="my-scan",
+        )
         sched.run_all()
         task = sched.get_task("m1")
         assert task is not None

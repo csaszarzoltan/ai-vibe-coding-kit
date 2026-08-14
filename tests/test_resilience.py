@@ -209,7 +209,8 @@ class TestInterfaceSmoke:
 
 @pytest.mark.skipif(not MODULE_EXISTS, reason="resilience not impl")
 class TestCircuitBreaker:
-    """Behavioral contract for CircuitBreaker — NotImplementedError until implemented."""
+    """Behavioral contract for CircuitBreaker — NotImplementedError
+    until implemented."""
 
     def test_init_with_defaults(self):
         """CircuitBreaker can be created with no args."""
@@ -218,7 +219,9 @@ class TestCircuitBreaker:
 
     def test_init_with_custom_config(self):
         """CircuitBreaker accepts custom CircuitBreakerConfig."""
-        cfg = CircuitBreakerConfig(failure_threshold=3, success_threshold=1, open_timeout=10.0)
+        cfg = CircuitBreakerConfig(
+            failure_threshold=3, success_threshold=1, open_timeout=10.0
+        )
         cb = CircuitBreaker(config=cfg)
         assert cb is not None
 
@@ -265,7 +268,9 @@ class TestCircuitBreaker:
             return fake_time[0]
 
         cb = CircuitBreaker(
-            config=CircuitBreakerConfig(failure_threshold=1, success_threshold=2, open_timeout=5.0),
+            config=CircuitBreakerConfig(
+                failure_threshold=1, success_threshold=2, open_timeout=5.0
+            ),
             time_func=_time,
         )
         cb.record_failure("openai")  # CLOSED -> OPEN
@@ -660,7 +665,10 @@ class TestResponseCache:
         rc.invalidate("openai")
         assert rc.get("openai", "gpt-4", [{"role": "user", "content": "hi"}]) is None
         # Other provider unaffected
-        assert rc.get("anthropic", "claude-4", [{"role": "user", "content": "hi"}]) == "Bonjour!"
+        assert (
+            rc.get("anthropic", "claude-4", [{"role": "user", "content": "hi"}])
+            == "Bonjour!"
+        )
 
 
 # ====================================================================
@@ -698,7 +706,11 @@ class TestObservability:
             events.append(event)
 
         obs.on_event(_handler)
-        obs.emit(ResilienceEvent(type="circuit_open", provider="openai", timestamp=100.0))
+        obs.emit(
+            ResilienceEvent(
+                type="circuit_open", provider="openai", timestamp=100.0
+            )
+        )
         assert len(events) == 1
         assert events[0].type == "circuit_open"
         assert events[0].provider == "openai"

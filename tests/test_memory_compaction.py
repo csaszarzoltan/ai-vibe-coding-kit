@@ -45,12 +45,12 @@ if str(_REPO_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from ai_vibe_coding.memory_store import (  # noqa: E402
-    StorageBackend,
-    MemoryStore,
-    RedisBackend,
     _COMPACT_COLUMNS,
     _COMPACT_SCHEMA,
     _SCHEMA,
+    MemoryStore,
+    RedisBackend,
+    StorageBackend,
 )
 from examples import mcp_memory_server  # noqa: E402
 
@@ -106,7 +106,10 @@ def memory_store() -> MemoryStore:
 _STALE_OLD = [
     {
         "id": "stale_a",
-        "content": "the user prefers concise torrent stream icons for the stremio addon",
+        "content": (
+            "the user prefers concise torrent stream icons for the stremio "
+            "addon"
+        ),
         "created_at": "2025-10-01T00:00:00+00:00",
         "last_accessed_at": "2025-10-01T00:00:00+00:00",
         "importance": 0.1,
@@ -360,7 +363,10 @@ class TestMemoryCompactionEngineInterface:
         assert "now" in params
         assert params["now"].kind == inspect.Parameter.KEYWORD_ONLY
         assert params["age_days"].default == mc.DEFAULT_COMPACTION_AGE_DAYS
-        assert params["importance_threshold"].default == mc.DEFAULT_COMPACTION_IMPORTANCE_THRESHOLD
+        assert (
+            params["importance_threshold"].default
+            == mc.DEFAULT_COMPACTION_IMPORTANCE_THRESHOLD
+        )
         assert params["merge_threshold"].default == mc.DEFAULT_MERGE_THRESHOLD
 
     @pytest.mark.skipif(not _HAS_MC, reason="memory_compaction not importable yet")
@@ -403,12 +409,16 @@ class TestMemoryCompactionEngineInterface:
         assert "now" in params
         assert params["now"].kind == inspect.Parameter.KEYWORD_ONLY
         assert params["age_days"].default == mc.DEFAULT_COMPACTION_AGE_DAYS
-        assert params["importance_threshold"].default == mc.DEFAULT_COMPACTION_IMPORTANCE_THRESHOLD
+        assert (
+            params["importance_threshold"].default
+            == mc.DEFAULT_COMPACTION_IMPORTANCE_THRESHOLD
+        )
         assert params["merge_threshold"].default == mc.DEFAULT_MERGE_THRESHOLD
 
 
 class TestRedisBackendCompactionStubs:
-    """RedisBackend — has stubs for the 9 new abstract methods (RED until implemented)."""
+    """RedisBackend — has stubs for the 9 new abstract methods
+    (RED until implemented)."""
 
     def test_has_new_methods(self):
         for name in (
@@ -578,7 +588,7 @@ class TestImpactDecayBehavior:
     def test_min_importance_floor(self, store: MemoryStore):
         store.store("very old", importance=0.15)
         store.now = lambda: datetime(2027, 1, 1, tzinfo=UTC)  # 1 year later
-        result = store.impact_decay(decay_days=7)
+        store.impact_decay(decay_days=7)
         # The implementation must not reduce importance below 0.1
 
     def test_impact_decay_dry_run(self, store: MemoryStore):
@@ -594,7 +604,9 @@ class TestMemoryStatsExtendedBehavior:
 
     def test_memory_stats_has_compaction_keys(self, store: MemoryStore):
         stats = store.memory_stats()
-        for key in ("distilled_count", "archived_count", "merged_count", "decayed_count"):
+        keys = ("distilled_count", "archived_count", "merged_count",
+                "decayed_count")
+        for key in keys:
             assert key in stats, f"memory_stats() missing key {key}"
         assert isinstance(stats["distilled_count"], int)
         assert isinstance(stats["archived_count"], int)

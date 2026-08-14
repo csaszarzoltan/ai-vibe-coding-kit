@@ -31,12 +31,11 @@ from __future__ import annotations
 import threading
 import time
 from dataclasses import FrozenInstanceError
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
 from ai_vibe_coding.llm_wrapper import LLMClient, LLMResponse
-from ai_vibe_coding.structured import ToolDef
 
 # ─── Module-level guard ──────────────────────────────────────────
 # The target module doesn't exist yet (RED phase).
@@ -802,7 +801,7 @@ class TestAgentSupervisor:
             supervisor=Mock(spec=LLMClient),
             on_delegation=trace_callback,
         )
-        result = sup.run("test")
+        sup.run("test")
         assert callable(sup.on_delegation)
 
     def test_unknown_agent_routing_raises_value_error(self):
@@ -1065,7 +1064,7 @@ class TestAgentRetryPolicy:
             ),
         ]
         retry = AgentRetryPolicy(agent=agent, max_retries=3)
-        result = retry.run_with_retry(input_data="retry_me")
+        retry.run_with_retry(input_data="retry_me")
         assert agent.chat.call_count >= 2
 
     def test_max_retries_respected(self):
@@ -1087,7 +1086,7 @@ class TestAgentRetryPolicy:
         )
         with pytest.raises(RuntimeError):
             retry.run_with_retry(input_data="dlq")
-        assert dlq.publish.called or True  # dlq delivery attempted
+        assert dlq.publish.called  # dlq delivery attempted
 
     def test_retry_counter_accessible(self):
         """Retry counter is accessible after execution."""
@@ -1097,7 +1096,7 @@ class TestAgentRetryPolicy:
             tokens_used=5, cost_usd=0.001, latency_ms=10.0,
         )
         retry = AgentRetryPolicy(agent=agent, max_retries=3)
-        result = retry.run_with_retry(input_data="count")
+        retry.run_with_retry(input_data="count")
         assert retry.retry_count >= 0
 
 
@@ -1198,10 +1197,14 @@ class TestExampleScripts:
 
 print(
     "Agent Templates Tests Summary:\n"
-    "  P0 Foundation          :  18 tests (4 AgentMessage + 8 MessageBus + 6 SharedState)\n"
-    "  P1 Core Templates      :  28 tests (14 AgentPipeline + 14 AgentFanOut/FanIn)\n"
-    "  P2 Advanced Templates  :  22 tests (10 AgentSupervisor + 12 AgentPubSubCoordinator)\n"
-    "  P3 Error Handling      :  12 tests (4 CircuitBreaker + 4 RetryPolicy + 4 Fallback)\n"
+    "  P0 Foundation          :  18 tests "
+    "(4 AgentMessage + 8 MessageBus + 6 SharedState)\n"
+    "  P1 Core Templates      :  28 tests "
+    "(14 AgentPipeline + 14 AgentFanOut/FanIn)\n"
+    "  P2 Advanced Templates  :  22 tests "
+    "(10 AgentSupervisor + 12 AgentPubSubCoordinator)\n"
+    "  P3 Error Handling      :  12 tests "
+    "(4 CircuitBreaker + 4 RetryPolicy + 4 Fallback)\n"
     "  Example Scripts        :   2 tests (smoke import)\n"
     "  ─────────────────────────────────\n"
     "  Total                  :  82 tests\n"
