@@ -423,7 +423,7 @@ class ExperimentRunner:
 
         # Pre-condition checks
         min_health = scenario.conditions.get("min_health", 0.0)
-        if not isinstance(min_health, (int, float)) or min_health < 0.0:
+        if not isinstance(min_health, int | float) or min_health < 0.0:
             raise ValueError("conditions.min_health must be a non-negative number")
 
         self._start_time = time.time()

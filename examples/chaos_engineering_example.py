@@ -9,7 +9,6 @@ from __future__ import annotations
 from ai_vibe_coding.chaos_engineering import (
     ChaosScenario,
     ExperimentRunner,
-    ExperimentStatus,
     FaultInjector,
     FaultProfile,
     FaultType,
@@ -139,8 +138,18 @@ def observability_hook_example() -> None:
     hook.on_snapshot(snapshot_logger)
 
     from ai_vibe_coding.chaos_engineering import ExperimentPhase
-    hook.capture(phase=ExperimentPhase.INJECTING, latency_ms=150.0, error_count=0, request_count=10)
-    hook.capture(phase=ExperimentPhase.OBSERVING, latency_ms=320.0, error_count=2, request_count=10)
+    hook.capture(
+        phase=ExperimentPhase.INJECTING,
+        latency_ms=150.0,
+        error_count=0,
+        request_count=10,
+    )
+    hook.capture(
+        phase=ExperimentPhase.OBSERVING,
+        latency_ms=320.0,
+        error_count=2,
+        request_count=10,
+    )
 
     print(f"  Average latency: {hook.get_average_latency():.1f}ms")
     print(f"  Error rate: {hook.get_error_rate():.2%}")

@@ -49,15 +49,24 @@ def adaptive_rate_limiter_example() -> None:
 
     # Provider healthy
     limiter.update_health(0.9)
-    print("  Health=0.9 →", limiter.state.value, "Rate:", round(limiter.current_rate, 1))
+    print(
+        "  Health=0.9 →", limiter.state.value,
+        "Rate:", round(limiter.current_rate, 1),
+    )
 
     # Provider degraded
     limiter.update_health(0.2)
-    print("  Health=0.2 →", limiter.state.value, "Rate:", round(limiter.current_rate, 1))
+    print(
+        "  Health=0.2 →", limiter.state.value,
+        "Rate:", round(limiter.current_rate, 1),
+    )
 
     # Provider down
     limiter.update_health(0.0)
-    print("  Health=0.0 →", limiter.state.value, "Rate:", round(limiter.current_rate, 1))
+    print(
+        "  Health=0.0 →", limiter.state.value,
+        "Rate:", round(limiter.current_rate, 1),
+    )
 
     limiter.reset()
     print("  After reset →", limiter.state.value, "Rate:", limiter.current_rate)
@@ -80,12 +89,15 @@ def quota_manager_example() -> None:
     # Check burst capacity
     for i in range(6):
         burst = qm.allocate_burst("openai", "project-alpha")
-        print(f"  Burst request {i+1}: {'ALLOWED' if burst else 'DENIED (burst exhausted)'}")
+        print(
+            f"  Burst request {i+1}: "
+            f"{'ALLOWED' if burst else 'DENIED (burst exhausted)'}",
+        )
 
     # Cost-aware allocation
     alloc = qm.cost_aware_allocation("openai", "project-alpha", 10_000)
-    print(f"\n  Cost-aware allocation:")
-    print(f"    Requested: 10,000 tokens")
+    print("\n  Cost-aware allocation:")
+    print("    Requested: 10,000 tokens")
     print(f"    Allocated: {alloc.allocated_tokens:.0f} tokens")
     print(f"    Estimated cost: ${alloc.estimated_cost:.4f}")
     print(f"    Remaining budget: ${alloc.remaining_budget:.2f}")
@@ -94,7 +106,7 @@ def quota_manager_example() -> None:
     qm.record_usage("openai", "project-alpha", tokens=10_000, cost=0.10)
     usage = qm.get_usage("openai", "project-alpha")
     if usage:
-        print(f"\n  Usage snapshot:")
+        print("\n  Usage snapshot:")
         print(f"    Tokens today: {usage.tokens_used_today:.0f}")
         print(f"    Cost today: ${usage.cost_today:.4f}")
         print(f"    Requests today: {usage.requests_today}")

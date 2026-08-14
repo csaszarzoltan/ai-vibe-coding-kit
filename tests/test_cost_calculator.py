@@ -201,7 +201,7 @@ class TestCostCalculatorBehavioral:
             assert "provider" in r
             assert "model" in r
             assert "value_score" in r
-            assert isinstance(r.get("value_score", -1), (int, float))
+            assert isinstance(r.get("value_score", -1), int | float)
             assert 0 <= r.get("value_score", -1) <= 10
 
     def test_recommend_for_task_unknown_type(self) -> None:

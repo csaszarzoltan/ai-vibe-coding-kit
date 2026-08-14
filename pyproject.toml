@@ -61,3 +61,6 @@ markers = [
 
 [tool.setuptools.package-data]
 ai_vibe_coding = ["static/*.html", "static/*.js", "static/*.css"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ai_vibe_coding", "examples"]

@@ -333,7 +333,7 @@ class RedisBackend(StorageBackend):
         ):
             raise ValueError("ttl_seconds must be None or an int >= 1")
         if (
-            not isinstance(importance, (int, float))
+            not isinstance(importance, int | float)
             or isinstance(importance, bool)
             or not 0.0 <= importance <= 1.0
         ):
@@ -424,7 +424,7 @@ class RedisBackend(StorageBackend):
             limit = 5
         limit = max(1, min(limit, 50))
         if (
-            not isinstance(min_score, (int, float))
+            not isinstance(min_score, int | float)
             or isinstance(min_score, bool)
             or not -1.0 <= min_score <= 1.0
         ):
@@ -936,7 +936,7 @@ class MemoryStore:
         ):
             raise ValueError("ttl_seconds must be None or an int >= 1")
         if (
-            not isinstance(importance, (int, float))
+            not isinstance(importance, int | float)
             or isinstance(importance, bool)
             or not 0.0 <= importance <= 1.0
         ):
@@ -1024,7 +1024,7 @@ class MemoryStore:
             limit = 5
         limit = max(1, min(limit, 50))
         if (
-            not isinstance(min_score, (int, float))
+            not isinstance(min_score, int | float)
             or isinstance(min_score, bool)
             or not -1.0 <= min_score <= 1.0
         ):

@@ -731,7 +731,7 @@ class ChainRunner:
             TypeError: If chain is a string or other clearly invalid type.
         """
         # Strings and bytes are clearly invalid — raise
-        if isinstance(chain, (str, bytes)):
+        if isinstance(chain, str | bytes):
             raise TypeError("chain must be a Chain instance, not a string")
 
         if isinstance(chain, self.VALID_CHAIN_TYPES):

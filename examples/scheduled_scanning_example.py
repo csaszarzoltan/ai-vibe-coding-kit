@@ -6,18 +6,15 @@ detection, SLA compliance checking, and the scheduler.
 
 from __future__ import annotations
 
-import time
-from typing import Any
-
 from ai_vibe_coding.scheduled_scanning import (
     AlertLevel,
     CostAnomalyDetector,
     DriftDetector,
     PromptRegressionTester,
-    SLAChecker,
     ScanResult,
     ScanType,
     Scheduler,
+    SLAChecker,
 )
 
 
@@ -180,7 +177,7 @@ def integration_with_cost_calculator() -> None:
     current_cost = calculate_cost(2_500_000, 1_000_000, "openai", "gpt-4")
     detector.record_daily_cost("openai", current_cost)
     report = detector.check("openai")
-    print(f"\n  Cost anomaly for openai:")
+    print("\n  Cost anomaly for openai:")
     print(f"    Baseline: ${report.baseline_daily_cost:.4f}/day")
     print(f"    Current:  ${report.current_daily_cost:.4f}/day")
     print(f"    Ratio:    {report.deviation_ratio:.2f}x")

@@ -28,7 +28,11 @@ tools = [
             "type": "object",
             "properties": {
                 "city": {"type": "string", "description": "City name"},
-                "unit": {"type": "string", "description": "Temperature unit", "default": "celsius"},
+                "unit": {
+                    "type": "string",
+                    "description": "Temperature unit",
+                    "default": "celsius",
+                },
             },
             "required": ["city"],
         },
@@ -40,7 +44,11 @@ tools = [
             "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "Search query"},
-                "max_results": {"type": "integer", "description": "Maximum results to return", "default": 5},
+                "max_results": {
+                    "type": "integer",
+                    "description": "Maximum results to return",
+                    "default": 5,
+                },
             },
             "required": ["query"],
         },
@@ -51,7 +59,10 @@ tools = [
         parameters={
             "type": "object",
             "properties": {
-                "code": {"type": "string", "description": "Python code to execute"},
+                "code": {
+                    "type": "string",
+                    "description": "Python code to execute",
+                },
             },
             "required": ["code"],
         },
@@ -65,7 +76,9 @@ client = LLMClient(provider="openai", model="gpt-4")
 server = client.to_mcp_server(
     tools,
     name="ai-vibe-coding-demo",
-    instructions="Demo MCP server with weather, web search, and Python execution tools.",
+    instructions=(
+        "Demo MCP server with weather, web search, and Python execution tools."
+    ),
 )
 
 if __name__ == "__main__":

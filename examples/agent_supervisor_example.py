@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import os
 
-from ai_vibe_coding.agent_team import AgentConfig, AgentTeamResult
+from ai_vibe_coding.agent_team import AgentConfig
 from ai_vibe_coding.agent_templates import AgentSupervisor
 from ai_vibe_coding.llm_wrapper import LLMClient
 
